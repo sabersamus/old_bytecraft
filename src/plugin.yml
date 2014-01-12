@@ -1,0 +1,116 @@
+name: Bytecraft
+author: Sabersamus
+main: info.bytecraft.Bytecraft
+description: The plugin for Bytecraft
+website: http://bytecraft.freeforums.org/
+version: 0.2
+commands:
+    ban:
+        description: Ban a player
+        usage: /<command> <player>
+    bless:
+        description: Bless a block for a player
+        usage: /<command> <player>
+    channel:
+        description: Change your chat channel
+        usage: /<command> <channel>
+    clear:
+        description: Clear your inventory
+        usage: /<command>
+    creative:
+        description: Change your gamemode to creative
+        usage: /<command>
+    fill:
+        description: Fill some blocks
+        usage: /<command> <material>
+    force:
+        description: Force a player into a channel
+        usage: /<command> <player> <channel> 
+    gamemode:
+        description: Change your gamemode
+        usage: /<command> [creative|survival]
+        aliases: [gm]
+    give:
+        description: Give another player an item
+        usage: /<command> <player> <id|name> <amount> <data>
+    god:
+        description: Send a message as the default red god
+        usage: /<command> <message>
+    home:
+        description: Manage your home
+        usage: /<command> [save]
+    inv:
+        description: View another players inventory
+        usage: /<command> <player>
+    item:
+        description: Give yourself an item
+        usage: /<command> <id|name> <amount> <data>
+        aliases: [i]
+    kick:
+        description: Kick a player
+        usage: /<command> <player>
+    kill:
+        description: Kill yourself
+        usage: /<command>
+    makewarp:
+        description: Make a new warp
+        usage: /<command> <name>
+    me:
+        description: Send a message in third person
+        usage: /<command> <message>
+    message:
+        description: Send a message to another player
+        usage: /<command> <player> <message>
+        aliases: [m, to]
+    say:
+        description: Send a message as god
+        usage: /<command> <message>
+    summon:
+        description: Summon a player to your location
+        usage: /<command> <player>
+        aliases: [s, tphere]
+    spawn:
+        description: Teleport to spawn
+        usage: /<command>
+    survival:
+        description: Change your gamemode to survival
+        usage: /<command>
+    time:
+        description: Change your personal time
+        usage: /<command> [day|night|normal]
+    tpblock:
+        description: Manage your teleport block
+        usage: /<command> <on|off|status>
+    teleport:
+        description: Teleport to a player
+        usage: /<command> <player>
+        aliases: [tp, tele]
+    tppos:
+        description: Teleport to co-ordinates
+        usage: /<command> x y z
+    user:
+        description: Manage players permissions
+        usage: /<command> make <setter|warned|hardwarned> <player>
+    vanish:
+        description: Vanish
+        usage: /<command>
+        aliases: [v]
+    wallet:
+        description: Manage your wallet
+        usage: /<command> <balance>
+    warn:
+        description: Warn a player
+        usage: /<command> <player> [hard]
+    warp:
+        description: Warp to a far away land
+        usage: /<command> city
+    who:
+        description: See who's online
+        usage: /<command>
+        aliases: [list]
+    zone:
+        description: Manage zones
+        usage: |
+            /<command> create <name>
+            /<command> <pvp|hostile|build|whitelist> <name> <true|false>
+            /<command> <entermsg|exitmsg> <name> <message>
