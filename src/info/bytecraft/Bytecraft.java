@@ -3,15 +3,15 @@ package info.bytecraft;
 import info.bytecraft.api.*;
 import info.bytecraft.commands.*;
 import info.bytecraft.database.*;
+import info.bytecraft.database.db.DBContextFactory;
 import info.bytecraft.listener.*;
 
-import java.math.BigDecimal;
 import java.sql.*;
 import java.util.*;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -21,15 +21,22 @@ import com.google.common.collect.Maps;
 public class Bytecraft extends JavaPlugin
 {
     private HashMap<String, BytecraftPlayer> players;
+    private IContextFactory contextFactory;
+    
+    public void onLoad()
+    {
+        reloadConfig();
+        
+        FileConfiguration config = getConfig();
+        
+        contextFactory = new DBContextFactory(config);
+    }
 
-    // private List<Bank> banks;
     public void onEnable()
     {
         Connection conn = null;
         try {
             conn = ConnectionPool.getConnection();
-            // DBBankDAO dbBank = new DBBankDAO(conn);
-            // banks = dbBank.getBanks();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         } finally {
@@ -85,6 +92,17 @@ public class Bytecraft extends JavaPlugin
         getCommand("who").setExecutor(new WhoCommand(this));
         getCommand("zone").setExecutor(new ZoneCommand(this));
     }
+    
+    public IContextFactory getContextFactory()
+    {
+        return contextFactory;
+    }
+    
+    public IContext createContext()
+    throws DAOException
+    {
+        return contextFactory.createContext();
+    }
 
     private void registerEvents()
     {
@@ -97,6 +115,19 @@ public class Bytecraft extends JavaPlugin
         pm.registerEvents(new PlayerPromotionListener(this), this);
         pm.registerEvents(new SelectListener(this), this);
         pm.registerEvents(new ZoneListener(this), this);
+    }
+    
+    // ========================================================
+    // Player
+    // ========================================================
+    
+    public void reloadPlayer(BytecraftPlayer player)
+    {
+        try{
+            addPlayer(player.getDelegate());
+        }catch(PlayerBannedException e){
+            player.kickPlayer(e.getMessage());
+        }
     }
 
     public BytecraftPlayer getPlayer(Player player)
@@ -122,19 +153,8 @@ public class Bytecraft extends JavaPlugin
         if(this.players.containsKey(name)){
             return players.get(name);
         }
-        Connection conn = null;
-        try{
-            conn = ConnectionPool.getConnection();
-            return (new DBPlayerDAO(conn)).getPlayer(name);
-        }catch(SQLException e){
-            throw new RuntimeException(e);
-        }finally{
-            if(conn != null){
-                try {
-                    conn.close();
-                } catch (SQLException e) {}
-            }
-        }
+        
+        return null;
     }
 
     public BytecraftPlayer addPlayer(Player srcPlayer)
@@ -143,56 +163,12 @@ public class Bytecraft extends JavaPlugin
         if (players.containsKey(srcPlayer.getName())) {
             return players.get(srcPlayer.getName());
         }
-
-        Connection conn = null;
-        try {
-            conn = ConnectionPool.getConnection();
-
-            DBPlayerDAO playerDAO = new DBPlayerDAO(conn);
-            BytecraftPlayer player = playerDAO.getPlayer(srcPlayer.getPlayer());
-
-            if (player == null) {
-                player = playerDAO.createPlayer(srcPlayer);
-            }
-
-            if (playerDAO.isBanned(player)) {
-                throw new PlayerBannedException(ChatColor.RED
-                        + "You are not allowed on this server");
-            }
-
-            players.put(player.getName(), player);
-            player.setDisplayName(player.getRank().getColor()
-                    + player.getName());
-            return player;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                }
-            }
-        }
+        
+        return null;
     }
 
     public void removePlayer(BytecraftPlayer player)
     {
-        Connection conn = null;
-        try {
-            conn = ConnectionPool.getConnection();
-            DBPlayerDAO dbPlayer = new DBPlayerDAO(conn);
-            dbPlayer.updatePlayTime(player);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                }
-            }
-        }
         this.players.remove(player.getName());
     }
 
@@ -205,40 +181,18 @@ public class Bytecraft extends JavaPlugin
         return playersList;
     }
 
+    // ========================================================
+    // Zones
+    // ========================================================
+    
     public List<Zone> getZones(String world)
     {
-        Connection conn = null;
-        try {
-            conn = ConnectionPool.getConnection();
-            return (new DBZoneDAO(conn)).getZones(world);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                }
-            }
-        }
+        return null;
     }
     
     public Zone getZone(String name)
     {
-        Connection conn = null;
-        try {
-            conn = ConnectionPool.getConnection();
-            return (new DBZoneDAO(conn)).getZone(name);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                }
-            }
-        }
+        return null;
     }
 
     public long getValue(Block block)
@@ -268,26 +222,5 @@ public class Bytecraft extends JavaPlugin
             return 1;
         }
     }
-
-    /*
-     * public List<Bank> getBanks() { return banks; }
-     */
-
-    public static long percent(long l, int percentage)
-    {
-        if (percentage > 100 || percentage <= 0) {
-            throw new IllegalArgumentException(
-                    "Percentage can not be greater than 100 or less than 0");
-        }
-        double percent = percentage / 100.0;
-        return (long) (l * percent);
-    }
     
-    public static double round(double value, int places) {
-        if (places < 0) throw new IllegalArgumentException();
-
-        BigDecimal bd = new BigDecimal(value);
-        bd = bd.setScale(places, BigDecimal.ROUND_HALF_UP);
-        return bd.doubleValue();
-    }
 }
