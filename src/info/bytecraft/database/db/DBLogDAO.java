@@ -37,7 +37,7 @@ public class DBLogDAO implements ILogDAO
             String message) throws DAOException
     {
         String sql =
-                "INSERT INTO player_chatlog (player_name chatlog_channel, chatlog_message) VALUES (?, ?, ?)";
+                "INSERT INTO player_chatlog (player_name, chatlog_channel, chatlog_message) VALUES (?, ?, ?)";
         try (PreparedStatement stm = conn.prepareStatement(sql)) {
             stm.setString(1, player.getName());
             stm.setString(2, channel);
