@@ -1,11 +1,9 @@
 package info.bytecraft.blockfill;
 
+import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.database.ConnectionPool;
-import info.bytecraft.database.DBBlessDAO;
+import info.bytecraft.database.*;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.HashMap;
 
 import org.bukkit.Location;
@@ -49,17 +47,13 @@ public class Fill
         int yMin = Math.min(block1.getY(), block2.getY());
         int zMax = Math.max(block1.getZ(), block2.getZ());
         int zMin = Math.min(block1.getZ(), block2.getZ());
-        Connection conn = null;
-        DBBlessDAO dbBless = null;
-        try {
-            conn = ConnectionPool.getConnection();
-            dbBless = new DBBlessDAO(conn);
-
+        try (IContext ctx = Bytecraft.createContext()){
+            IBlessDAO dao = ctx.getBlessDAO();
             for (int x = xMin; x <= xMax; x++) {
                 for (int y = yMin; y <= yMax; y++) {
                     for (int z = zMin; z <= zMax; z++) {
                         Location loc = new Location(world, x, y, z);
-                        if (!dbBless.isBlessed(loc.getBlock())) {
+                        if (!dao.isBlessed(loc.getBlock())) {
                             blocks.put(loc, loc.getBlock().getType());
                             world.getBlockAt(loc).setType(material);
                             i++;
@@ -67,15 +61,8 @@ public class Fill
                     }
                 }
             }
-        } catch (SQLException e) {
+        } catch (DAOException e) {
             throw new RuntimeException(e);
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                }
-            }
         }
         return i;
     }
@@ -100,17 +87,13 @@ public class Fill
         int yMin = Math.min(block1.getY(), block2.getY());
         int zMax = Math.max(block1.getZ(), block2.getZ());
         int zMin = Math.min(block1.getZ(), block2.getZ());
-        Connection conn = null;
-        DBBlessDAO dbBless = null;
-        try {
-            conn = ConnectionPool.getConnection();
-            dbBless = new DBBlessDAO(conn);
-
+        try (IContext ctx = Bytecraft.createContext()){
+            IBlessDAO dao = ctx.getBlessDAO();
             for (int x = xMin; x <= xMax; x++) {
                 for (int y = yMin; y <= yMax; y++) {
                     for (int z = zMin; z <= zMax; z++) {
                         Location loc = new Location(world, x, y, z);
-                        if (!dbBless.isBlessed(loc.getBlock())) {
+                        if (!dao.isBlessed(loc.getBlock())) {
                             if (loc.getBlock().getType() == material) {
                                 blocks.put(loc, loc.getBlock().getType());
                                 world.getBlockAt(loc).setType(to);
@@ -120,15 +103,8 @@ public class Fill
                     }
                 }
             }
-        } catch (SQLException e) {
+        } catch (DAOException e) {
             throw new RuntimeException(e);
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                }
-            }
         }
         return i;
     }
