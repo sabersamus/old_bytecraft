@@ -168,6 +168,7 @@ public class ZoneListener implements Listener
     public void onSpawn(CreatureSpawnEvent event)
     {
         Entity ent = event.getEntity();
+		if(plugin.getZones(ent.getWorld().getName()).isEmpty())return;
         for(Zone zone: plugin.getZones(ent.getWorld().getName())){
             if(zone.contains(ent.getLocation())){
                 if(!zone.isHostile()){

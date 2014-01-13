@@ -6,6 +6,7 @@ import info.bytecraft.database.*;
 import info.bytecraft.database.db.DBContextFactory;
 import info.bytecraft.listener.*;
 
+import java.io.File;
 import java.util.*;
 
 import org.bukkit.Bukkit;
@@ -34,6 +35,9 @@ public class Bytecraft extends JavaPlugin
 
     public void onEnable()
     {
+        if(!(new File(this.getDataFolder(), "config.yml").exists())){
+            this.saveDefaultConfig();
+        }
         players = Maps.newHashMap();
         for (Player delegate : Bukkit.getOnlinePlayers()) {
             try {
@@ -137,9 +141,10 @@ public class Bytecraft extends JavaPlugin
         else {
             try {
                 return addPlayer(Bukkit.getPlayer(name));
-            } catch (PlayerBannedException e) {}
+            } catch (PlayerBannedException e) {
+                return null;
+            }
         }
-        return null;
     }
     
     public BytecraftPlayer getPlayerOffline(String name)
@@ -164,9 +169,9 @@ public class Bytecraft extends JavaPlugin
             
             player.setDisplayName(player.getRank().getColor() + player.getName() + ChatColor.WHITE);
             if(player.getName().length() + 4 > 16){
-                player.setPlayerListName(player.getRank() + player.getName().substring(0, 12) + ChatColor.WHITE);
+                player.setPlayerListName(player.getRank().getColor() + player.getName().substring(0, 12) + ChatColor.WHITE);
             }else{
-                player.setPlayerListName(player.getRank() + player.getName() + ChatColor.WHITE);
+                player.setPlayerListName(player.getRank().getColor() + player.getName() + ChatColor.WHITE);
             }
             
             players.put(player.getName(), player);
@@ -196,12 +201,20 @@ public class Bytecraft extends JavaPlugin
     
     public List<Zone> getZones(String world)
     {
-        return null;
+        try(IContext ctx = this.getContext()){
+            return ctx.getZoneDAO().getZones(world);
+        } catch (DAOException e) {
+            throw new RuntimeException(e);
+        }
     }
     
     public Zone getZone(String name)
     {
-        return null;
+        try(IContext ctx = getContext()){
+            return ctx.getZoneDAO().getZone(name);
+        }catch(DAOException e){
+            throw new RuntimeException(e);
+        }
     }
 
     public long getValue(Block block)
