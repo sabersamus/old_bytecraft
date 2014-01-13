@@ -1,14 +1,13 @@
 package info.bytecraft.api;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import org.bukkit.Location;
 
+import info.bytecraft.Bytecraft;
 import info.bytecraft.api.math.Point;
 import info.bytecraft.api.math.Rectangle;
-import info.bytecraft.database.ConnectionPool;
-import info.bytecraft.database.DBZoneDAO;
+import info.bytecraft.database.DAOException;
+import info.bytecraft.database.IContext;
+import info.bytecraft.database.db.DBZoneDAO;
 
 public class Zone
 {
@@ -246,18 +245,10 @@ public class Zone
 
     public Permission getUser(BytecraftPlayer player)
     {
-        Connection conn = null;
-        try{
-            conn = ConnectionPool.getConnection();
-            return (new DBZoneDAO(conn)).getUser(this, player);
-        }catch(SQLException e){
+        try (IContext ctx = Bytecraft.createContext()){
+            return ((DBZoneDAO)ctx.getZoneDAO()).getUser(this, player);
+        }catch(DAOException e){
             throw new RuntimeException(e);
-        }finally{
-            if(conn != null){
-                try {
-                    conn.close();
-                } catch (SQLException e) {}
-            }
         }
     }
     

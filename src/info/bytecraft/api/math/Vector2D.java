@@ -1,4 +1,4 @@
-package info.bytecraft.api.vector;
+package info.bytecraft.api.math;
 
 import org.bukkit.World;
 

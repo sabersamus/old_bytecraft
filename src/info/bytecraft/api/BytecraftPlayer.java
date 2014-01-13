@@ -1,12 +1,13 @@
 package info.bytecraft.api;
 
-import info.bytecraft.api.vector.Vector2D;
+import info.bytecraft.Bytecraft;
+import info.bytecraft.api.math.Vector2D;
 import info.bytecraft.blockfill.Fill;
-import info.bytecraft.database.ConnectionPool;
-import info.bytecraft.database.DBPlayerDAO;
+import info.bytecraft.database.DAOException;
+import info.bytecraft.database.IContext;
+import info.bytecraft.database.IPlayerDAO;
+import info.bytecraft.database.db.DBPlayerDAO;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.Date;
 
 import org.bukkit.Bukkit;
@@ -105,58 +106,30 @@ public class BytecraftPlayer extends PlayerDelegate
 
     public long getBalance()
     {
-        Connection conn = null;
-        try {
-            conn = ConnectionPool.getConnection();
-            DBPlayerDAO dbPlayer = new DBPlayerDAO(conn);
-            return dbPlayer.balance(this);
-        } catch (SQLException e) {
+        try (IContext ctx = Bytecraft.createContext()){
+            IPlayerDAO dao = ctx.getPlayerDAO();
+            return dao.getBalance(this);
+        } catch (DAOException e) {
             throw new RuntimeException(e);
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                }
-            }
         }
     }
     
     public String getFormattedBalance()
     {
-        Connection conn = null;
-        try {
-            conn = ConnectionPool.getConnection();
-            DBPlayerDAO dbPlayer = new DBPlayerDAO(conn);
-            return dbPlayer.formattedBalance(this);
-        } catch (SQLException e) {
+        try (IContext ctx = Bytecraft.createContext()){
+            IPlayerDAO dao = ctx.getPlayerDAO();
+            return ((DBPlayerDAO)dao).formattedBalance(this);
+        } catch (DAOException e) {
             throw new RuntimeException(e);
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                }
-            }
         }
     }
     
     public ChatColor getGodColor(){
-        Connection conn = null;
-        DBPlayerDAO dbPlayer = null;
-        try{
-            conn = ConnectionPool.getConnection();
-            dbPlayer = new DBPlayerDAO(conn);
-            return dbPlayer.getGodColor(this);
-        }catch (SQLException e) {
+        try (IContext ctx = Bytecraft.createContext()){
+            IPlayerDAO dao = ctx.getPlayerDAO();
+            return dao.getGodColor(this);
+        }catch (DAOException e) {
             throw new RuntimeException(e);
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                }
-            }
         }
     }
     
@@ -324,37 +297,21 @@ public class BytecraftPlayer extends PlayerDelegate
     
     public int getPlayTime()
     {
-        Connection conn = null;
-        try{
-            conn = ConnectionPool.getConnection();
-            DBPlayerDAO dbPlayer = new DBPlayerDAO(conn);
-            return dbPlayer.getPlayTime(this);
-        }catch(SQLException e){
+        try (IContext ctx = Bytecraft.createContext()){
+            IPlayerDAO dao = ctx.getPlayerDAO();
+            return dao.getPlayTime(this);
+        }catch(DAOException e){
             throw new RuntimeException(e);
-        }finally{
-            if(conn != null){
-                try{
-                    conn.close();
-                }catch(SQLException e){}
-            }
         }
     }
     
     public long getPromotedTime()
     {
-        Connection conn = null;
-        try{
-            conn = ConnectionPool.getConnection();
-            DBPlayerDAO dbPlayer = new DBPlayerDAO(conn);
-            return dbPlayer.getPromotedLong(this);
-        }catch(SQLException e){
+        try (IContext ctx = Bytecraft.createContext()){
+            IPlayerDAO dao = ctx.getPlayerDAO();
+            return dao.getPromotedTime(this);
+        }catch(DAOException e){
             throw new RuntimeException(e);
-        }finally{
-            if(conn != null){
-                try{
-                    conn.close();
-                }catch(SQLException e){}
-            }
         }
     }
     
