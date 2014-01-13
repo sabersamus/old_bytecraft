@@ -76,7 +76,7 @@ public class DBPlayerDAO implements IPlayerDAO
 
             try (ResultSet rs = stm.getResultSet()) {
                 if (!rs.next()) {
-                    return null;
+                    return createPlayer(wrap);
                 }
 
                 player.setId(rs.getInt("player_id"));
@@ -91,6 +91,8 @@ public class DBPlayerDAO implements IPlayerDAO
 
     public void loadSettings(BytecraftPlayer player) throws DAOException
     {
+        //TODO: Player property all on one line
+        //TODO: Player property by name
         String sql = "SELECT * FROM player_property WHERE player_id = ?";
         try (PreparedStatement stm = conn.prepareStatement(sql)) {
             stm.setInt(1, player.getId());
