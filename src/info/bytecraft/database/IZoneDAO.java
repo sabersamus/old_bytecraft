@@ -21,5 +21,5 @@ public interface IZoneDAO
     public void updateFlag(String zone, Flag flag, String value) throws DAOException;
     public void addUser(Zone zone, String name, Permission perm) throws DAOException;
     public void updateUser(Zone zone, String name, Permission perm) throws DAOException;
-    public void deleteUser(Zone zone, String name) throws DAOException;
+    public boolean deleteUser(Zone zone, String name) throws DAOException;
 }

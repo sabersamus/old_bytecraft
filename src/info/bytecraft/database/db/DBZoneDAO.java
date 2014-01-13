@@ -261,7 +261,7 @@ public class DBZoneDAO implements IZoneDAO
         }
     }
     
-    public void deleteUser(Zone zone, String name)
+    public boolean deleteUser(Zone zone, String name)
     throws DAOException
     {
         String sql = "DELETE FROM zone_user WHERE zone_name = ? AND player_name = ?";
@@ -272,5 +272,6 @@ public class DBZoneDAO implements IZoneDAO
         }catch(SQLException e){
             throw new DAOException(sql, e);
         }
+        return true;
     }
 }
