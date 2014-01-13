@@ -1,15 +1,14 @@
 package info.bytecraft.listener;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.api.Notification;
-import info.bytecraft.database.ConnectionPool;
-import info.bytecraft.database.DBBlessDAO;
+import info.bytecraft.database.DAOException;
+import info.bytecraft.database.IBlessDAO;
+import info.bytecraft.database.IContext;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -66,11 +65,9 @@ public class BlessListener implements Listener
                 return;
             }
 
-            Connection conn = null;
-            try {
-                conn = ConnectionPool.getConnection();
-                DBBlessDAO dbBless = new DBBlessDAO(conn);
-                dbBless.bless(event.getClickedBlock(), target);
+            try (IContext ctx = Bytecraft.createContext()){
+                IBlessDAO dao = ctx.getBlessDAO();
+                dao.bless(event.getClickedBlock(), target);
                 target.sendMessage(ChatColor.AQUA
                         + "Your god has blessed a block in your name!");
                 target.sendNotification(Notification.BLESS);
@@ -78,15 +75,8 @@ public class BlessListener implements Listener
                         + "You have blessed a block for "
                         + target.getDisplayName());
                 player.setBlessTarget(null);
-            } catch (SQLException e) {
+            } catch (DAOException e) {
                 throw new RuntimeException(e);
-            } finally {
-                if (conn != null) {
-                    try {
-                        conn.close();
-                    } catch (SQLException e) {
-                    }
-                }
             }
             event.setCancelled(true);
             return;
@@ -94,17 +84,15 @@ public class BlessListener implements Listener
         else {
             if (event.getAction() == Action.LEFT_CLICK_BLOCK
                     || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-                Connection conn = null;
-                try {
-                    conn = ConnectionPool.getConnection();
-                    DBBlessDAO dbBless = new DBBlessDAO(conn);
+                try (IContext ctx = Bytecraft.createContext();){
+                    IBlessDAO dao = ctx.getBlessDAO();
 
-                    if (dbBless.isBlessed(event.getClickedBlock())) {
+                    if (dao.isBlessed(event.getClickedBlock())) {
                         if (!player.getName().equalsIgnoreCase(
-                                dbBless.getOwner(event.getClickedBlock()))) {
+                                dao.getOwner(event.getClickedBlock()))) {
                             player.sendMessage(ChatColor.RED + "Blessed to: "
                                     + ChatColor.AQUA
-                                    + dbBless.getOwner(event.getClickedBlock()));
+                                    + dao.getOwner(event.getClickedBlock()));
                             if (!player.isAdmin()) {
                                 event.setCancelled(true);
                                 return;
@@ -115,15 +103,8 @@ public class BlessListener implements Listener
                                     + "Blessed to you");
                         }
                     }
-                } catch (SQLException e) {
+                } catch (DAOException e) {
                     throw new RuntimeException(e);
-                } finally {
-                    if (conn != null) {
-                        try {
-                            conn.close();
-                        } catch (SQLException e) {
-                        }
-                    }
                 }
             }
         }

@@ -1,7 +1,5 @@
 package info.bytecraft.listener;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.HashMap;
 
 import info.bytecraft.Bytecraft;
@@ -9,8 +7,9 @@ import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.api.PaperLog;
 import info.bytecraft.api.PlayerBannedException;
 import info.bytecraft.api.Rank;
-import info.bytecraft.database.ConnectionPool;
-import info.bytecraft.database.DBLogDAO;
+import info.bytecraft.database.DAOException;
+import info.bytecraft.database.IContext;
+import info.bytecraft.database.ILogDAO;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -210,26 +209,17 @@ public class BytecraftPlayerListener implements Listener
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK)
             return;
         Block block = event.getClickedBlock();
-        Connection conn = null;
-        try {
-            conn = ConnectionPool.getConnection();
-            DBLogDAO dbLog = new DBLogDAO(conn);
-            for (PaperLog log : dbLog.getLogs(block)) {
+        try (IContext ctx = Bytecraft.createContext()){
+            ILogDAO dao = ctx.getLogDAO();
+            for (PaperLog log : dao.getLogs(block)) {
                 player.sendMessage(ChatColor.GREEN + log.getPlayerName() + " "
                         + ChatColor.AQUA + log.getAction() + " "
                         + log.getMaterial() + ChatColor.GREEN +  " at " + log.getDate());
             }
             event.setCancelled(true);
             return;
-        } catch (SQLException e) {
+        } catch (DAOException e) {
             throw new RuntimeException(e);
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                }
-            }
         }
     }
 }

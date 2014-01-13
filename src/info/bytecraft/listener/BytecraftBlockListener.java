@@ -1,13 +1,8 @@
 package info.bytecraft.listener;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.database.ConnectionPool;
-import info.bytecraft.database.DBLogDAO;
-import info.bytecraft.database.DBPlayerDAO;
+import info.bytecraft.database.*;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Creeper;
@@ -36,27 +31,16 @@ public class BytecraftBlockListener implements Listener
             return;
         }
         Location loc = event.getBlock().getLocation();
-        Connection conn = null;
-        DBLogDAO dbLog = null;
-        DBPlayerDAO dbPlayer = null;
-        try {
-            conn = ConnectionPool.getConnection();
-            dbLog = new DBLogDAO(conn);
-            dbPlayer = new DBPlayerDAO(conn);
+        try (IContext ctx = Bytecraft.createContext()){
+            ILogDAO dbLog = ctx.getLogDAO();
+            IPlayerDAO dbPlayer = ctx.getPlayerDAO();
             if(dbLog.isLegal(event.getBlock())){
                 dbPlayer.give(player, plugin.getValue(event.getBlock()));
             }
             dbLog.insertPaperLog(player, loc, event.getBlock().getType(),
                     "broke");
-        } catch (SQLException e) {
+        } catch (DAOException e) {
             throw new RuntimeException(e);
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                }
-            }
         }
     }
 
@@ -69,22 +53,12 @@ public class BytecraftBlockListener implements Listener
             return;
         }
         Location loc = event.getBlock().getLocation();
-        Connection conn = null;
-        DBLogDAO dbLog = null;
-        try {
-            conn = ConnectionPool.getConnection();
-            dbLog = new DBLogDAO(conn);
-            dbLog.insertPaperLog(player, loc, event.getBlock().getType(),
+        try (IContext ctx = Bytecraft.createContext()){
+            ILogDAO dao = ctx.getLogDAO();
+            dao.insertPaperLog(player, loc, event.getBlock().getType(),
                     "placed");
-        } catch (SQLException e) {
+        } catch (DAOException e) {
             throw new RuntimeException(e);
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                }
-            }
         }
     }
     
