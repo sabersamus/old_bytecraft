@@ -1,0 +1,9 @@
+db:
+    user: root
+    password: password
+    url: jdbc:mysql://localhost:3306/bytecraft?autoReconnect=true
+support:
+    user: bytecraft.staff@gmail.com
+    password: notinherelololol
+    to: 
+        - sabersamus@gmail.com
