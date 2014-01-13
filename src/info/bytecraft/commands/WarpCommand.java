@@ -1,16 +1,14 @@
 package info.bytecraft.commands;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.database.ConnectionPool;
-import info.bytecraft.database.DBWarpDAO;
+import info.bytecraft.database.DAOException;
+import info.bytecraft.database.IContext;
+import info.bytecraft.database.IWarpDAO;
 
 public class WarpCommand extends AbstractCommand
 {
@@ -45,23 +43,15 @@ public class WarpCommand extends AbstractCommand
     {
         if (args.length != 1)return true;
         String warp = args[0];
-        Connection conn = null;
-        try {
-            conn = ConnectionPool.getConnection();
-            DBWarpDAO dbWarp = new DBWarpDAO(conn);
-            Location loc = dbWarp.getWarp(warp, plugin.getServer());
+        try (IContext ctx = Bytecraft.createContext()){
+            IWarpDAO dao = ctx.getWarpDAO();
+            Location loc = dao.getWarp(warp);
             if (loc != null) {
                 Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new WarpTask(player, loc, warp), 20 * 3L);
                 player.sendMessage(ChatColor.AQUA + "Teleporting to " + ChatColor.GOLD + warp + ChatColor.AQUA + " please wait...");
             }
-        } catch (SQLException e) {
+        } catch (DAOException e) {
             throw new RuntimeException(e);
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {}
-            }
         }
 
         return true;

@@ -1,8 +1,5 @@
 package info.bytecraft.commands;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import org.bukkit.ChatColor;
 
 import info.bytecraft.Bytecraft;
@@ -10,8 +7,9 @@ import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.api.Zone;
 import info.bytecraft.api.Zone.Flag;
 import info.bytecraft.api.Zone.Permission;
-import info.bytecraft.database.ConnectionPool;
-import info.bytecraft.database.DBZoneDAO;
+import info.bytecraft.database.DAOException;
+import info.bytecraft.database.IContext;
+import info.bytecraft.database.IZoneDAO;
 
 public class ZoneCommand extends AbstractCommand
 {
@@ -115,7 +113,6 @@ public class ZoneCommand extends AbstractCommand
             player.sendMessage(ChatColor.RED + "Zone " + name + " already exists");
             return false;
         }
-        Connection conn = null;//name, world 
         Zone zone = new Zone(name);
         zone.setWorld(player.getWorld().getName());
         for(Zone other: plugin.getZones(player.getWorld().getName())){
@@ -124,37 +121,22 @@ public class ZoneCommand extends AbstractCommand
                 return false;
             }
         }
-        try{
-            conn = ConnectionPool.getConnection();
-            DBZoneDAO dbZone = new DBZoneDAO(conn);
-            dbZone.createZone(zone, player);
-        }catch(SQLException e){
+        try (IContext ctx = Bytecraft.createContext()){
+            IZoneDAO dao = ctx.getZoneDAO();
+            dao.createZone(zone, player);
+        }catch(DAOException e){
             throw new RuntimeException(e);
-        }finally{
-            if(conn != null){
-                try {
-                    conn.close();
-                } catch (SQLException e) {}
-            }
         }
         return true;
     }
     
     private boolean deleteZone(String name)
     {
-        Connection conn = null;//name, world 
-        try{
-            conn = ConnectionPool.getConnection();
-            DBZoneDAO dbZone = new DBZoneDAO(conn);
-            dbZone.deleteZone(name);
-        }catch(SQLException e){
+        try (IContext ctx = Bytecraft.createContext()){
+            IZoneDAO dao = ctx.getZoneDAO();
+            dao.deleteZone(name);
+        }catch(DAOException e){
             throw new RuntimeException(e);
-        }finally{
-            if(conn != null){
-                try {
-                    conn.close();
-                } catch (SQLException e) {}
-            }
         }
         return true;
     }
@@ -166,28 +148,18 @@ public class ZoneCommand extends AbstractCommand
     
     private void changeSetting(String zone, Flag flag, String value)
     {
-        Connection conn = null;
-        try{
-            conn = ConnectionPool.getConnection();
-            DBZoneDAO dbZone = new DBZoneDAO(conn);
-            dbZone.updateFlag(zone, flag, value);
-        }catch(SQLException e){
+        try (IContext ctx = Bytecraft.createContext()){
+            IZoneDAO dao = ctx.getZoneDAO();
+            dao.updateFlag(zone, flag, value);
+        }catch(DAOException e){
             throw new RuntimeException(e);
-        }finally{
-            if(conn != null){
-                try {
-                    conn.close();
-                } catch (SQLException e) {}
-            }
         }
     }
     
     private void addUser(Zone zone, String target, Permission p, BytecraftPlayer player)
     {
-        Connection conn = null;
-        try{
-            conn = ConnectionPool.getConnection();
-            DBZoneDAO dbZone = new DBZoneDAO(conn);
+        try (IContext ctx = Bytecraft.createContext()){
+            IZoneDAO dao = ctx.getZoneDAO();
             
             BytecraftPlayer victim = plugin.getPlayerOffline(target);
             
@@ -201,24 +173,16 @@ public class ZoneCommand extends AbstractCommand
                 player2.sendMessage(ChatColor.RED + "[" + zone.getName() + "] " + String.format(addNotif, zone.getName()));
             }
             
-            dbZone.addUser(zone, target, p);
-        }catch(SQLException e){
+            dao.addUser(zone, target, p);
+        }catch(DAOException e){
             throw new RuntimeException(e);
-        }finally{
-            if(conn != null){
-                try {
-                    conn.close();
-                } catch (SQLException e) {}
-            }
         }
     }
     
     private boolean delUser(Zone zone, String name, BytecraftPlayer deleter)
     {
-        Connection conn = null;
-        try{
-            conn = ConnectionPool.getConnection();
-            DBZoneDAO dbZone = new DBZoneDAO(conn);
+        try (IContext ctx = Bytecraft.createContext()){
+            IZoneDAO dao = ctx.getZoneDAO();
             BytecraftPlayer target = plugin.getPlayerOffline(name);
             if(target == null){
               deleter.sendMessage(ChatColor.RED + "Could not find user.");
@@ -237,15 +201,9 @@ public class ZoneCommand extends AbstractCommand
                 String delNotif = p.getDelNotif();
                 player2.sendMessage(ChatColor.RED + "[" + zone.getName() + "] " + String.format(delNotif, zone.getName()));
             }
-            return dbZone.delUser(zone, name);
-        }catch(SQLException e){
+            return dao.deleteUser(zone, name);
+        }catch(DAOException e){
             throw new RuntimeException(e);
-        }finally{
-            if(conn != null){
-                try {
-                    conn.close();
-                } catch (SQLException e) {}
-            }
         }
     }
 }

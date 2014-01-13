@@ -1,8 +1,5 @@
 package info.bytecraft.commands;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 
@@ -10,8 +7,9 @@ import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.blockfill.Fill;
 import info.bytecraft.blockfill.Fill.Action;
-import info.bytecraft.database.ConnectionPool;
-import info.bytecraft.database.DBLogDAO;
+import info.bytecraft.database.DAOException;
+import info.bytecraft.database.IContext;
+import info.bytecraft.database.ILogDAO;
 
 @SuppressWarnings("deprecation")
 public class FillCommand extends AbstractCommand
@@ -37,20 +35,11 @@ public class FillCommand extends AbstractCommand
                         player.sendMessage(ChatColor.YELLOW
                                 + "You undid your last fill: Total volume "
                                 + ChatColor.GOLD + player.getLastFill().undo());
-                        Connection conn = null;
-                        DBLogDAO dbLog = null;
-                        try{
-                            conn = ConnectionPool.getConnection();
-                            dbLog = new DBLogDAO(conn);
-                            dbLog.insertFillLog(player, player.getLastFill(), player.getLastFill().getMaterial(), Action.UNDO);
-                        }catch(SQLException e){
+                        try (IContext ctx = Bytecraft.createContext()){
+                            ILogDAO dao = ctx.getLogDAO();
+                            dao.insertFillLog(player, player.getLastFill(), player.getLastFill().getMaterial(), Action.UNDO);
+                        }catch(DAOException e){
                             throw new RuntimeException(e);
-                        }finally{
-                            if(conn != null){
-                                try{
-                                    conn.close();
-                                }catch(SQLException e){}
-                            }
                         }
                     }
                 }
@@ -75,20 +64,11 @@ public class FillCommand extends AbstractCommand
                                     + " blocks to "
                                     + mat.name().toLowerCase()
                                             .replace("_", " "));
-                            Connection conn = null;
-                            DBLogDAO dbLog = null;
-                            try{
-                                conn = ConnectionPool.getConnection();
-                                dbLog = new DBLogDAO(conn);
-                                dbLog.insertFillLog(player, player.getLastFill(), mat, Action.FILL);
-                            }catch(SQLException e){
+                            try (IContext ctx = Bytecraft.createContext()){
+                                ILogDAO dao = ctx.getLogDAO();
+                                dao.insertFillLog(player, player.getLastFill(), mat, Action.FILL);
+                            }catch(DAOException e){
                                 throw new RuntimeException(e);
-                            }finally{
-                                if(conn != null){
-                                    try{
-                                        conn.close();
-                                    }catch(SQLException e){}
-                                }
                             }
                         }
                     }
@@ -116,20 +96,11 @@ public class FillCommand extends AbstractCommand
                                 + "You replaced " + fill.replace(to)
                                 + " blocks to "
                                 + to.name().toLowerCase().replace("_", " "));
-                        Connection conn = null;
-                        DBLogDAO dbLog = null;
-                        try{
-                            conn = ConnectionPool.getConnection();
-                            dbLog = new DBLogDAO(conn);
-                            dbLog.insertFillLog(player, player.getLastFill(), to, Action.REPLACE);
-                        }catch(SQLException e){
+                        try (IContext ctx = Bytecraft.createContext()){
+                            ILogDAO dao = ctx.getLogDAO();
+                            dao.insertFillLog(player, player.getLastFill(), to, Action.REPLACE);
+                        }catch(DAOException e){
                             throw new RuntimeException(e);
-                        }finally{
-                            if(conn != null){
-                                try{
-                                    conn.close();
-                                }catch(SQLException e){}
-                            }
                         }
                     }
                 }

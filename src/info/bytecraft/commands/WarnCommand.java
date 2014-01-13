@@ -1,7 +1,5 @@
 package info.bytecraft.commands;
 
-import java.sql.*;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Server;
@@ -10,8 +8,9 @@ import org.bukkit.entity.Player;
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.api.Rank;
-import info.bytecraft.database.ConnectionPool;
-import info.bytecraft.database.DBPlayerDAO;
+import info.bytecraft.database.DAOException;
+import info.bytecraft.database.IContext;
+import info.bytecraft.database.IPlayerDAO;
 
 public class WarnCommand extends AbstractCommand
 {
@@ -70,20 +69,12 @@ public class WarnCommand extends AbstractCommand
     {
         Rank rank = hard ? Rank.HARD_WARNED : Rank.WARNED;
         player.setRank(rank);
-        Connection conn = null;
-        try{
-            conn = ConnectionPool.getConnection();
-            DBPlayerDAO dbPlayer = new DBPlayerDAO(conn);
-            dbPlayer.updatePlayerPermissions(player);
+        try (IContext ctx = Bytecraft.createContext()){
+            IPlayerDAO dao = ctx.getPlayerDAO();
+            dao.updatePermissions(player);
             player.sendMessage(ChatColor.RED + "You have been demoted to " + ChatColor.GRAY + rank.toString());
-        }catch(SQLException e){
+        }catch(DAOException e){
             throw new RuntimeException(e);
-        }finally{
-            if(conn != null){
-                try {
-                    conn.close();
-                } catch (SQLException e) {}
-            }
         }
     }
 }

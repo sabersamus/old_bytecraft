@@ -1,15 +1,13 @@
 package info.bytecraft.commands;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.database.ConnectionPool;
-import info.bytecraft.database.DBWarpDAO;
+import info.bytecraft.database.DAOException;
+import info.bytecraft.database.IContext;
+import info.bytecraft.database.IWarpDAO;
 
 public class WarpCreateCommand extends AbstractCommand
 {
@@ -28,24 +26,15 @@ public class WarpCreateCommand extends AbstractCommand
 
         String name = args[0];
 
-        Connection conn = null;
-        try {
-            conn = ConnectionPool.getConnection();
-            DBWarpDAO dbWarp = new DBWarpDAO(conn);
+        try (IContext ctx = Bytecraft.createContext()){
+            IWarpDAO dao = ctx.getWarpDAO();
             Location l = player.getLocation();
-            dbWarp.createWarp(name, l);
+            dao.createWarp(name, l);
             player.sendMessage(ChatColor.LIGHT_PURPLE + "Created warp: "
                     + ChatColor.GREEN + name + ChatColor.WHITE + " at "
                     + ChatColor.GREEN + "[" + l.getBlockX() + ", " + l.getBlockY() + ", " + l.getBlockZ() + "]");
-        } catch (SQLException e) {
+        } catch (DAOException e) {
             throw new RuntimeException(e);
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                }
-            }
         }
         return true;
     }

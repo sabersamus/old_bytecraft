@@ -1,7 +1,5 @@
 package info.bytecraft.commands;
 
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.text.NumberFormat;
 
 import org.bukkit.Bukkit;
@@ -10,9 +8,10 @@ import org.bukkit.entity.Player;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.database.ConnectionPool;
-import info.bytecraft.database.DBLogDAO;
-import info.bytecraft.database.DBPlayerDAO;
+import info.bytecraft.database.DAOException;
+import info.bytecraft.database.IContext;
+import info.bytecraft.database.ILogDAO;
+import info.bytecraft.database.IPlayerDAO;
 
 public class WalletCommand extends AbstractCommand
 {
@@ -46,11 +45,9 @@ public class WalletCommand extends AbstractCommand
                     } catch (NumberFormatException e) {
                         return true;
                     }
-                    Connection conn = null;
-                    try {
-                        conn = ConnectionPool.getConnection();
-                        DBPlayerDAO dbPlayer = new DBPlayerDAO(conn);
-                        DBLogDAO dbLog = new DBLogDAO(conn);
+                    try (IContext ctx = Bytecraft.createContext()){
+                        IPlayerDAO dbPlayer = ctx.getPlayerDAO();
+                        ILogDAO dbLog = ctx.getLogDAO();
                         if (amount > 0) {
                             if (dbPlayer.take(player, amount)) {
                                 dbPlayer.give(target, amount);
@@ -67,14 +64,8 @@ public class WalletCommand extends AbstractCommand
                                         amount);
                             }
                         }
-                    } catch (SQLException e) {
+                    } catch (DAOException e) {
                         throw new RuntimeException(e);
-                    } finally {
-                        if (conn != null) {
-                            try {
-                                conn.close();
-                            } catch (SQLException e) {}
-                        }
                     }
                 }
             }
