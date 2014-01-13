@@ -6,10 +6,10 @@ import info.bytecraft.database.*;
 import info.bytecraft.database.db.DBContextFactory;
 import info.bytecraft.listener.*;
 
-import java.sql.*;
 import java.util.*;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -21,7 +21,7 @@ import com.google.common.collect.Maps;
 public class Bytecraft extends JavaPlugin
 {
     private HashMap<String, BytecraftPlayer> players;
-    private IContextFactory contextFactory;
+    private static IContextFactory contextFactory;
     
     public void onLoad()
     {
@@ -34,18 +34,6 @@ public class Bytecraft extends JavaPlugin
 
     public void onEnable()
     {
-        Connection conn = null;
-        try {
-            conn = ConnectionPool.getConnection();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {}
-            }
-        }
         players = Maps.newHashMap();
         for (Player delegate : Bukkit.getOnlinePlayers()) {
             try {
@@ -93,12 +81,18 @@ public class Bytecraft extends JavaPlugin
         getCommand("zone").setExecutor(new ZoneCommand(this));
     }
     
-    public IContextFactory getContextFactory()
+    public static IContextFactory getContextFactory()
     {
         return contextFactory;
     }
     
-    public IContext createContext()
+    public static IContext createContext()
+    throws DAOException
+    {
+        return contextFactory.createContext();
+    }
+    
+    private IContext getContext()
     throws DAOException
     {
         return contextFactory.createContext();
@@ -164,7 +158,22 @@ public class Bytecraft extends JavaPlugin
             return players.get(srcPlayer.getName());
         }
         
-        return null;
+        try (IContext ctx = getContext()){
+            IPlayerDAO dao = ctx.getPlayerDAO();
+            BytecraftPlayer player = dao.getPlayer(srcPlayer);
+            
+            player.setDisplayName(player.getRank().getColor() + player.getName() + ChatColor.WHITE);
+            if(player.getName().length() + 4 > 16){
+                player.setPlayerListName(player.getRank() + player.getName().substring(0, 12) + ChatColor.WHITE);
+            }else{
+                player.setPlayerListName(player.getRank() + player.getName() + ChatColor.WHITE);
+            }
+            
+            players.put(player.getName(), player);
+            return player;
+        }catch(DAOException e){
+            throw new RuntimeException(e);
+        }
     }
 
     public void removePlayer(BytecraftPlayer player)
