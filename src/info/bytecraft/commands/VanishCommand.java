@@ -5,6 +5,7 @@ import org.bukkit.ChatColor;
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.api.Rank;
+import info.bytecraft.api.BytecraftPlayer.Flag;
 import info.bytecraft.database.DAOException;
 import info.bytecraft.database.IContext;
 import info.bytecraft.database.IPlayerDAO;
@@ -24,8 +25,8 @@ public class VanishCommand extends AbstractCommand
                 try (IContext ctx = Bytecraft.createContext()) {
                     IPlayerDAO dao = ctx.getPlayerDAO();
 
-                    if (player.isInvisible()) {
-                        player.setInvisible(false);
+                    if (player.hasFlag(Flag.INVISIBLE)) {
+                        player.removeFlag(Flag.INVISIBLE);
                         for (BytecraftPlayer other : plugin.getOnlinePlayers()) {
                             other.showPlayer(player.getDelegate());
                         }
@@ -33,7 +34,7 @@ public class VanishCommand extends AbstractCommand
                                 + "You have re-appeared");
                     }
                     else {
-                        player.setInvisible(true);
+                        player.setFlag(Flag.INVISIBLE);
                         for (BytecraftPlayer other : plugin.getOnlinePlayers()) {
                             if (other.getRank() == Rank.SENIOR_ADMIN) {
                                 continue;
@@ -44,7 +45,7 @@ public class VanishCommand extends AbstractCommand
                                 + "You have disappeared");
                     }
 
-                    dao.updateInfo(player);
+                    dao.updateProperties(player);
                 } catch (DAOException e) {
                     throw new RuntimeException(e);
                 }
