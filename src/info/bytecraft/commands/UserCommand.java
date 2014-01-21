@@ -61,7 +61,7 @@ public class UserCommand extends AbstractCommand
                             return true;
                         }
 
-                        dao.updateInfo(target);
+                        dao.updateProperties(target);
                         dao.updatePermissions(target);
 
                     } catch (DAOException e) {
@@ -108,7 +108,7 @@ public class UserCommand extends AbstractCommand
                                             + target.getRank().toString());
                         }
 
-                        dao.updateInfo(target);
+                        dao.updateProperties(target);
                         dao.updatePermissions(target);
 
                     } catch (DAOException e) {

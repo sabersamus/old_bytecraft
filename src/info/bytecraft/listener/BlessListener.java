@@ -65,12 +65,11 @@ public class BlessListener implements Listener
                 return;
             }
 
-            try (IContext ctx = Bytecraft.createContext()){
+            try (IContext ctx = Bytecraft.createContext()) {
                 IBlessDAO dao = ctx.getBlessDAO();
                 dao.bless(event.getClickedBlock(), target);
-                target.sendMessage(ChatColor.AQUA
+                target.sendNotification(Notification.BLESS, ChatColor.AQUA
                         + "Your god has blessed a block in your name!");
-                target.sendNotification(Notification.BLESS);
                 player.sendMessage(ChatColor.AQUA
                         + "You have blessed a block for "
                         + target.getDisplayName());
@@ -84,7 +83,7 @@ public class BlessListener implements Listener
         else {
             if (event.getAction() == Action.LEFT_CLICK_BLOCK
                     || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-                try (IContext ctx = Bytecraft.createContext();){
+                try (IContext ctx = Bytecraft.createContext();) {
                     IBlessDAO dao = ctx.getBlessDAO();
 
                     if (dao.isBlessed(event.getClickedBlock())) {

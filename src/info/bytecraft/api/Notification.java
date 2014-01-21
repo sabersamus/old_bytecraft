@@ -13,6 +13,7 @@ public enum Notification {
     BLESS(Sound.ENDERDRAGON_WINGS),
     SERVER_MESSAGE(Sound.AMBIENCE_THUNDER),
     SUMMONED(Sound.ENDERMAN_TELEPORT),
+    RARE_DROP(Sound.ITEM_PICKUP),
     COMMAND_FAIL(Sound.CLICK);
     
     private final Sound sound;
