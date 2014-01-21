@@ -1,24 +1,20 @@
 -- phpMyAdmin SQL Dump
--- version 3.5.1
+-- version 4.0.4
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Aug 09, 2013 at 03:58 AM
--- Server version: 5.5.24-log
--- PHP Version: 5.3.13
+-- Generation Time: Jan 21, 2014 at 09:53 PM
+-- Server version: 5.6.12-log
+-- PHP Version: 5.4.12
 
-SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
-
 --
--- Database: `bytecraft`
+-- Database: `minecraft`
 --
+CREATE DATABASE IF NOT EXISTS `minecraft` DEFAULT CHARACTER SET utf8 COLLATE utf8_bin;
+USE `minecraft`;
 
 -- --------------------------------------------------------
 
@@ -56,7 +52,6 @@ CREATE TABLE IF NOT EXISTS `fill_log` (
 --
 -- Table structure for table `paper_log`
 --
-DROP TABLE IF EXISTS `paper_log`;
 
 CREATE TABLE IF NOT EXISTS `paper_log` (
   `paper_id` int(10) NOT NULL AUTO_INCREMENT,
@@ -82,10 +77,9 @@ CREATE TABLE IF NOT EXISTS `player` (
   `player_name` varchar(46) DEFAULT NULL,
   `player_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `player_wallet` bigint(20) DEFAULT '750',
-  `player_banned` enum('true','false') NOT NULL DEFAULT 'false',
   `player_rank` enum('warned','hard_warned','newcomer','settler','member','mentor','donator','gaurd','builder','admin','senior_admin') NOT NULL DEFAULT 'newcomer',
   `player_promoted` int(10) unsigned DEFAULT NULL,
-  `player_playtime` int(10) unsigned DEFAULT 0,
+  `player_playtime` int(10) unsigned DEFAULT '0',
   UNIQUE KEY `uid` (`player_id`),
   KEY `player` (`player_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
@@ -116,13 +110,13 @@ CREATE TABLE IF NOT EXISTS `player_home` (
   `player_name` varchar(20) NOT NULL,
   `home_x` double DEFAULT NULL,
   `home_y` double DEFAULT NULL,
-  `home_z` double DEFAULT NULL,  
+  `home_z` double DEFAULT NULL,
   `home_yaw` double DEFAULT NULL,
   `home_pitch` double DEFAULT NULL,
   `home_world` varchar(32) DEFAULT NULL,
   PRIMARY KEY (`home_id`),
   KEY `player_name` (`player_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -131,12 +125,31 @@ CREATE TABLE IF NOT EXISTS `player_home` (
 --
 
 CREATE TABLE IF NOT EXISTS `player_property` (
-  `player_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `property_key` varchar(255) NOT NULL DEFAULT '',
-  `property_value` varchar(255) DEFAULT NULL,
-  `property_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`player_id`,`property_key`)
+  `player_name` varchar(255) NOT NULL,
+  `invisible` enum('true','false') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'false',
+  `tpblock` enum('true','false') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'false',
+  `god_color` enum('red','aqua','gold','yellow','dark_aqua','pink','purple','green','dark_green','dark_red','gray') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'red',
+  PRIMARY KEY (`player_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `player_report`
+--
+
+CREATE TABLE IF NOT EXISTS `player_report` (
+  `report_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `subject_id` int(10) unsigned NOT NULL,
+  `issuer_id` int(10) unsigned NOT NULL,
+  `report_action` enum('kick','softwarn','hardwarn','ban','mute','comment') NOT NULL,
+  `report_message` text CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
+  `report_timestamp` int(10) unsigned NOT NULL,
+  `report_validuntil` int(10) unsigned DEFAULT NULL,
+  PRIMARY KEY (`report_id`),
+  KEY `idx_subject` (`subject_id`,`report_timestamp`),
+  KEY `idx_issuer` (`issuer_id`,`report_timestamp`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -167,10 +180,10 @@ CREATE TABLE IF NOT EXISTS `warps` (
   `pitch` float NOT NULL,
   `yaw` float NOT NULL,
   `world` varchar(16) CHARACTER SET latin1 NOT NULL,
-  PRIMARY KEY `warp_id` (`warp_id`)
-  UNIQUE KEY `name.uniqe` (`name`),
+  PRIMARY KEY (`warp_id`),
+  UNIQUE KEY `name.unique` (`name`),
   KEY `name-index` (`name`,`x`,`y`,`z`,`pitch`,`yaw`,`world`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -236,7 +249,7 @@ CREATE TABLE IF NOT EXISTS `zone_rect` (
   `rect_x2` int(10) DEFAULT NULL,
   `rect_y2` int(10) DEFAULT NULL,
   PRIMARY KEY (`rect_id`),
-  KEY `zone_id` (`zone_id`)
+  KEY `zone_name` (`zone_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
@@ -249,9 +262,5 @@ CREATE TABLE IF NOT EXISTS `zone_user` (
   `zone_name` varchar(32) NOT NULL,
   `player_name` varchar(32) NOT NULL,
   `player_perm` enum('owner','maker','allowed','banned') NOT NULL DEFAULT 'allowed',
-  PRIMARY KEY (`zone_id`,`player_name`)
+  PRIMARY KEY (`zone_name`,`player_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
