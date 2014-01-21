@@ -17,6 +17,9 @@ commands:
     clear:
         description: Clear your inventory
         usage: /<command>
+    cmob:
+        description:
+        usage: /<command> <mob> [amount]
     creative:
         description: Change your gamemode to creative
         usage: /<command>
@@ -69,6 +72,9 @@ commands:
         description: Summon a player to your location
         usage: /<command> <player>
         aliases: [s, tphere]
+    support:
+        description: Send the staff an email for help
+        usage: /<command> <message>
     spawn:
         description: Teleport to spawn
         usage: /<command>
