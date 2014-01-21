@@ -42,7 +42,7 @@ public class SayCommand extends AbstractCommand
             if(other.isAdmin()){
                 other.sendMessage(ChatColor.AQUA + "/say used by " + player.getDisplayName());
             }
-            other.sendNotification(Notification.SERVER_MESSAGE);
+            other.sendNotification(Notification.SERVER_MESSAGE, null);
         }
         plugin.getLogger().info("[COMMAND] /say used by " + player.getName());
         return true;
@@ -55,7 +55,7 @@ public class SayCommand extends AbstractCommand
             Bukkit.broadcastMessage(ChatColor.BLUE + "<GOD> " + ChatColor.LIGHT_PURPLE + argsToMessage(args));
         }
         for(BytecraftPlayer other: plugin.getOnlinePlayers()){
-            other.sendNotification(Notification.SERVER_MESSAGE);
+            other.sendNotification(Notification.SERVER_MESSAGE, null);
         }
         return true;
     }
