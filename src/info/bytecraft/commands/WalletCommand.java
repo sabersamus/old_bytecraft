@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.BytecraftPlayer.Flag;
 import info.bytecraft.database.DAOException;
 import info.bytecraft.database.IContext;
 import info.bytecraft.database.ILogDAO;
@@ -51,7 +52,7 @@ public class WalletCommand extends AbstractCommand
                         if (amount > 0) {
                             if (dbPlayer.take(player, amount)) {
                                 dbPlayer.give(target, amount);
-                                if (!target.isInvisible()) {
+                                if (!target.hasFlag(Flag.INVISIBLE)) {
                                     player.sendMessage(ChatColor.AQUA
                                             + "You gave "
                                             + target.getDisplayName() + " "

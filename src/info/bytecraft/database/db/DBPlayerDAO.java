@@ -1,10 +1,5 @@
 package info.bytecraft.database.db;
 
-import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.api.Rank;
-import info.bytecraft.database.DAOException;
-import info.bytecraft.database.IPlayerDAO;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -18,10 +13,17 @@ import java.util.Map;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.Rank;
+import info.bytecraft.api.BytecraftPlayer.Flag;
+import info.bytecraft.database.DAOException;
+import info.bytecraft.database.IPlayerDAO;
+
 public class DBPlayerDAO implements IPlayerDAO
 {
+    
     private Connection conn;
-
+    
     public DBPlayerDAO(Connection conn)
     {
         this.conn = conn;
@@ -85,32 +87,50 @@ public class DBPlayerDAO implements IPlayerDAO
         } catch (SQLException e) {
             throw new DAOException(sql, e);
         }
-        loadSettings(player);
+        loadFlags(player);
         return player;
     }
-
-    public void loadSettings(BytecraftPlayer player) throws DAOException
+    
+    public void createFlags(BytecraftPlayer player) throws DAOException
     {
-        //TODO: Player property all on one line
-        //TODO: Player property by name
-        String sql = "SELECT * FROM player_property WHERE player_id = ?";
-        try (PreparedStatement stm = conn.prepareStatement(sql)) {
-            stm.setInt(1, player.getId());
+        String sql = "INSERT INTO player_property (player_name, invisible, tpblock, god_color) VALUES (?, ?, ?, ?)";
+        try(PreparedStatement stm = conn.prepareStatement(sql)){
+            stm.setString(1, player.getName());
+            stm.setString(2, String.valueOf(player.hasFlag(Flag.INVISIBLE)));
+            stm.setString(3, String.valueOf(player.hasFlag(Flag.TPBLOCK)));
+            stm.setString(4, "red");
             stm.execute();
+        } catch (SQLException e) {
+            throw new DAOException(sql, e);
+        }
+    }
 
-            try (ResultSet rs = stm.getResultSet()) {
-                while (rs.next()) {
-                    String key = rs.getString("property_key");
-                    String value = rs.getString("property_value");
-                    if ("tpblock".equalsIgnoreCase(key)) {
-                        player.setTeleportBlock(Boolean.valueOf(value));
+    @Override
+    public void loadFlags(BytecraftPlayer player) throws DAOException
+    {
+        String sql = "SELECT * FROM player_property WHERE player_name = ?";
+        try(PreparedStatement stm = conn.prepareStatement(sql)){
+            stm.setString(1, player.getName());
+            stm.execute();
+            
+            try(ResultSet rs = stm.getResultSet()){
+                if(rs.next()){
+                    boolean tpb = Boolean.valueOf(rs.getString("tpblock"));
+                    boolean invisible = Boolean.valueOf(rs.getString("invisible"));
+                    
+                    if(tpb){
+                        player.setFlag(Flag.TPBLOCK);
+                    }else{
+                        player.removeFlag(Flag.TPBLOCK);
                     }
-                    else if ("invisible".equalsIgnoreCase(key)) {
-                        player.setInvisible(Boolean.valueOf(value));
+                    if(invisible){
+                        player.setFlag(Flag.INVISIBLE);
+                    }else{
+                        player.removeFlag(Flag.INVISIBLE);
                     }
                 }
             }
-        } catch (SQLException e) {
+        }catch(SQLException e){
             throw new DAOException(sql, e);
         }
     }
@@ -136,9 +156,7 @@ public class DBPlayerDAO implements IPlayerDAO
         } catch (SQLException e) {
             throw new DAOException(sql, e);
         }
-        updateProperty(player, "tpblock", false);
-        updateProperty(player, "invisible", false);
-        updateProperty(player, "god_color", "red");
+        createFlags(player);
         return player;
     }
 
@@ -153,34 +171,17 @@ public class DBPlayerDAO implements IPlayerDAO
             throw new DAOException(sql, e);
         }
     }
-
-    public void updateInfo(BytecraftPlayer player) throws DAOException
-    {
-        updateProperty(player, "invisible", player.isInvisible());
-        updateProperty(player, "tpblock", player.isTeleportBlock());
-    }
-
-    public void updateProperty(BytecraftPlayer player, String key, boolean value)
+    
+    public void updateProperties(BytecraftPlayer player)
             throws DAOException
     {
-        updateProperty(player, key, String.valueOf(value));
-    }
-
-    public void updateProperty(BytecraftPlayer player, String key, String value)
-            throws DAOException
-    {
-        if (value == null) {
-            return;
-        }
-
         String sql =
-                "REPLACE INTO player_property (player_id, property_key, property_value) VALUE (?, ?, ?)";
+                "UPDATE player_property SET invisble = ? AND tpblock = ? WHERE player_name = ?";
         try (PreparedStatement stm = conn.prepareStatement(sql)) {
-            stm.setInt(1, player.getId());
-            stm.setString(2, key);
-            stm.setString(3, value);
+            stm.setString(1, String.valueOf(player.hasFlag(Flag.INVISIBLE)));
+            stm.setString(2, String.valueOf(player.hasFlag(Flag.TPBLOCK)));
+            stm.setString(3, player.getName());
             stm.execute();
-
         } catch (SQLException e) {
             throw new DAOException(sql, e);
         }
@@ -248,46 +249,16 @@ public class DBPlayerDAO implements IPlayerDAO
                 + " bytes";
     }
 
-    public boolean isBanned(BytecraftPlayer player) throws DAOException
-    {
-        String sql = "SELECT * FROM player WHERE player_id = ?";
-        try (PreparedStatement stm = conn.prepareStatement(sql)) {
-            stm.setInt(1, player.getId());
-            stm.execute();
-            try (ResultSet rs = stm.getResultSet()) {
-                if (rs.next()) {
-                    return Boolean.valueOf(rs.getString("player_banned"));
-                }
-            }
-        } catch (SQLException e) {
-            throw new DAOException(sql, e);
-        }
-        return false;
-    }
-
-    public void ban(BytecraftPlayer player) throws DAOException
-    {
-        String sql =
-                "UPDATE player SET player_banned = true WHERE player_id = ?";
-        try (PreparedStatement stm = conn.prepareStatement(sql)) {
-            stm.setInt(1, player.getId());
-            stm.execute();
-        } catch (SQLException e) {
-            throw new DAOException(sql, e);
-        }
-    }
-
     public ChatColor getGodColor(BytecraftPlayer player) throws DAOException
     {
         String sql =
-                "SELECT * FROM player_property WHERE player_id = ? AND property_key = ?";
+                "SELECT * FROM player_property WHERE player_name = ?";
         try (PreparedStatement stm = conn.prepareStatement(sql)) {
-            stm.setInt(1, player.getId());
-            stm.setString(2, "god_color");
+            stm.setString(1, player.getName());
             stm.execute();
             try (ResultSet rs = stm.getResultSet()) {
                 if (rs.next()) {
-                    return GOD_COLORS.get(rs.getString("property_value"));
+                    return GOD_COLORS.get(rs.getString("god_color"));
                 }
             }
         } catch (SQLException e) {

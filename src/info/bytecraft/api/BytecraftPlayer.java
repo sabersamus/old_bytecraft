@@ -9,6 +9,8 @@ import info.bytecraft.database.IPlayerDAO;
 import info.bytecraft.database.db.DBPlayerDAO;
 
 import java.util.Date;
+import java.util.EnumSet;
+import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -18,12 +20,17 @@ import org.bukkit.entity.Player;
 
 public class BytecraftPlayer extends PlayerDelegate
 {
+    
+    public static enum Flag{
+        HARDWARNED,
+        SOFTWARNED,
+        MUTE,
+        INVISIBLE,
+        TPBLOCK;
+    }
 
     private int id = 0;
     private Rank rank;
-
-    private boolean invisible;
-    private boolean tpblock;
 
     private String chatChannel = "GLOBAL";
     
@@ -37,6 +44,8 @@ public class BytecraftPlayer extends PlayerDelegate
     private Fill lastFill;
     private Zone currZone = null;
     
+    private Set<Flag> flags;
+    
     private BytecraftPlayer blessTarget;
     
     private Date loginTime;
@@ -45,6 +54,7 @@ public class BytecraftPlayer extends PlayerDelegate
     {
         super(player);
         loginTime = new Date();
+        flags = EnumSet.noneOf(Flag.class);
     }
 
     public BytecraftPlayer(String name)
@@ -73,25 +83,6 @@ public class BytecraftPlayer extends PlayerDelegate
         this.rank = rank;
         setPlayerListName(rank.getColor() + getName());
     }
-    public boolean isInvisible()
-    {
-        return invisible;
-    }
-
-    public void setInvisible(boolean invisible)
-    {
-        this.invisible = invisible;
-    }
-
-    public boolean isTeleportBlock()
-    {
-        return tpblock;
-    }
-
-    public void setTeleportBlock(boolean tpblock)
-    {
-        this.tpblock = tpblock;
-    }
     
     public String getChatChannel()
     {
@@ -103,7 +94,6 @@ public class BytecraftPlayer extends PlayerDelegate
         this.chatChannel = chatChannel;
     }
     
-
     public long getBalance()
     {
         try (IContext ctx = Bytecraft.createContext()){
@@ -159,14 +149,14 @@ public class BytecraftPlayer extends PlayerDelegate
     public int getMaxTeleportDistance()
     {
         if(isAdmin())return Integer.MAX_VALUE;
-        if(isDonator())return 10000;
+        if(isDonator())return 15000;
         
         return 300;
     }
     
     public long getTeleportTimeout()
     {
-        if(isAdmin()) return 20 * 2L;
+        if(isAdmin()) return 20 * 0L;
         if(rank == Rank.GAURD) return 20 * 3L;
         
         if(rank == Rank.DONATOR) return 20 * 4L;
@@ -184,8 +174,11 @@ public class BytecraftPlayer extends PlayerDelegate
         this.blessTarget = blessTarget;
     }
     
-    public void sendNotification(Notification notif)
+    public void sendNotification(Notification notif, String message)
     {
+        if(message != null && !message.equalsIgnoreCase("")){
+            sendMessage(message);
+        }
         this.playSound(getLocation(), notif.getSound(), 2F, 1F);
     }
 
@@ -258,8 +251,23 @@ public class BytecraftPlayer extends PlayerDelegate
     {
         return this.lastFill;
     }
-
-    //Bytecraft Rank-Inheritence 
+    
+    public boolean hasFlag(Flag flag)
+    {
+        return flags.contains(flag);
+    }
+    
+    public void setFlag(Flag flag)
+    {
+        flags.add(flag);
+    }
+    
+    public void removeFlag(Flag flag)
+    {
+        flags.remove(flag);
+    }
+    
+    //Bytecraft Rank-Inheritance 
     public boolean isAdmin()
     {
         return (this.rank == Rank.ADMIN || this.rank == Rank.SENIOR_ADMIN || isCoder());

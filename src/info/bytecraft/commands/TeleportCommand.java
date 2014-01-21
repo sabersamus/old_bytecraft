@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.BytecraftPlayer.Flag;
 import info.tregmine.api.math.Distance;
 
 public class TeleportCommand extends AbstractCommand
@@ -50,7 +51,7 @@ public class TeleportCommand extends AbstractCommand
                     player.sendMessage(ChatColor.RED + "You are too far to teleport!");
                     return true;
             }else{
-                if(target.isTeleportBlock()){//teleport block
+                if(target.hasFlag(Flag.TPBLOCK)){//teleport block
                     if(!player.isAdmin()){//not admin
                         player.sendMessage(target.getDisplayName() + ChatColor.RED + " is not accepting teleports right now");
                         target.sendMessage(player.getDisplayName() + ChatColor.RED + " failed at teleporting to you");

@@ -7,6 +7,7 @@ import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.api.PaperLog;
 import info.bytecraft.api.PlayerBannedException;
 import info.bytecraft.api.Rank;
+import info.bytecraft.api.BytecraftPlayer.Flag;
 import info.bytecraft.database.DAOException;
 import info.bytecraft.database.IContext;
 import info.bytecraft.database.ILogDAO;
@@ -50,7 +51,8 @@ public class BytecraftPlayerListener implements Listener
     {
         event.setJoinMessage(null);
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
-        if (player.getRank() == Rank.SENIOR_ADMIN && player.isInvisible()) {
+        if (player.getRank() == Rank.SENIOR_ADMIN
+                && player.hasFlag(Flag.INVISIBLE)) {
             for (BytecraftPlayer other : plugin.getOnlinePlayers()) {
                 if (other.getRank() != Rank.SENIOR_ADMIN) {
                     other.hidePlayer(player.getDelegate());
@@ -65,21 +67,17 @@ public class BytecraftPlayerListener implements Listener
             Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "Welcome "
                     + player.getDisplayName() + ChatColor.DARK_AQUA
                     + " to bytecraft!");
-            String name = player.getRank().getColor() + player.getName();
-            if(name.length() > 16){
-                name = name.substring(0, 16);
-            }
-            player.setPlayerListName(name);
             if (!player.hasPlayedBefore()) {
                 player.teleport(new org.bukkit.Location(Bukkit
                         .getWorld("world"), -254.5, 7, -134.5, 2,
                         (float) -179.39));
             }
-            if(player.getRank() == Rank.NEWCOMER){
-                for(BytecraftPlayer other: plugin.getOnlinePlayers()){
-                    if(other.isMentor()){
-                        other.sendMessage(other.getDisplayName() + ChatColor.AQUA +
-                                " has joined as a newcomer, you should help them out!");
+            if (player.getRank() == Rank.NEWCOMER) {
+                for (BytecraftPlayer other : plugin.getOnlinePlayers()) {
+                    if (other.isMentor()) {
+                        other.sendMessage(other.getDisplayName()
+                                + ChatColor.AQUA
+                                + " has joined as a newcomer, you should help them out!");
                     }
                 }
             }
@@ -100,7 +98,7 @@ public class BytecraftPlayerListener implements Listener
     public void onQuit(PlayerQuitEvent event)
     {
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
-        if (player.isInvisible()) {
+        if (player.hasFlag(Flag.INVISIBLE)) {
             event.setQuitMessage(null);
             plugin.removePlayer(player);
             return;
@@ -109,6 +107,7 @@ public class BytecraftPlayerListener implements Listener
                 + plugin.getPlayer(event.getPlayer()).getDisplayName()
                 + ChatColor.AQUA + " has left the game");
         plugin.removePlayer(player);
+        return;
     }
 
     @EventHandler
@@ -119,18 +118,19 @@ public class BytecraftPlayerListener implements Listener
         BytecraftPlayer player = plugin.getPlayer((Player) event.getEntity());
         event.setCancelled(player.isAdmin());
     }
-    
+
     @EventHandler
     public void onPvp(EntityDamageByEntityEvent event)
     {
-        if(event.getDamager() instanceof Player)
-        {
-            if(event.getEntity() instanceof Player)
-            {
-                BytecraftPlayer player = plugin.getPlayer((Player)event.getEntity());
-                if(player.getCurrentZone() == null || !player.getCurrentZone().isPvp()){
+        if (event.getDamager() instanceof Player) {
+            if (event.getEntity() instanceof Player) {
+                BytecraftPlayer player =
+                        plugin.getPlayer((Player) event.getEntity());
+                if (player.getCurrentZone() == null
+                        || !player.getCurrentZone().isPvp()) {
                     event.setCancelled(true);
-                    ((Player)event.getDamager()).sendMessage(ChatColor.RED + "You are not in a pvp zone.");
+                    ((Player) event.getDamager()).sendMessage(ChatColor.RED
+                            + "You are not in a pvp zone.");
                 }
             }
         }
@@ -177,27 +177,13 @@ public class BytecraftPlayerListener implements Listener
     public void onDeath(PlayerDeathEvent event)
     {
         event.setDeathMessage(null);
-        /*BytecraftPlayer player = plugin.getPlayer(event.getEntity());
-        Connection conn = null;
-        try{
-            conn = ConnectionPool.getConnection();
-            DBPlayerDAO dbPlayer = new DBPlayerDAO(conn);
-            dbPlayer.take(player, Bytecraft.percent(player.getBalance(), 5));
-        }catch(SQLException e){
-            throw new RuntimeException(e);
-        }finally{
-            if(conn != null){
-                try{
-                    conn.close();
-                }catch(SQLException e){}
-            }
-        }*/
     }
-    
+
     @EventHandler
     public void onRespawn(PlayerRespawnEvent event)
     {
-        event.setRespawnLocation(new org.bukkit.Location(Bukkit.getWorld("world"), -254.5, 7, -134.5, (float) -179.39, 2));
+        event.setRespawnLocation(new org.bukkit.Location(Bukkit
+                .getWorld("world"), -254.5, 7, -134.5, (float) -179.39, 2));
     }
 
     @EventHandler
@@ -209,12 +195,13 @@ public class BytecraftPlayerListener implements Listener
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK)
             return;
         Block block = event.getClickedBlock();
-        try (IContext ctx = Bytecraft.createContext()){
+        try (IContext ctx = Bytecraft.createContext()) {
             ILogDAO dao = ctx.getLogDAO();
             for (PaperLog log : dao.getLogs(block)) {
                 player.sendMessage(ChatColor.GREEN + log.getPlayerName() + " "
                         + ChatColor.AQUA + log.getAction() + " "
-                        + log.getMaterial() + ChatColor.GREEN +  " at " + log.getDate());
+                        + log.getMaterial() + ChatColor.GREEN + " at "
+                        + log.getDate());
             }
             event.setCancelled(true);
             return;

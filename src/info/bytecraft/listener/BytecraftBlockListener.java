@@ -2,6 +2,7 @@ package info.bytecraft.listener;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.BytecraftPlayer.Flag;
 import info.bytecraft.database.*;
 
 import org.bukkit.Location;
@@ -30,11 +31,17 @@ public class BytecraftBlockListener implements Listener
             event.setCancelled(true);
             return;
         }
+
+        if (player.hasFlag(Flag.HARDWARNED)) {
+            event.setCancelled(true);
+            return;
+        }
+
         Location loc = event.getBlock().getLocation();
-        try (IContext ctx = Bytecraft.createContext()){
+        try (IContext ctx = Bytecraft.createContext()) {
             ILogDAO dbLog = ctx.getLogDAO();
             IPlayerDAO dbPlayer = ctx.getPlayerDAO();
-            if(dbLog.isLegal(event.getBlock())){
+            if (dbLog.isLegal(event.getBlock())) {
                 dbPlayer.give(player, plugin.getValue(event.getBlock()));
             }
             dbLog.insertPaperLog(player, loc, event.getBlock().getType(),
@@ -52,8 +59,14 @@ public class BytecraftBlockListener implements Listener
             event.setCancelled(true);
             return;
         }
+
+        if (player.hasFlag(Flag.HARDWARNED)) {
+            event.setCancelled(true);
+            return;
+        }
+
         Location loc = event.getBlock().getLocation();
-        try (IContext ctx = Bytecraft.createContext()){
+        try (IContext ctx = Bytecraft.createContext()) {
             ILogDAO dao = ctx.getLogDAO();
             dao.insertPaperLog(player, loc, event.getBlock().getType(),
                     "placed");
@@ -61,15 +74,16 @@ public class BytecraftBlockListener implements Listener
             throw new RuntimeException(e);
         }
     }
-    
+
     @EventHandler
     public void onExplode(EntityExplodeEvent event)
     {
-        if(event.getEntity() instanceof Creeper){
+        if (event.getEntity() instanceof Creeper) {
             event.setCancelled(true);
             return;
-        }else if(event.getEntityType() == EntityType.PRIMED_TNT){
-        	event.setCancelled(true);
+        }
+        else if (event.getEntityType() == EntityType.PRIMED_TNT) {
+            event.setCancelled(true);
         }
     }
 }

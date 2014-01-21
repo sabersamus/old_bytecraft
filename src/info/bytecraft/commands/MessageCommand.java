@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.api.Notification;
+import info.bytecraft.api.BytecraftPlayer.Flag;
 import info.bytecraft.commands.AbstractCommand;
 
 public class MessageCommand extends AbstractCommand
@@ -29,15 +30,14 @@ public class MessageCommand extends AbstractCommand
                     message.append(args[i] + " ");
                 }
 
-                target.sendMessage(ChatColor.GOLD + "<From> "
+                target.sendNotification(Notification.MESSAGE, ChatColor.GOLD + "<From> "
                         + player.getDisplayName() + ": " + ChatColor.GREEN
                         + message.toString().trim());
-                if (!target.isInvisible()) {
+                if (!target.hasFlag(Flag.INVISIBLE)) {
                     player.sendMessage(ChatColor.GOLD + "<To> "
                             + target.getDisplayName() + ": " + ChatColor.GREEN
                             + message.toString().trim());
                 }
-                target.sendNotification(Notification.MESSAGE);
             }
         }
         return true;

@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.BytecraftPlayer.Flag;
 
 public class WhoCommand extends AbstractCommand
 {
@@ -27,7 +28,7 @@ public class WhoCommand extends AbstractCommand
             String delim = "";
             int playerCounter = 0;
             for (BytecraftPlayer other : plugin.getOnlinePlayers()) {
-                if (other.isInvisible()) {
+                if (other.hasFlag(Flag.INVISIBLE)) {
                     continue;
                 }
                 sb.append(delim);
