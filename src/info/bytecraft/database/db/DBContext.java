@@ -8,6 +8,7 @@ import info.bytecraft.database.IContext;
 import info.bytecraft.database.IHomeDAO;
 import info.bytecraft.database.ILogDAO;
 import info.bytecraft.database.IPlayerDAO;
+import info.bytecraft.database.IReportDAO;
 import info.bytecraft.database.IWarpDAO;
 import info.bytecraft.database.IZoneDAO;
 
@@ -53,7 +54,13 @@ public class DBContext implements IContext
     {
         return new DBPlayerDAO(conn);
     }
-
+    
+    @Override
+    public IReportDAO getReportDAO()
+    {
+        return new DBReportDAO(conn);
+    }
+    
     @Override
     public IWarpDAO getWarpDAO()
     {

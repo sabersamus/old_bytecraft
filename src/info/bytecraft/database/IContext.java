@@ -8,6 +8,7 @@ public interface IContext extends AutoCloseable
     public IHomeDAO getHomeDAO();
     public ILogDAO getLogDAO();
     public IPlayerDAO getPlayerDAO();
+    public IReportDAO getReportDAO();
     public IWarpDAO getWarpDAO();
     public IZoneDAO getZoneDAO();
 }
