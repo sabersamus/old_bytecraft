@@ -1,6 +1,7 @@
 package info.bytecraft;
 
 import info.bytecraft.api.*;
+import info.bytecraft.api.BytecraftPlayer.Flag;
 import info.bytecraft.commands.*;
 import info.bytecraft.database.*;
 import info.bytecraft.database.db.DBContextFactory;
@@ -50,6 +51,7 @@ public class Bytecraft extends JavaPlugin
         getCommand("ban").setExecutor(new BanCommand(this));
         getCommand("bless").setExecutor(new BlessCommand(this));
         getCommand("clear").setExecutor(new ClearCommand(this));
+        getCommand("cmob").setExecutor(new CreateMobCommand(this));
         getCommand("creative").setExecutor(
                 new GameModeCommand(this, "creative"));
         getCommand("channel").setExecutor(new ChannelCommand(this));
@@ -69,6 +71,7 @@ public class Bytecraft extends JavaPlugin
         getCommand("message").setExecutor(new MessageCommand(this));
         getCommand("say").setExecutor(new SayCommand(this, "say"));
         getCommand("summon").setExecutor(new SummonCommand(this));
+        getCommand("support").setExecutor(new SupportCommand(this));
         getCommand("spawn").setExecutor(new SpawnCommand(this));
         getCommand("survival").setExecutor(
                 new GameModeCommand(this, "survival"));
@@ -107,8 +110,10 @@ public class Bytecraft extends JavaPlugin
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(new ChatListener(this), this);
         pm.registerEvents(new BytecraftPlayerListener(this), this);
-        pm.registerEvents(new BlessListener(this), this);        
+        pm.registerEvents(new BlessListener(this), this);
+        pm.registerEvents(new RareDropListener(this), this);
         pm.registerEvents(new BytecraftBlockListener(this), this);
+        pm.registerEvents(new DamageListener(this), this);
         pm.registerEvents(new FillListener(this), this);
         pm.registerEvents(new PlayerPromotionListener(this), this);
         pm.registerEvents(new SelectListener(this), this);
@@ -167,6 +172,38 @@ public class Bytecraft extends JavaPlugin
             IPlayerDAO dao = ctx.getPlayerDAO();
             BytecraftPlayer player = dao.getPlayer(srcPlayer);
             
+            if(player == null){
+                dao.createPlayer(srcPlayer);
+            }
+            
+            player.removeFlag(Flag.HARDWARNED);
+            player.removeFlag(Flag.SOFTWARNED);
+            player.removeFlag(Flag.MUTE);
+            
+            IReportDAO reportDao = ctx.getReportDAO();
+            List<PlayerReport> reports = reportDao.getReports(player);
+            for(PlayerReport report: reports){
+                Date validUntil = report.getValidUntil();
+                if (validUntil == null) {
+                    continue;
+                }
+                if (validUntil.getTime() < System.currentTimeMillis()) {
+                    continue;
+                }
+                
+                if (report.getAction() == PlayerReport.Action.SOFTWARN) {
+                    player.setFlag(Flag.SOFTWARNED);
+                }
+                else if (report.getAction() == PlayerReport.Action.HARDWARN) {
+                    player.setFlag(Flag.HARDWARNED);
+                }else if(report.getAction() == PlayerReport.Action.MUTE){
+                    player.setFlag(Flag.MUTE);
+                }
+                else if (report.getAction() == PlayerReport.Action.BAN) {
+                    throw new PlayerBannedException(report.getMessage());
+                }
+            }
+            
             player.setDisplayName(player.getRank().getColor() + player.getName() + ChatColor.WHITE);
             if(player.getName().length() + 4 > 16){
                 player.setPlayerListName(player.getRank().getColor() + player.getName().substring(0, 12) + ChatColor.WHITE);
@@ -183,6 +220,11 @@ public class Bytecraft extends JavaPlugin
 
     public void removePlayer(BytecraftPlayer player)
     {
+        try(IContext ctx = getContext()){
+            ctx.getPlayerDAO().updatePlayTime(player);
+        }catch(DAOException e){
+            throw new RuntimeException(e);
+        }
         this.players.remove(player.getName());
     }
 
