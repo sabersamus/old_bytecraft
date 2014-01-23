@@ -2,6 +2,7 @@ package info.bytecraft.listener;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.BytecraftPlayer.Flag;
 import info.bytecraft.database.*;
 
 import org.bukkit.Bukkit;
@@ -26,6 +27,11 @@ public class ChatListener implements Listener
         String message = event.getMessage();
         
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
+        if(player.hasFlag(Flag.MUTE)){
+            player.sendMessage(ChatColor.RED + "You are currently muted.");
+            event.setCancelled(true);
+            return;
+        }
         BytecraftPlayer to;
         ChatColor color = ChatColor.WHITE;
         for(Player delegate: Bukkit.getOnlinePlayers()){
@@ -45,7 +51,7 @@ public class ChatListener implements Listener
             }
             
         }
-        try (IContext ctx = Bytecraft.createContext()){
+        try (IContext ctx = plugin.createContext()){
             ILogDAO dao = ctx.getLogDAO();
             dao.insertChatMessage(player, player.getChatChannel(), message);
         } catch (DAOException e) {
