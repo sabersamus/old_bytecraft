@@ -69,7 +69,7 @@ public class WarnCommand extends AbstractCommand
     {
         Rank rank = hard ? Rank.HARD_WARNED : Rank.WARNED;
         player.setRank(rank);
-        try (IContext ctx = Bytecraft.createContext()){
+        try (IContext ctx = plugin.createContext()){
             IPlayerDAO dao = ctx.getPlayerDAO();
             dao.updatePermissions(player);
             player.sendMessage(ChatColor.RED + "You have been demoted to " + ChatColor.GRAY + rank.toString());

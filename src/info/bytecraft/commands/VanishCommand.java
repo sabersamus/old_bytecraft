@@ -22,7 +22,7 @@ public class VanishCommand extends AbstractCommand
     {
         if (player.isAdmin()) {
             if (args.length == 0) {
-                try (IContext ctx = Bytecraft.createContext()) {
+                try (IContext ctx = plugin.createContext()) {
                     IPlayerDAO dao = ctx.getPlayerDAO();
 
                     if (player.hasFlag(Flag.INVISIBLE)) {

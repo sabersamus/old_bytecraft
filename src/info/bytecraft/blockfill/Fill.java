@@ -1,8 +1,6 @@
 package info.bytecraft.blockfill;
 
-import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.database.*;
 
 import java.util.HashMap;
 
@@ -47,22 +45,15 @@ public class Fill
         int yMin = Math.min(block1.getY(), block2.getY());
         int zMax = Math.max(block1.getZ(), block2.getZ());
         int zMin = Math.min(block1.getZ(), block2.getZ());
-        try (IContext ctx = Bytecraft.createContext()){
-            IBlessDAO dao = ctx.getBlessDAO();
-            for (int x = xMin; x <= xMax; x++) {
-                for (int y = yMin; y <= yMax; y++) {
-                    for (int z = zMin; z <= zMax; z++) {
-                        Location loc = new Location(world, x, y, z);
-                        if (!dao.isBlessed(loc.getBlock())) {
-                            blocks.put(loc, loc.getBlock().getType());
-                            world.getBlockAt(loc).setType(material);
-                            i++;
-                        }
-                    }
+        for (int x = xMin; x <= xMax; x++) {
+            for (int y = yMin; y <= yMax; y++) {
+                for (int z = zMin; z <= zMax; z++) {
+                    Location loc = new Location(world, x, y, z);
+                    blocks.put(loc, loc.getBlock().getType());
+                    world.getBlockAt(loc).setType(material);
+                    i++;
                 }
             }
-        } catch (DAOException e) {
-            throw new RuntimeException(e);
         }
         return i;
     }
@@ -87,24 +78,17 @@ public class Fill
         int yMin = Math.min(block1.getY(), block2.getY());
         int zMax = Math.max(block1.getZ(), block2.getZ());
         int zMin = Math.min(block1.getZ(), block2.getZ());
-        try (IContext ctx = Bytecraft.createContext()){
-            IBlessDAO dao = ctx.getBlessDAO();
-            for (int x = xMin; x <= xMax; x++) {
-                for (int y = yMin; y <= yMax; y++) {
-                    for (int z = zMin; z <= zMax; z++) {
-                        Location loc = new Location(world, x, y, z);
-                        if (!dao.isBlessed(loc.getBlock())) {
-                            if (loc.getBlock().getType() == material) {
-                                blocks.put(loc, loc.getBlock().getType());
-                                world.getBlockAt(loc).setType(to);
-                                i++;
-                            }
-                        }
+        for (int x = xMin; x <= xMax; x++) {
+            for (int y = yMin; y <= yMax; y++) {
+                for (int z = zMin; z <= zMax; z++) {
+                    Location loc = new Location(world, x, y, z);
+                    if (loc.getBlock().getType() == material) {
+                        blocks.put(loc, loc.getBlock().getType());
+                        world.getBlockAt(loc).setType(to);
+                        i++;
                     }
                 }
             }
-        } catch (DAOException e) {
-            throw new RuntimeException(e);
         }
         return i;
     }

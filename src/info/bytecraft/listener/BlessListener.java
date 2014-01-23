@@ -65,7 +65,7 @@ public class BlessListener implements Listener
                 return;
             }
 
-            try (IContext ctx = Bytecraft.createContext()) {
+            try (IContext ctx = plugin.createContext()) {
                 IBlessDAO dao = ctx.getBlessDAO();
                 dao.bless(event.getClickedBlock(), target);
                 target.sendNotification(Notification.BLESS, ChatColor.AQUA
@@ -83,7 +83,7 @@ public class BlessListener implements Listener
         else {
             if (event.getAction() == Action.LEFT_CLICK_BLOCK
                     || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-                try (IContext ctx = Bytecraft.createContext();) {
+                try (IContext ctx = plugin.createContext();) {
                     IBlessDAO dao = ctx.getBlessDAO();
 
                     if (dao.isBlessed(event.getClickedBlock())) {

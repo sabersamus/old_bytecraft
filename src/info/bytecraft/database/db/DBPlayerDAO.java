@@ -150,7 +150,7 @@ public class DBPlayerDAO implements IPlayerDAO
                     throw new SQLException("Failed to get player id");
                 }
 
-                player.setId(rs.getInt(1));
+                player.setId(rs.getInt("player_id"));
                 player.setRank(Rank.NEWCOMER);
             }
         } catch (SQLException e) {

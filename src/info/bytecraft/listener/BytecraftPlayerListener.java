@@ -195,7 +195,7 @@ public class BytecraftPlayerListener implements Listener
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK)
             return;
         Block block = event.getClickedBlock();
-        try (IContext ctx = Bytecraft.createContext()) {
+        try (IContext ctx = plugin.createContext()) {
             ILogDAO dao = ctx.getLogDAO();
             for (PaperLog log : dao.getLogs(block)) {
                 player.sendMessage(ChatColor.GREEN + log.getPlayerName() + " "

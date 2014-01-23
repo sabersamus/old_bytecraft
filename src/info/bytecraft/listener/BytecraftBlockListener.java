@@ -38,7 +38,7 @@ public class BytecraftBlockListener implements Listener
         }
 
         Location loc = event.getBlock().getLocation();
-        try (IContext ctx = Bytecraft.createContext()) {
+        try (IContext ctx = plugin.createContext()) {
             ILogDAO dbLog = ctx.getLogDAO();
             IPlayerDAO dbPlayer = ctx.getPlayerDAO();
             if (dbLog.isLegal(event.getBlock())) {
@@ -66,7 +66,7 @@ public class BytecraftBlockListener implements Listener
         }
 
         Location loc = event.getBlock().getLocation();
-        try (IContext ctx = Bytecraft.createContext()) {
+        try (IContext ctx = plugin.createContext()) {
             ILogDAO dao = ctx.getLogDAO();
             dao.insertPaperLog(player, loc, event.getBlock().getType(),
                     "placed");

@@ -24,7 +24,7 @@ public class TeleportBlockCommand extends AbstractCommand
         if (args.length == 1) {
             String input = args[0];
             if (input.equalsIgnoreCase("on") || input.equalsIgnoreCase("off")) {
-                try(IContext ctx = Bytecraft.createContext()){
+                try(IContext ctx = plugin.createContext()){
                     IPlayerDAO dao = ctx.getPlayerDAO();
                     boolean block = input.equalsIgnoreCase("on") ? true : false;
                     if (block == true) {

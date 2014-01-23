@@ -26,13 +26,14 @@ public class WarpCreateCommand extends AbstractCommand
 
         String name = args[0];
 
-        try (IContext ctx = Bytecraft.createContext()){
+        try (IContext ctx = plugin.createContext()) {
             IWarpDAO dao = ctx.getWarpDAO();
             Location l = player.getLocation();
             dao.createWarp(name, l);
             player.sendMessage(ChatColor.LIGHT_PURPLE + "Created warp: "
                     + ChatColor.GREEN + name + ChatColor.WHITE + " at "
-                    + ChatColor.GREEN + "[" + l.getBlockX() + ", " + l.getBlockY() + ", " + l.getBlockZ() + "]");
+                    + ChatColor.GREEN + "[" + l.getBlockX() + ", "
+                    + l.getBlockY() + ", " + l.getBlockZ() + "]");
         } catch (DAOException e) {
             throw new RuntimeException(e);
         }

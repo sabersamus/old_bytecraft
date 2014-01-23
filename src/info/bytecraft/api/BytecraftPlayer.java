@@ -28,7 +28,9 @@ public class BytecraftPlayer extends PlayerDelegate
         INVISIBLE,
         TPBLOCK;
     }
-
+    
+    private static Bytecraft plugin;
+    
     private int id = 0;
     private Rank rank;
 
@@ -56,10 +58,17 @@ public class BytecraftPlayer extends PlayerDelegate
         loginTime = new Date();
         flags = EnumSet.noneOf(Flag.class);
     }
+    
+    public static void setPlugin(Bytecraft plugin)
+    {
+        BytecraftPlayer.plugin = plugin;
+    }
 
     public BytecraftPlayer(String name)
     {
         super(Bukkit.getPlayer(name));
+        loginTime = new Date();
+        flags = EnumSet.noneOf(Flag.class);
     }
 
     //Bytecraft stored values
@@ -96,7 +105,7 @@ public class BytecraftPlayer extends PlayerDelegate
     
     public long getBalance()
     {
-        try (IContext ctx = Bytecraft.createContext()){
+        try (IContext ctx = plugin.createContext()){
             IPlayerDAO dao = ctx.getPlayerDAO();
             return dao.getBalance(this);
         } catch (DAOException e) {
@@ -106,7 +115,7 @@ public class BytecraftPlayer extends PlayerDelegate
     
     public String getFormattedBalance()
     {
-        try (IContext ctx = Bytecraft.createContext()){
+        try (IContext ctx = plugin.createContext()){
             IPlayerDAO dao = ctx.getPlayerDAO();
             return ((DBPlayerDAO)dao).formattedBalance(this);
         } catch (DAOException e) {
@@ -115,7 +124,7 @@ public class BytecraftPlayer extends PlayerDelegate
     }
     
     public ChatColor getGodColor(){
-        try (IContext ctx = Bytecraft.createContext()){
+        try (IContext ctx = plugin.createContext()){
             IPlayerDAO dao = ctx.getPlayerDAO();
             return dao.getGodColor(this);
         }catch (DAOException e) {
@@ -305,7 +314,7 @@ public class BytecraftPlayer extends PlayerDelegate
     
     public int getPlayTime()
     {
-        try (IContext ctx = Bytecraft.createContext()){
+        try (IContext ctx = plugin.createContext()){
             IPlayerDAO dao = ctx.getPlayerDAO();
             return dao.getPlayTime(this);
         }catch(DAOException e){
@@ -315,7 +324,7 @@ public class BytecraftPlayer extends PlayerDelegate
     
     public long getPromotedTime()
     {
-        try (IContext ctx = Bytecraft.createContext()){
+        try (IContext ctx = plugin.createContext()){
             IPlayerDAO dao = ctx.getPlayerDAO();
             return dao.getPromotedTime(this);
         }catch(DAOException e){

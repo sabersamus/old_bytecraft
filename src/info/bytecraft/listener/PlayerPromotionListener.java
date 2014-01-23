@@ -28,7 +28,7 @@ public class PlayerPromotionListener implements Listener
         if(player.getRank() == Rank.SETTLER && player.getPlayTime() - player.getPromotedTime() >= 7 * 24 * 60 * 60){
             player.setRank(Rank.MEMBER);
             player.sendMessage(ChatColor.AQUA + "Congratulations, you have been promoted to a member!");
-            try (IContext ctx = Bytecraft.createContext()){
+            try (IContext ctx = plugin.createContext()){
                 IPlayerDAO dao = ctx.getPlayerDAO();
                 dao.updatePermissions(player);
             }catch(DAOException e){

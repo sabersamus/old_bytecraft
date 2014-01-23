@@ -51,7 +51,7 @@ public class BanCommand extends AbstractCommand
         target.kickPlayer(ChatColor.RED + "You have been banned by " + player.getDisplayName());
         Bukkit.broadcastMessage(target.getDisplayName() + ChatColor.RED + " has been banned by " + player.getDisplayName());
         
-        try (IContext ctx = Bytecraft.createContext()){
+        try (IContext ctx = plugin.createContext()){
             IReportDAO dao = ctx.getReportDAO();
             PlayerReport report = new PlayerReport();
             report.setSubjectId(target.getId());

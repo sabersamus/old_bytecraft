@@ -27,7 +27,7 @@ public class UserCommand extends AbstractCommand
                 Player delegate = Bukkit.getPlayer(args[2]);
                 if (delegate != null) {
                     BytecraftPlayer target = plugin.getPlayer(delegate);
-                    try (IContext ctx = Bytecraft.createContext()) {
+                    try (IContext ctx = plugin.createContext()) {
                         IPlayerDAO dao = ctx.getPlayerDAO();
                         String input = args[1].toLowerCase();
                         if (input.equalsIgnoreCase("settler")) {
@@ -80,7 +80,7 @@ public class UserCommand extends AbstractCommand
                 Player delegate = Bukkit.getPlayer(args[2]);
                 if (delegate != null) {
                     BytecraftPlayer target = plugin.getPlayer(delegate);
-                    try (IContext ctx = Bytecraft.createContext()) {
+                    try (IContext ctx = plugin.createContext()) {
                         IPlayerDAO dao = ctx.getPlayerDAO();
 
                         String input = args[1].toLowerCase();

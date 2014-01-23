@@ -1,13 +1,11 @@
 package info.bytecraft.api;
 
+import java.util.HashMap;
+
 import org.bukkit.Location;
 
-import info.bytecraft.Bytecraft;
 import info.bytecraft.api.math.Point;
 import info.bytecraft.api.math.Rectangle;
-import info.bytecraft.database.DAOException;
-import info.bytecraft.database.IContext;
-import info.bytecraft.database.db.DBZoneDAO;
 
 public class Zone
 {
@@ -122,7 +120,9 @@ public class Zone
 
     private String enterMsg;
     private String exitMsg;
-
+    
+    private HashMap<String, Permission> permissions;
+    
     public Zone(String name)
     {
         this.name = name;
@@ -245,13 +245,22 @@ public class Zone
 
     public Permission getUser(BytecraftPlayer player)
     {
-        try (IContext ctx = Bytecraft.createContext()){
-            return ((DBZoneDAO)ctx.getZoneDAO()).getUser(this, player);
-        }catch(DAOException e){
-            throw new RuntimeException(e);
+        if(permissions.containsKey(player.getName())){
+            return permissions.get(player.getName());
         }
+        return null;
     }
     
+    public HashMap<String, Permission> getPermissions()
+    {
+        return permissions;
+    }
+
+    public void setPermissions(HashMap<String, Permission> permissions)
+    {
+        this.permissions = permissions;
+    }
+
     public boolean intersects(Zone otherZone)
     {
         Point p1 = rect.getPoint1();

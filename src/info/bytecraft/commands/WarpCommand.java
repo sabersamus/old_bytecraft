@@ -43,7 +43,7 @@ public class WarpCommand extends AbstractCommand
     {
         if (args.length != 1)return true;
         String warp = args[0];
-        try (IContext ctx = Bytecraft.createContext()){
+        try (IContext ctx = plugin.createContext()){
             IWarpDAO dao = ctx.getWarpDAO();
             Location loc = dao.getWarp(warp);
             if (loc != null) {

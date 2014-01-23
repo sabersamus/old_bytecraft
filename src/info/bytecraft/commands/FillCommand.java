@@ -35,7 +35,7 @@ public class FillCommand extends AbstractCommand
                         player.sendMessage(ChatColor.YELLOW
                                 + "You undid your last fill: Total volume "
                                 + ChatColor.GOLD + player.getLastFill().undo());
-                        try (IContext ctx = Bytecraft.createContext()){
+                        try (IContext ctx = plugin.createContext()){
                             ILogDAO dao = ctx.getLogDAO();
                             dao.insertFillLog(player, player.getLastFill(), player.getLastFill().getMaterial(), Action.UNDO);
                         }catch(DAOException e){
@@ -64,7 +64,7 @@ public class FillCommand extends AbstractCommand
                                     + " blocks to "
                                     + mat.name().toLowerCase()
                                             .replace("_", " "));
-                            try (IContext ctx = Bytecraft.createContext()){
+                            try (IContext ctx = plugin.createContext()){
                                 ILogDAO dao = ctx.getLogDAO();
                                 dao.insertFillLog(player, player.getLastFill(), mat, Action.FILL);
                             }catch(DAOException e){
@@ -96,7 +96,7 @@ public class FillCommand extends AbstractCommand
                                 + "You replaced " + fill.replace(to)
                                 + " blocks to "
                                 + to.name().toLowerCase().replace("_", " "));
-                        try (IContext ctx = Bytecraft.createContext()){
+                        try (IContext ctx = plugin.createContext()){
                             ILogDAO dao = ctx.getLogDAO();
                             dao.insertFillLog(player, player.getLastFill(), to, Action.REPLACE);
                         }catch(DAOException e){

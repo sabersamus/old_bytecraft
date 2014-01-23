@@ -52,7 +52,7 @@ public class KickCommand extends AbstractCommand
             Bukkit.broadcastMessage(target.getDisplayName() + ChatColor.RED
                     + " was kicked by " + player.getDisplayName());
             
-            try(IContext ctx = Bytecraft.createContext()){
+            try(IContext ctx = plugin.createContext()){
                 PlayerReport report = new PlayerReport();
                 report.setSubjectId(target.getId());
                 report.setIssuerId(player.getId());

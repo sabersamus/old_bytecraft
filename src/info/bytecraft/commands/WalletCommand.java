@@ -46,7 +46,7 @@ public class WalletCommand extends AbstractCommand
                     } catch (NumberFormatException e) {
                         return true;
                     }
-                    try (IContext ctx = Bytecraft.createContext()){
+                    try (IContext ctx = plugin.createContext()){
                         IPlayerDAO dbPlayer = ctx.getPlayerDAO();
                         ILogDAO dbLog = ctx.getLogDAO();
                         if (amount > 0) {

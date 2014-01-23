@@ -7,7 +7,6 @@ import info.bytecraft.database.*;
 import info.bytecraft.database.db.DBContextFactory;
 import info.bytecraft.listener.*;
 
-import java.io.File;
 import java.util.*;
 
 import org.bukkit.Bukkit;
@@ -36,9 +35,7 @@ public class Bytecraft extends JavaPlugin
 
     public void onEnable()
     {
-        if(!(new File(this.getDataFolder(), "config.yml").exists())){
-            this.saveDefaultConfig();
-        }
+        BytecraftPlayer.setPlugin(this);
         players = Maps.newHashMap();
         for (Player delegate : Bukkit.getOnlinePlayers()) {
             try {
@@ -88,18 +85,12 @@ public class Bytecraft extends JavaPlugin
         getCommand("zone").setExecutor(new ZoneCommand(this));
     }
     
-    public static IContextFactory getContextFactory()
+    public IContextFactory getContextFactory()
     {
         return contextFactory;
     }
     
-    public static IContext createContext()
-    throws DAOException
-    {
-        return contextFactory.createContext();
-    }
-    
-    private IContext getContext()
+    public IContext createContext()
     throws DAOException
     {
         return contextFactory.createContext();
@@ -168,7 +159,7 @@ public class Bytecraft extends JavaPlugin
             return players.get(srcPlayer.getName());
         }
         
-        try (IContext ctx = getContext()){
+        try (IContext ctx = createContext()){
             IPlayerDAO dao = ctx.getPlayerDAO();
             BytecraftPlayer player = dao.getPlayer(srcPlayer);
             
@@ -220,7 +211,7 @@ public class Bytecraft extends JavaPlugin
 
     public void removePlayer(BytecraftPlayer player)
     {
-        try(IContext ctx = getContext()){
+        try(IContext ctx = createContext()){
             ctx.getPlayerDAO().updatePlayTime(player);
         }catch(DAOException e){
             throw new RuntimeException(e);
@@ -243,7 +234,7 @@ public class Bytecraft extends JavaPlugin
     
     public List<Zone> getZones(String world)
     {
-        try(IContext ctx = this.getContext()){
+        try(IContext ctx = createContext()){
             return ctx.getZoneDAO().getZones(world);
         } catch (DAOException e) {
             throw new RuntimeException(e);
@@ -252,7 +243,7 @@ public class Bytecraft extends JavaPlugin
     
     public Zone getZone(String name)
     {
-        try(IContext ctx = getContext()){
+        try(IContext ctx = createContext()){
             return ctx.getZoneDAO().getZone(name);
         }catch(DAOException e){
             throw new RuntimeException(e);

@@ -55,7 +55,7 @@ public class HomeCommand extends AbstractCommand
 
     private void setHome(BytecraftPlayer player)
     {
-        try (IContext ctx = Bytecraft.createContext()) {
+        try (IContext ctx = plugin.createContext()) {
             IHomeDAO dao = ctx.getHomeDAO();
             dao.setHome(player);
         } catch (DAOException e) {
@@ -65,7 +65,7 @@ public class HomeCommand extends AbstractCommand
 
     private boolean goHome(final BytecraftPlayer player)
     {
-        try (IContext ctx = Bytecraft.createContext()) {
+        try (IContext ctx = plugin.createContext()) {
             IHomeDAO dao = ctx.getHomeDAO();
             if (dao.getHome(player) == null)
                 return true;
@@ -89,7 +89,7 @@ public class HomeCommand extends AbstractCommand
 
     private boolean homeTo(final BytecraftPlayer player, final String toName)
     {
-        try (IContext ctx = Bytecraft.createContext()) {
+        try (IContext ctx = plugin.createContext()) {
             IHomeDAO dao = ctx.getHomeDAO();
             if (dao.getHome(toName) == null)
                 return false;
