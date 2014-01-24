@@ -150,7 +150,7 @@ public class DBPlayerDAO implements IPlayerDAO
                     throw new SQLException("Failed to get player id");
                 }
 
-                player.setId(rs.getInt("player_id"));
+                player.setId(rs.getInt(1));
                 player.setRank(Rank.NEWCOMER);
             }
         } catch (SQLException e) {
@@ -176,11 +176,11 @@ public class DBPlayerDAO implements IPlayerDAO
             throws DAOException
     {
         String sql =
-                "UPDATE player_property SET invisble = ? AND tpblock = ? WHERE player_name = ?";
+                "REPLACE INTO player_property (player_name, invisible, tpblock) VALUES (?, ?, ?)";
         try (PreparedStatement stm = conn.prepareStatement(sql)) {
-            stm.setString(1, String.valueOf(player.hasFlag(Flag.INVISIBLE)));
-            stm.setString(2, String.valueOf(player.hasFlag(Flag.TPBLOCK)));
-            stm.setString(3, player.getName());
+            stm.setString(1, player.getName());
+            stm.setString(2, String.valueOf(player.hasFlag(Flag.INVISIBLE)));
+            stm.setString(3, String.valueOf(player.hasFlag(Flag.TPBLOCK)));
             stm.execute();
         } catch (SQLException e) {
             throw new DAOException(sql, e);
