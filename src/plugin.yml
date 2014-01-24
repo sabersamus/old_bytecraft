@@ -65,6 +65,10 @@ commands:
         description: Send a message to another player
         usage: /<command> <player> <message>
         aliases: [m, to]
+    pos:
+        description: Get your global position
+        usage: /<command>
+        aliases: [coords]
     say:
         description: Send a message as god
         usage: /<command> <message>

@@ -15,7 +15,7 @@ public class KillCommand extends AbstractCommand
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
         if(args.length != 0)return true;
-        player.damage(20);
+        player.damage(20000);
         return true;
     }
     

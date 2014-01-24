@@ -1,4 +1,4 @@
-db:
+database:
     user: root
     password: password
     url: jdbc:mysql://localhost:3306/bytecraft?autoReconnect=true
@@ -7,3 +7,5 @@ support:
     password: notinherelololol
     to: 
         - sabersamus@gmail.com
+spawn:
+    world: 64, 64, 64, 1, 1

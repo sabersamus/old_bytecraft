@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.ChestLog;
 import info.bytecraft.api.PaperLog;
 import info.bytecraft.api.PlayerBannedException;
 import info.bytecraft.api.Rank;
@@ -16,6 +17,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.Chest;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -24,6 +26,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -51,8 +54,7 @@ public class BytecraftPlayerListener implements Listener
     {
         event.setJoinMessage(null);
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
-        if (player.getRank() == Rank.ELDER
-                && player.hasFlag(Flag.INVISIBLE)) {
+        if (player.getRank() == Rank.ELDER && player.hasFlag(Flag.INVISIBLE)) {
             for (BytecraftPlayer other : plugin.getOnlinePlayers()) {
                 if (other.getRank() != Rank.ELDER) {
                     other.hidePlayer(player.getDelegate());
@@ -68,9 +70,7 @@ public class BytecraftPlayerListener implements Listener
                     + player.getDisplayName() + ChatColor.DARK_AQUA
                     + " to bytecraft!");
             if (!player.hasPlayedBefore()) {
-                player.teleport(new org.bukkit.Location(Bukkit
-                        .getWorld("world"), -254.5, 7, -134.5, 2,
-                        (float) -179.39));
+                player.teleport(plugin.getWorldSpawn("world"));
             }
             if (player.getRank() == Rank.NEWCOMER) {
                 for (BytecraftPlayer other : plugin.getOnlinePlayers()) {
@@ -182,8 +182,7 @@ public class BytecraftPlayerListener implements Listener
     @EventHandler
     public void onRespawn(PlayerRespawnEvent event)
     {
-        event.setRespawnLocation(new org.bukkit.Location(Bukkit
-                .getWorld("world"), -254.5, 7, -134.5, (float) -179.39, 2));
+        event.setRespawnLocation(plugin.getWorldSpawn(event.getPlayer().getWorld().getName()));
     }
 
     @EventHandler
@@ -206,6 +205,27 @@ public class BytecraftPlayerListener implements Listener
             event.setCancelled(true);
             return;
         } catch (DAOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @EventHandler
+    public void onOpen(InventoryOpenEvent event)
+    {
+        if (!(event.getPlayer() instanceof Player))
+            return;
+        Player player = (Player) event.getPlayer();// For some reason its human
+                                                   // entity
+        if(!(event.getInventory().getHolder() instanceof Chest))return;
+        
+        Chest chest = (Chest)event.getInventory().getHolder();
+        
+        try(IContext ctx = plugin.createContext()){
+            ILogDAO dao = ctx.getLogDAO();
+            ChestLog log = new ChestLog(player.getName(), chest.getLocation(), ChestLog.Action.OPEN);
+            
+            dao.insertChestLog(log);
+        }catch(DAOException e){
             throw new RuntimeException(e);
         }
     }
