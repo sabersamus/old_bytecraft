@@ -14,6 +14,7 @@
         <tstamp />
         <mkdir dir="${build}" />
         <copy file="${src}/plugin.yml" todir="${build}" />
+    	<copy file="${src}/config.yml" todir="${build}" />
     </target>
 
 	<target name="codegen" depends="init">
