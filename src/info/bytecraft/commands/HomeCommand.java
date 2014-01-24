@@ -6,6 +6,7 @@ import org.bukkit.Location;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.BytecraftPlayer.Flag;
 import info.bytecraft.database.DAOException;
 import info.bytecraft.database.IContext;
 import info.bytecraft.database.IHomeDAO;
@@ -20,7 +21,7 @@ public class HomeCommand extends AbstractCommand
 
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
-        if (!player.isDonator())
+        if (!player.hasFlag(Flag.NOBLE))
             return true;
 
         if (args.length == 0) {

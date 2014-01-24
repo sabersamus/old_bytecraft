@@ -26,7 +26,7 @@ public class VanishCommand extends AbstractCommand
                     IPlayerDAO dao = ctx.getPlayerDAO();
 
                     if (player.hasFlag(Flag.INVISIBLE)) {
-                        player.removeFlag(Flag.INVISIBLE);
+                        player.setFlag(Flag.INVISIBLE, false);
                         for (BytecraftPlayer other : plugin.getOnlinePlayers()) {
                             other.showPlayer(player.getDelegate());
                         }
@@ -34,7 +34,7 @@ public class VanishCommand extends AbstractCommand
                                 + "You have re-appeared");
                     }
                     else {
-                        player.setFlag(Flag.INVISIBLE);
+                        player.setFlag(Flag.INVISIBLE, true);
                         for (BytecraftPlayer other : plugin.getOnlinePlayers()) {
                             if (other.getRank() == Rank.ELDER) {
                                 continue;

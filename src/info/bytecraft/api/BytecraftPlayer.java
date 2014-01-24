@@ -26,6 +26,7 @@ public class BytecraftPlayer extends PlayerDelegate
         SOFTWARNED,
         MUTE,
         INVISIBLE,
+        NOBLE,
         TPBLOCK;
     }
     
@@ -158,7 +159,7 @@ public class BytecraftPlayer extends PlayerDelegate
     public int getMaxTeleportDistance()
     {
         if(isAdmin())return Integer.MAX_VALUE;
-        if(isDonator())return 15000;
+        if(hasFlag(Flag.NOBLE))return 15000;
         
         return 300;
     }
@@ -166,9 +167,9 @@ public class BytecraftPlayer extends PlayerDelegate
     public long getTeleportTimeout()
     {
         if(isAdmin()) return 20 * 0L;
-        if(rank == Rank.PROTECTOR) return 20 * 3L;
+        if(rank == Rank.PROTECTOR) return 20 * 2L;
         
-        if(rank == Rank.DONATOR) return 20 * 4L;
+        if(hasFlag(Flag.NOBLE)) return 20 * 3L;
         
         return 20 * 5L;
     }
@@ -266,14 +267,14 @@ public class BytecraftPlayer extends PlayerDelegate
         return flags.contains(flag);
     }
     
-    public void setFlag(Flag flag)
+    public void setFlag(Flag flag, boolean value)
     {
-        flags.add(flag);
-    }
-    
-    public void removeFlag(Flag flag)
-    {
-        flags.remove(flag);
+        if(!value){
+            flags.remove(flag);
+        }else{
+            flags.add(flag);
+        }
+        
     }
     
     //Bytecraft Rank-Inheritance 
@@ -295,11 +296,6 @@ public class BytecraftPlayer extends PlayerDelegate
     public boolean canFill()
     {
         return (isAdmin() || this.rank == Rank.BUILDER);
-    }
-    
-    public boolean isDonator()
-    {
-        return (isModerator() || this.rank == Rank.DONATOR || this.rank == Rank.BUILDER);
     }
     
     public boolean isMentor()

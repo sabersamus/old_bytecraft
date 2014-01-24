@@ -19,7 +19,7 @@ public class TeleportBlockCommand extends AbstractCommand
 
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
-        if (!player.isDonator())
+        if (!player.hasFlag(Flag.NOBLE))
             return true;
         if (args.length == 1) {
             String input = args[0];
@@ -27,13 +27,12 @@ public class TeleportBlockCommand extends AbstractCommand
                 try(IContext ctx = plugin.createContext()){
                     IPlayerDAO dao = ctx.getPlayerDAO();
                     boolean block = input.equalsIgnoreCase("on") ? true : false;
-                    if (block == true) {
-                        player.setFlag(Flag.TPBLOCK);
+                    player.setFlag(Flag.TPBLOCK, block);
+                    if (block) {
                         player.sendMessage(ChatColor.RED
                                 + "Teleport block activated");
                     }
                     else {
-                        player.removeFlag(Flag.TPBLOCK);
                         player.sendMessage(ChatColor.AQUA
                                 + "Teleport block de-activated");
                     }

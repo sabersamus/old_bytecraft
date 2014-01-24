@@ -10,7 +10,6 @@ public enum Rank
     SETTLER(GREEN),
     MEMBER(DARK_GREEN),
     MENTOR(LIGHT_PURPLE),
-    DONATOR(GOLD),
     PROTECTOR(BLUE),
     BUILDER(YELLOW),
     CODER(AQUA),
@@ -43,6 +42,7 @@ public enum Rank
     {
         return (this != NEWCOMER);
     }
+    
     
     @Override
     public String toString()

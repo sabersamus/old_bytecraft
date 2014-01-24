@@ -2,6 +2,7 @@ package info.bytecraft.commands;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.BytecraftPlayer.Flag;
 
 public class TimeCommand extends AbstractCommand
 {
@@ -13,7 +14,7 @@ public class TimeCommand extends AbstractCommand
 
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
-        if(!player.isDonator())return true;
+        if(!player.hasFlag(Flag.NOBLE))return true;
         if(args.length != 1)return true;
         String input = args[0];
         if(input.equalsIgnoreCase("day")){
