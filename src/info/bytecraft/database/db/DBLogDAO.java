@@ -1,6 +1,7 @@
 package info.bytecraft.database.db;
 
 import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.ChestLog;
 import info.bytecraft.api.PaperLog;
 import info.bytecraft.blockfill.Fill;
 import info.bytecraft.blockfill.Fill.Action;
@@ -102,6 +103,23 @@ public class DBLogDAO implements ILogDAO
             throw new DAOException(sql, e);
         }
     }
+    
+    public void insertChestLog(ChestLog log) throws DAOException
+    {
+        String sql = "INSERT INTO chest_log (player_name, x, y, z, world, action) "
+                + "VALUES (?, ?, ?, ?, ?, ?)";
+        try(PreparedStatement stm = conn.prepareStatement(sql)){
+            stm.setString(1, log.getPlayerName());
+            stm.setInt(2, log.getX());
+            stm.setInt(3, log.getY());
+            stm.setInt(4, log.getY());
+            stm.setString(5, log.getWorld());
+            stm.setString(6, log.getAction().toString().toLowerCase());
+            stm.execute();
+        }catch(SQLException e){
+            throw new DAOException(sql, e);
+        }
+    }
 
     public boolean isLegal(Block block) throws DAOException
     {
@@ -153,5 +171,29 @@ public class DBLogDAO implements ILogDAO
         } catch (SQLException e) {
             throw new DAOException(sql, e);
         }
+    }
+    
+    public List<ChestLog> getChestLogs(Block block) throws DAOException
+    {
+        String sql = "SELECT * FROM chest_log WHERE x = ? AND y = ? AND z = ? AND world = ?";
+        List<ChestLog> logs = Lists.newArrayList();
+        try(PreparedStatement stm = conn.prepareStatement(sql)){
+            stm.setInt(1, block.getX());
+            stm.setInt(2, block.getY());
+            stm.setInt(3, block.getZ());
+            stm.setString(4, block.getWorld().getName());
+            stm.execute();
+            
+            try(ResultSet rs = stm.getResultSet()){
+                while(rs.next()){
+                    ChestLog log = new ChestLog(rs.getString("player_name"), block.getLocation(), 
+                            ChestLog.Action.valueOf(rs.getString("action").toUpperCase()));
+                    logs.add(log);
+                }
+            }
+        } catch (SQLException e) {
+            throw new DAOException(sql, e);
+        }
+        return logs;
     }
 }
