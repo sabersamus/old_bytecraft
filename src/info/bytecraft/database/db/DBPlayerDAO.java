@@ -117,17 +117,12 @@ public class DBPlayerDAO implements IPlayerDAO
                 if(rs.next()){
                     boolean tpb = Boolean.valueOf(rs.getString("tpblock"));
                     boolean invisible = Boolean.valueOf(rs.getString("invisible"));
+                    boolean noble = Boolean.valueOf(rs.getString("noble"));
                     
-                    if(tpb){
-                        player.setFlag(Flag.TPBLOCK);
-                    }else{
-                        player.removeFlag(Flag.TPBLOCK);
-                    }
-                    if(invisible){
-                        player.setFlag(Flag.INVISIBLE);
-                    }else{
-                        player.removeFlag(Flag.INVISIBLE);
-                    }
+                    player.setFlag(Flag.TPBLOCK, tpb);
+                    player.setFlag(Flag.INVISIBLE, invisible);
+                    player.setFlag(Flag.NOBLE, noble);
+
                 }
             }
         }catch(SQLException e){

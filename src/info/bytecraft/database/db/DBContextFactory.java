@@ -17,7 +17,7 @@ public class DBContextFactory implements IContextFactory
 
     public DBContextFactory(FileConfiguration config)
     {
-        String driver = config.getString("db.driver");
+        String driver = config.getString("database.driver");
         if (driver == null) {
             driver = "com.mysql.jdbc.Driver";
         }
@@ -32,9 +32,9 @@ public class DBContextFactory implements IContextFactory
             throw new RuntimeException(e);
         }
 
-        String user = config.getString("db.user");
-        String password = config.getString("db.password");
-        String url = config.getString("db.url");
+        String user = config.getString("database.user");
+        String password = config.getString("database.password");
+        String url = config.getString("database.url");
 
         ds = new BasicDataSource();
         ds.setDriverClassName(driver);

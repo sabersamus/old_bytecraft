@@ -11,7 +11,7 @@ import org.bukkit.block.Block;
 
 import com.google.common.collect.Maps;
 
-public class Fill
+public class Fill extends AbstractFill
 {
     private Block block1;
     private Block block2;
@@ -116,5 +116,11 @@ public class Fill
     public Material getMaterial()
     {
         return material;
+    }
+
+    @Override
+    public void run()
+    {
+        
     }
 }
