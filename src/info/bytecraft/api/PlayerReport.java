@@ -21,8 +21,8 @@ public class PlayerReport
     }
     
     private int id = 0;
-    private int subjectId = 0;
-    private int issuerId = 0;
+    private String subjectName;
+    private String issuerName;
     private Action action = null;
     private String message = "";
     private Date timestamp = new Date();
@@ -42,24 +42,24 @@ public class PlayerReport
         this.id = v;
     }
 
-    public int getSubjectId()
+    public String getSubjectName()
     {
-        return subjectId;
+        return subjectName;
     }
 
-    public void setSubjectId(int v)
+    public void setSubjectName(String v)
     {
-        this.subjectId = v;
+        this.subjectName = v;
     }
 
-    public int getIssuerId()
+    public String getIssuerName()
     {
-        return issuerId;
+        return issuerName;
     }
 
-    public void setIssuerId(int v)
+    public void setIssuerName(String v)
     {
-        this.issuerId = v;
+        this.issuerName = v;
     }
 
     public Action getAction()

@@ -24,10 +24,10 @@ public class DBReportDAO implements IReportDAO
 
     @Override
     public List<PlayerReport> getReports(BytecraftPlayer player)
-    throws DAOException
+            throws DAOException
     {
         String sql = "SELECT * FROM player_report ";
-        sql += "WHERE subject_id = ? ";
+        sql += "WHERE subject_name = ? ";
         sql += "ORDER BY report_timestamp DESC";
 
         List<PlayerReport> reports = new ArrayList<PlayerReport>();
@@ -40,8 +40,8 @@ public class DBReportDAO implements IReportDAO
                 while (rs.next()) {
                     PlayerReport report = new PlayerReport();
                     report.setId(rs.getInt("report_id"));
-                    report.setSubjectId(rs.getInt("subject_id"));
-                    report.setIssuerId(rs.getInt("issuer_id"));
+                    report.setSubjectName(rs.getString("subject_name"));
+                    report.setIssuerName(rs.getString("issuer_name"));
                     report.setAction(PlayerReport.Action.fromString(rs
                             .getString("report_action")));
                     report.setMessage(rs.getString("report_message"));
@@ -66,14 +66,15 @@ public class DBReportDAO implements IReportDAO
     @Override
     public void insertReport(PlayerReport report) throws DAOException
     {
-        String sql = "INSERT INTO player_report (subject_id, issuer_id, " +
-            "report_action, report_message, report_timestamp, report_validuntil) ";
+        String sql =
+                "INSERT INTO player_report (subject_id, issuer_id, "
+                        + "report_action, report_message, report_timestamp, report_validuntil) ";
         sql += "VALUES (?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, report.getSubjectId());
-            stmt.setInt(2, report.getIssuerId());
+            stmt.setString(1, report.getSubjectName());
+            stmt.setString(2, report.getIssuerName());
             PlayerReport.Action action = report.getAction();
             stmt.setString(3, action.toString());
             stmt.setString(4, report.getMessage());

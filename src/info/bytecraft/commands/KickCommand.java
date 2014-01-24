@@ -54,8 +54,8 @@ public class KickCommand extends AbstractCommand
             
             try(IContext ctx = plugin.createContext()){
                 PlayerReport report = new PlayerReport();
-                report.setSubjectId(target.getId());
-                report.setIssuerId(player.getId());
+                report.setSubjectName(target.getName());
+                report.setIssuerName(player.getName());
                 report.setAction(PlayerReport.Action.KICK);
                 report.setMessage(message);
 
@@ -76,6 +76,19 @@ public class KickCommand extends AbstractCommand
 
         if (delegate != null) {
             BytecraftPlayer target = plugin.getPlayer(delegate);
+            
+            try(IContext ctx = plugin.createContext()){
+                PlayerReport report = new PlayerReport();
+                report.setSubjectName(target.getName());
+                report.setIssuerName("CONSOLE");
+                report.setAction(PlayerReport.Action.KICK);
+                report.setMessage("Kicked by console");
+
+                IReportDAO reportDAO = ctx.getReportDAO();
+                reportDAO.insertReport(report);
+            }catch(DAOException e){
+                throw new RuntimeException(e);
+            }
 
             target.kickPlayer(ChatColor.RED + "You were kicked by "
                     + ChatColor.BLUE + "GOD");

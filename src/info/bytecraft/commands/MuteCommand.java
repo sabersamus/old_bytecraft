@@ -49,7 +49,7 @@ public class MuteCommand extends AbstractCommand
             return true;
 
         boolean hours = modifierFrom(args[1]).equalsIgnoreCase("h");
-        long l = 20 * 60 * timeFrom(args[1]);
+        long l =  60 * 1000l * timeFrom(args[1]);
         String time = l + " minutes";
 
         if (hours) {
@@ -61,8 +61,8 @@ public class MuteCommand extends AbstractCommand
             IReportDAO dao = ctx.getReportDAO();
             PlayerReport report = new PlayerReport();
             report.setAction(Action.MUTE);
-            report.setIssuerId(player.getId());
-            report.setSubjectId(victim.getId());
+            report.setIssuerName(player.getName());
+            report.setSubjectName(victim.getName());
             report.setTimestamp(new Date(System.currentTimeMillis()));
             report.setValidUntil(new Date(System.currentTimeMillis() + l));
             dao.insertReport(report);

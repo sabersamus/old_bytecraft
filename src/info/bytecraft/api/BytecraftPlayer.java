@@ -166,7 +166,7 @@ public class BytecraftPlayer extends PlayerDelegate
     public long getTeleportTimeout()
     {
         if(isAdmin()) return 20 * 0L;
-        if(rank == Rank.GAURD) return 20 * 3L;
+        if(rank == Rank.PROTECTOR) return 20 * 3L;
         
         if(rank == Rank.DONATOR) return 20 * 4L;
         
@@ -279,7 +279,7 @@ public class BytecraftPlayer extends PlayerDelegate
     //Bytecraft Rank-Inheritance 
     public boolean isAdmin()
     {
-        return (this.rank == Rank.ADMIN || this.rank == Rank.SENIOR_ADMIN || isCoder());
+        return (this.rank == Rank.ADMIN || this.rank == Rank.ELDER || isCoder());
     }
     
     public boolean isCoder()
@@ -289,7 +289,7 @@ public class BytecraftPlayer extends PlayerDelegate
     
     public boolean isModerator()
     {
-        return (isAdmin() || this.rank == Rank.GAURD);
+        return (isAdmin() || this.rank == Rank.PROTECTOR);
     }
     
     public boolean canFill()

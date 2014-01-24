@@ -7,6 +7,7 @@ import info.bytecraft.database.*;
 import info.bytecraft.database.db.DBContextFactory;
 import info.bytecraft.listener.*;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import org.bukkit.Bukkit;
@@ -23,6 +24,9 @@ public class Bytecraft extends JavaPlugin
 {
     private HashMap<String, BytecraftPlayer> players;
     private static IContextFactory contextFactory;
+    
+    private final SimpleDateFormat format = new SimpleDateFormat(
+            "MM/dd/YY hh:mm a");
     
     public void onLoad()
     {
@@ -191,15 +195,21 @@ public class Bytecraft extends JavaPlugin
                     player.setFlag(Flag.MUTE);
                 }
                 else if (report.getAction() == PlayerReport.Action.BAN) {
-                    throw new PlayerBannedException(report.getMessage());
+                    throw new PlayerBannedException(ChatColor.RED + "You are banned from this server until "
+                           + ChatColor.GOLD + format.format(validUntil));
                 }
             }
             
-            player.setDisplayName(player.getRank().getColor() + player.getName() + ChatColor.WHITE);
+            ChatColor color = player.getRank().getColor();
+            if(player.hasFlag(Flag.HARDWARNED) || player.hasFlag(Flag.SOFTWARNED)){
+                color = ChatColor.GRAY;
+            }
+            player.setDisplayName(color + player.getName() + ChatColor.WHITE);
+            
             if(player.getName().length() + 4 > 16){
-                player.setPlayerListName(player.getRank().getColor() + player.getName().substring(0, 12) + ChatColor.WHITE);
+                player.setPlayerListName(color + player.getName().substring(0, 12) + ChatColor.WHITE);
             }else{
-                player.setPlayerListName(player.getRank().getColor() + player.getName() + ChatColor.WHITE);
+                player.setPlayerListName(color + player.getName() + ChatColor.WHITE);
             }
             
             players.put(player.getName(), player);
