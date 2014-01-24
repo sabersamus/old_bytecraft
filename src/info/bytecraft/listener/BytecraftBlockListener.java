@@ -27,12 +27,7 @@ public class BytecraftBlockListener implements Listener
     public void onBreak(BlockBreakEvent event)
     {
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
-        if (!player.getRank().canBuild()) {
-            event.setCancelled(true);
-            return;
-        }
-
-        if (player.hasFlag(Flag.HARDWARNED)) {
+        if (!player.getRank().canBuild() || player.hasFlag(Flag.HARDWARNED)) {
             event.setCancelled(true);
             return;
         }
@@ -55,12 +50,7 @@ public class BytecraftBlockListener implements Listener
     public void onPlace(BlockPlaceEvent event)
     {
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
-        if (!player.getRank().canBuild()) {
-            event.setCancelled(true);
-            return;
-        }
-
-        if (player.hasFlag(Flag.HARDWARNED)) {
+        if (!player.getRank().canBuild() || player.hasFlag(Flag.HARDWARNED)) {
             event.setCancelled(true);
             return;
         }

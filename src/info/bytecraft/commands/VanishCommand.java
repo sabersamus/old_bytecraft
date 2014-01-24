@@ -36,7 +36,7 @@ public class VanishCommand extends AbstractCommand
                     else {
                         player.setFlag(Flag.INVISIBLE);
                         for (BytecraftPlayer other : plugin.getOnlinePlayers()) {
-                            if (other.getRank() == Rank.SENIOR_ADMIN) {
+                            if (other.getRank() == Rank.ELDER) {
                                 continue;
                             }
                             other.hidePlayer(player.getDelegate());
