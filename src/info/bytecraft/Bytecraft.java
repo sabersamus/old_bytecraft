@@ -12,12 +12,14 @@ import java.util.*;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class Bytecraft extends JavaPlugin
@@ -33,7 +35,6 @@ public class Bytecraft extends JavaPlugin
         reloadConfig();
         
         FileConfiguration config = getConfig();
-        
         contextFactory = new DBContextFactory(config);
     }
 
@@ -53,13 +54,11 @@ public class Bytecraft extends JavaPlugin
         getCommand("bless").setExecutor(new BlessCommand(this));
         getCommand("clear").setExecutor(new ClearCommand(this));
         getCommand("cmob").setExecutor(new CreateMobCommand(this));
-        getCommand("creative").setExecutor(
-                new GameModeCommand(this, "creative"));
+        getCommand("creative").setExecutor(new GameModeCommand(this, "creative"));
         getCommand("channel").setExecutor(new ChannelCommand(this));
         getCommand("fill").setExecutor(new FillCommand(this));
         getCommand("force").setExecutor(new ForceCommand(this));
-        getCommand("gamemode").setExecutor(
-                new GameModeCommand(this, "gamemode"));
+        getCommand("gamemode").setExecutor(new GameModeCommand(this, "gamemode"));
         getCommand("give").setExecutor(new GiveCommand(this));
         getCommand("god").setExecutor(new SayCommand(this, "god"));
         getCommand("home").setExecutor(new HomeCommand(this));
@@ -70,12 +69,12 @@ public class Bytecraft extends JavaPlugin
         getCommand("makewarp").setExecutor(new WarpCreateCommand(this));
         getCommand("me").setExecutor(new ActionCommand(this));
         getCommand("message").setExecutor(new MessageCommand(this));
+        getCommand("pos").setExecutor(new PositionCommand(this));
         getCommand("say").setExecutor(new SayCommand(this, "say"));
         getCommand("summon").setExecutor(new SummonCommand(this));
         getCommand("support").setExecutor(new SupportCommand(this));
         getCommand("spawn").setExecutor(new SpawnCommand(this));
-        getCommand("survival").setExecutor(
-                new GameModeCommand(this, "survival"));
+        getCommand("survival").setExecutor(new GameModeCommand(this, "survival"));
         getCommand("time").setExecutor(new TimeCommand(this));
         getCommand("tpblock").setExecutor(new TeleportBlockCommand(this));
         getCommand("teleport").setExecutor(new TeleportCommand(this));
@@ -86,7 +85,7 @@ public class Bytecraft extends JavaPlugin
         getCommand("warn").setExecutor(new WarnCommand(this));
         getCommand("warp").setExecutor(new WarpCommand(this));
         getCommand("who").setExecutor(new WhoCommand(this));
-        getCommand("zone").setExecutor(new ZoneCommand(this));
+        //getCommand("zone").setExecutor(new ZoneCommand(this));
     }
     
     public IContextFactory getContextFactory()
@@ -106,17 +105,17 @@ public class Bytecraft extends JavaPlugin
         pm.registerEvents(new ChatListener(this), this);
         pm.registerEvents(new BytecraftPlayerListener(this), this);
         pm.registerEvents(new BlessListener(this), this);
-        pm.registerEvents(new RareDropListener(this), this);
+        //pm.registerEvents(new RareDropListener(this), this);
         pm.registerEvents(new BytecraftBlockListener(this), this);
-        pm.registerEvents(new DamageListener(this), this);
+        //pm.registerEvents(new DamageListener(this), this);
         pm.registerEvents(new FillListener(this), this);
         pm.registerEvents(new PlayerPromotionListener(this), this);
-        pm.registerEvents(new SelectListener(this), this);
-        pm.registerEvents(new ZoneListener(this), this);
+        //pm.registerEvents(new SelectListener(this), this);
+        //pm.registerEvents(new ZoneListener(this), this);
     }
     
     // ========================================================
-    // Player
+    // ================== Player Methods ======================
     // ========================================================
     
     public void reloadPlayer(BytecraftPlayer player)
@@ -171,9 +170,9 @@ public class Bytecraft extends JavaPlugin
                 dao.createPlayer(srcPlayer);
             }
             
-            player.removeFlag(Flag.HARDWARNED);
-            player.removeFlag(Flag.SOFTWARNED);
-            player.removeFlag(Flag.MUTE);
+            player.setFlag(Flag.HARDWARNED, false);
+            player.setFlag(Flag.SOFTWARNED, false);
+            player.setFlag(Flag.MUTE, false);
             
             IReportDAO reportDao = ctx.getReportDAO();
             List<PlayerReport> reports = reportDao.getReports(player);
@@ -187,12 +186,12 @@ public class Bytecraft extends JavaPlugin
                 }
                 
                 if (report.getAction() == PlayerReport.Action.SOFTWARN) {
-                    player.setFlag(Flag.SOFTWARNED);
+                    player.setFlag(Flag.SOFTWARNED, true);
                 }
                 else if (report.getAction() == PlayerReport.Action.HARDWARN) {
-                    player.setFlag(Flag.HARDWARNED);
+                    player.setFlag(Flag.HARDWARNED, true);
                 }else if(report.getAction() == PlayerReport.Action.MUTE){
-                    player.setFlag(Flag.MUTE);
+                    player.setFlag(Flag.MUTE, true);
                 }
                 else if (report.getAction() == PlayerReport.Action.BAN) {
                     throw new PlayerBannedException(ChatColor.RED + "You are banned from this server until "
@@ -204,6 +203,12 @@ public class Bytecraft extends JavaPlugin
             if(player.hasFlag(Flag.HARDWARNED) || player.hasFlag(Flag.SOFTWARNED)){
                 color = ChatColor.GRAY;
             }
+            if(player.hasFlag(Flag.NOBLE)){
+                if(player.getRank() == Rank.MEMBER || player.getRank() == Rank.SETTLER){
+                    color = ChatColor.GOLD;
+                }
+            }
+            
             player.setDisplayName(color + player.getName() + ChatColor.WHITE);
             
             if(player.getName().length() + 4 > 16){
@@ -237,9 +242,21 @@ public class Bytecraft extends JavaPlugin
         }
         return playersList;
     }
+    
+    public List<BytecraftPlayer> matchPlayer(String name)
+    {
+        List<BytecraftPlayer> players = Lists.newArrayList();
+        for(BytecraftPlayer player: getOnlinePlayers()){
+            String playerName = player.getName().toLowerCase();
+            if(playerName.startsWith(name.toLowerCase())){
+                players.add(player);
+            }
+        }
+        return players;
+    }
 
     // ========================================================
-    // Zones
+    // ======================= Zones ==========================
     // ========================================================
     
     public List<Zone> getZones(String world)
@@ -259,7 +276,10 @@ public class Bytecraft extends JavaPlugin
             throw new RuntimeException(e);
         }
     }
-
+    
+    // ========================================================
+    // ===================== Other ============================
+    // ========================================================
     public long getValue(Block block)
     {
         switch (block.getType()) {
@@ -285,6 +305,40 @@ public class Bytecraft extends JavaPlugin
             return 200;
         default:
             return 1;
+        }
+    }
+    
+    public Location getWorldSpawn(String name)
+    {
+        String loc = this.getConfig().getString("spawn." + name);
+        
+        if(loc == null || loc.equalsIgnoreCase("")){
+            return Bukkit.getWorld(name).getSpawnLocation();
+        }
+        
+        String[] args = loc.split(", ");
+        
+        Location location = new Location(Bukkit.getWorld(name), parseDouble(args[0]), parseDouble(args[1]), 
+                parseDouble(args[2]), parseFloat(args[3]), parseFloat(args[4]));
+        
+        return location;
+    }
+    
+    private double parseDouble(String s)
+    {
+        try{
+            return Double.parseDouble(s);
+        }catch(NumberFormatException e){
+            return 0.0;
+        }
+    }
+    
+    private float parseFloat(String s)
+    {
+        try{
+            return Float.parseFloat(s);
+        }catch(NumberFormatException e){
+            return 0.0F;
         }
     }
     
