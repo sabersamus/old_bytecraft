@@ -6,18 +6,16 @@ import static org.bukkit.ChatColor.*;
 
 public enum Rank
 {
-    WARNED(GRAY),
-    HARD_WARNED(GRAY),
     NEWCOMER(WHITE),
     SETTLER(GREEN),
     MEMBER(DARK_GREEN),
     MENTOR(LIGHT_PURPLE),
     DONATOR(GOLD),
-    GAURD(BLUE),
+    PROTECTOR(BLUE),
     BUILDER(YELLOW),
     CODER(AQUA),
     ADMIN(RED),
-    SENIOR_ADMIN(DARK_RED);
+    ELDER(DARK_RED);
     
     private final ChatColor color;
     
@@ -43,7 +41,7 @@ public enum Rank
     
     public boolean canBuild()
     {
-        return (this != HARD_WARNED && this != NEWCOMER);
+        return (this != NEWCOMER);
     }
     
     @Override
