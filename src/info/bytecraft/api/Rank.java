@@ -9,11 +9,12 @@ public enum Rank
     NEWCOMER(WHITE),
     SETTLER(GREEN),
     MEMBER(DARK_GREEN),
-    MENTOR(LIGHT_PURPLE),
+    MENTOR(DARK_AQUA),
     PROTECTOR(BLUE),
     BUILDER(YELLOW),
     CODER(AQUA),
     ADMIN(RED),
+    PRINCESS(LIGHT_PURPLE),
     ELDER(DARK_RED);
     
     private final ChatColor color;
