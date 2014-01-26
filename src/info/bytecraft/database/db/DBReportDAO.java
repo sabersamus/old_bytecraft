@@ -33,7 +33,7 @@ public class DBReportDAO implements IReportDAO
         List<PlayerReport> reports = new ArrayList<PlayerReport>();
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, player.getId());
+            stmt.setString(1, player.getName());
             stmt.execute();
 
             try (ResultSet rs = stmt.getResultSet()) {
