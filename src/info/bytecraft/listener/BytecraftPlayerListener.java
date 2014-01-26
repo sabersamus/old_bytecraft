@@ -55,9 +55,10 @@ public class BytecraftPlayerListener implements Listener
         event.setJoinMessage(null);
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
         if(player == null)return;
-        if (player.getRank() == Rank.ELDER && player.hasFlag(Flag.INVISIBLE)) {
+        if ((player.getRank() == Rank.ELDER || player.getRank() == Rank.PRINCESS) 
+                && player.hasFlag(Flag.INVISIBLE)) {
             for (BytecraftPlayer other : plugin.getOnlinePlayers()) {
-                if (other.getRank() != Rank.ELDER) {
+                if (other.getRank() != Rank.ELDER && other.getRank() != Rank.PRINCESS) {
                     other.hidePlayer(player.getDelegate());
                 }
                 else {

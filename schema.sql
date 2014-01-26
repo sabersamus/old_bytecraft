@@ -88,8 +88,9 @@ CREATE TABLE IF NOT EXISTS `player` (
   `player_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `player_name` varchar(46) DEFAULT NULL,
   `player_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `player_wallet` bigint(20) DEFAULT '750',
-  `player_rank` enum('newcomer','settler','member','mentor','protector','builder','admin','elder') NOT NULL DEFAULT 'newcomer',
+  `player_wallet` bigint(20) DEFAULT '1000',
+  `player_rank` enum('newcomer','settler','member','mentor','protector'
+  ,'builder','admin', 'princess','elder') NOT NULL DEFAULT 'newcomer',
   `player_promoted` int(10) unsigned DEFAULT NULL,
   `player_playtime` int(10) unsigned DEFAULT '0',
   UNIQUE KEY `uid` (`player_id`),

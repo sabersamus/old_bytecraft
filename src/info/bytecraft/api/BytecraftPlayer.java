@@ -284,7 +284,7 @@ public class BytecraftPlayer extends PlayerDelegate
     //Bytecraft Rank-Inheritance 
     public boolean isAdmin()
     {
-        return (this.rank == Rank.ADMIN || this.rank == Rank.ELDER || isCoder());
+        return (this.rank == Rank.ADMIN || this.rank == Rank.ELDER || rank == Rank.PRINCESS || isCoder());
     }
     
     public boolean isCoder()
