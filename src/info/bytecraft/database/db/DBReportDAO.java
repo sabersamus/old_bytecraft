@@ -67,7 +67,7 @@ public class DBReportDAO implements IReportDAO
     public void insertReport(PlayerReport report) throws DAOException
     {
         String sql =
-                "INSERT INTO player_report (subject_id, issuer_id, "
+                "INSERT INTO player_report (subject_name, issuer_name, "
                         + "report_action, report_message, report_timestamp, report_validuntil) ";
         sql += "VALUES (?, ?, ?, ?, ?, ?)";
 
