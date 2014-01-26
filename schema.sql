@@ -144,6 +144,8 @@ CREATE TABLE IF NOT EXISTS `player_property` (
   `player_name` varchar(255) NOT NULL,
   `invisible` enum('true','false') COLLATE utf8_bin NOT NULL DEFAULT 'false',
   `tpblock` enum('true','false') COLLATE utf8_bin NOT NULL DEFAULT 'false',
+  `hidden_location` enum('true', 'false') COLLATE utf8_bin NOT NULL DEFAULT 'false',
+  `silent_join` enum('true', 'false') COLLATE utf8_bin NOT NULL DEFAULT 'false',
   `noble` enum('true', 'false') COLLATE utf8_bin NOT NULL DEFAULT 'false',
   `god_color` enum('red','aqua','gold','yellow','dark_aqua','pink','purple','green','dark_green','dark_red','gray') COLLATE utf8_bin NOT NULL DEFAULT 'red',
   PRIMARY KEY `id` (`player_id`),

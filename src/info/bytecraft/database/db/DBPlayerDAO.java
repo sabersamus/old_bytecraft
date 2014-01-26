@@ -96,7 +96,8 @@ public class DBPlayerDAO implements IPlayerDAO
     
     public void createFlags(BytecraftPlayer player) throws DAOException
     {
-        String sql = "INSERT INTO player_property (player_id, player_name, invisible, tpblock, noble, god_color)"
+        String sql = "INSERT INTO player_property (player_id, player_name, invisible, tpblock, "
+                + "hidden_location, silent_join, noble, god_color)"
                 + "VALUES (?,?, ?, ?, ?, ?)";
         try(PreparedStatement stm = conn.prepareStatement(sql)){
             stm.setInt(1, player.getId());
@@ -104,7 +105,9 @@ public class DBPlayerDAO implements IPlayerDAO
             stm.setString(3, "false");
             stm.setString(4, "false");
             stm.setString(5, "false");
-            stm.setString(6, "red");
+            stm.setString(6, "false");
+            stm.setString(7, "false");
+            stm.setString(8, "red");
             stm.execute();
         } catch (SQLException e) {
             throw new DAOException(sql, e);
@@ -124,10 +127,14 @@ public class DBPlayerDAO implements IPlayerDAO
                     boolean tpb = Boolean.valueOf(rs.getString("tpblock"));
                     boolean invisible = Boolean.valueOf(rs.getString("invisible"));
                     boolean noble = Boolean.valueOf(rs.getString("noble"));
+                    boolean hiddenLoc = Boolean.valueOf(rs.getString("hidden_location"));
+                    boolean silentJoin = Boolean.valueOf(rs.getString("silent_join"));
                     
                     player.setFlag(Flag.TPBLOCK, tpb);
                     player.setFlag(Flag.INVISIBLE, invisible);
                     player.setFlag(Flag.NOBLE, noble);
+                    player.setFlag(Flag.HIDDEN_LOCATION, hiddenLoc);
+                    player.setFlag(Flag.SILENT_JOIN, silentJoin);
 
                 }
             }
@@ -177,14 +184,15 @@ public class DBPlayerDAO implements IPlayerDAO
     public void updateFlag(BytecraftPlayer player, Flag flag)
             throws DAOException
     {
-        String sql = "";
-        switch(flag){
+        String sql = "UPDATE player_property SET %s = ? WHERE player_name = ?";
+        /*switch(flag){
         case TPBLOCK: sql = "UPDATE player_property SET tpblock = ? WHERE player_name = ?";
         break;
         case INVISIBLE: sql = "UPDATE player_property SET invisible = ? WHERE player_name = ?";
         break;
         default: sql = "UPDATE player_property SET ? = ? WHERE player_name = ?";
-        }
+        }*/
+        sql = String.format(sql, flag.name().toLowerCase());
         try (PreparedStatement stm = conn.prepareStatement(sql)) {
             stm.setString(1, String.valueOf(player.hasFlag(flag)));
             stm.setString(2, player.getName());

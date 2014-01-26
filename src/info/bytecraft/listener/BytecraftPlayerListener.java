@@ -58,6 +58,9 @@ public class BytecraftPlayerListener implements Listener
         if ((player.getRank() == Rank.ELDER || player.getRank() == Rank.PRINCESS) 
                 && player.hasFlag(Flag.INVISIBLE)) {
             for (BytecraftPlayer other : plugin.getOnlinePlayers()) {
+                if(other == player){
+                    continue;
+                }
                 if (other.getRank() != Rank.ELDER && other.getRank() != Rank.PRINCESS) {
                     other.hidePlayer(player.getDelegate());
                 }
@@ -66,9 +69,22 @@ public class BytecraftPlayerListener implements Listener
                             + " has joined invisible");
                 }
             }
+            if (!player.hasFlag(Flag.SILENT_JOIN)) {
+                if (player.getCountry() != null
+                        && !player.hasFlag(Flag.HIDDEN_LOCATION)) {
+                    Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "Welcome "
+                            + player.getDisplayName() + ChatColor.DARK_AQUA
+                            + " from " + player.getCountry());
+                }
+                else {
+                    Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "Welcome "
+                            + player.getDisplayName() + ChatColor.DARK_AQUA
+                            + " to Bytecraft ");
+                }
+            }
         }
         else {
-            if(player.getCountry() != null){
+            if(player.getCountry() != null && !player.hasFlag(Flag.HIDDEN_LOCATION)){
                 Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "Welcome "
                         + player.getDisplayName() + ChatColor.DARK_AQUA
                         + " from " + player.getCountry());
@@ -106,7 +122,7 @@ public class BytecraftPlayerListener implements Listener
     public void onQuit(PlayerQuitEvent event)
     {
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
-        if (player.hasFlag(Flag.INVISIBLE)) {
+        if (player.hasFlag(Flag.SILENT_JOIN)) {
             event.setQuitMessage(null);
             plugin.removePlayer(player);
             return;
