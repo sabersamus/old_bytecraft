@@ -11,6 +11,7 @@ import org.bukkit.command.ConsoleCommandSender;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.Rank;
 import info.bytecraft.api.BytecraftPlayer.Flag;
 
 public class WhoCommand extends AbstractCommand
@@ -29,7 +30,9 @@ public class WhoCommand extends AbstractCommand
             int playerCounter = 0;
             for (BytecraftPlayer other : plugin.getOnlinePlayers()) {
                 if (other.hasFlag(Flag.INVISIBLE)) {
-                    continue;
+                    if(player.getRank() != Rank.ELDER && player.getRank() != Rank.PRINCESS){
+                        continue;
+                    }
                 }
                 sb.append(delim);
                 sb.append(other.getDisplayName());
