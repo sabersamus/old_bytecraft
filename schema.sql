@@ -139,12 +139,14 @@ CREATE TABLE IF NOT EXISTS `player_home` (
 DROP TABLE IF EXISTS `player_property`;
 
 CREATE TABLE IF NOT EXISTS `player_property` (
+  `player_id` int(10) NOT NULL,
   `player_name` varchar(255) NOT NULL,
   `invisible` enum('true','false') COLLATE utf8_bin NOT NULL DEFAULT 'false',
   `tpblock` enum('true','false') COLLATE utf8_bin NOT NULL DEFAULT 'false',
   `noble` enum('true', 'false') COLLATE utf8_bin NOT NULL DEFAULT 'false',
   `god_color` enum('red','aqua','gold','yellow','dark_aqua','pink','purple','green','dark_green','dark_red','gray') COLLATE utf8_bin NOT NULL DEFAULT 'red',
-  PRIMARY KEY (`player_name`)
+  PRIMARY KEY `id` (`player_id`),
+  UNIQUE KEY (`player_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -162,8 +164,8 @@ CREATE TABLE IF NOT EXISTS `player_report` (
   `report_timestamp` int(10) unsigned NOT NULL,
   `report_validuntil` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`report_id`),
-  KEY `idx_subject` (`subject_id`,`report_timestamp`),
-  KEY `idx_issuer` (`issuer_id`,`report_timestamp`)
+  KEY `idx_subject` (`subject_name`,`report_timestamp`),
+  KEY `idx_issuer` (`issuer_name`,`report_timestamp`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
