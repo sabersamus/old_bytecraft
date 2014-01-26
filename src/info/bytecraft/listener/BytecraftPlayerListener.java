@@ -82,7 +82,7 @@ public class BytecraftPlayerListener implements Listener
             if (player.getRank() == Rank.NEWCOMER) {
                 for (BytecraftPlayer other : plugin.getOnlinePlayers()) {
                     if (other.isMentor()) {
-                        other.sendMessage(other.getDisplayName()
+                        other.sendMessage(player.getDisplayName()
                                 + ChatColor.AQUA
                                 + " has joined as a newcomer, you should help them out!");
                     }
