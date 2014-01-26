@@ -29,6 +29,10 @@ public class WarpCreateCommand extends AbstractCommand
         try (IContext ctx = plugin.createContext()) {
             IWarpDAO dao = ctx.getWarpDAO();
             Location l = player.getLocation();
+            if(dao.getWarp(name) != null){
+                player.sendMessage(ChatColor.RED + "This is already a warp!");
+                return true;
+            }
             dao.createWarp(name, l);
             player.sendMessage(ChatColor.LIGHT_PURPLE + "Created warp: "
                     + ChatColor.GREEN + name + ChatColor.WHITE + " at "
