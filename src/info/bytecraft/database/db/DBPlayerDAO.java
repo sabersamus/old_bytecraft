@@ -81,7 +81,7 @@ public class DBPlayerDAO implements IPlayerDAO
 
             try (ResultSet rs = stm.getResultSet()) {
                 if (!rs.next()) {
-                    return createPlayer(wrap);
+                    return null;
                 }
 
                 player.setId(rs.getInt("player_id"));
@@ -156,6 +156,7 @@ public class DBPlayerDAO implements IPlayerDAO
             throw new DAOException(sql, e);
         }
         createFlags(player);
+        loadFlags(player);
         return player;
     }
 

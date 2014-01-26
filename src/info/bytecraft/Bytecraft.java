@@ -172,7 +172,7 @@ public class Bytecraft extends JavaPlugin
             BytecraftPlayer player = dao.getPlayer(srcPlayer);
             
             if(player == null){
-                dao.createPlayer(srcPlayer);
+                player = dao.createPlayer(srcPlayer);
             }
             
             player.setFlag(Flag.HARDWARNED, false);
