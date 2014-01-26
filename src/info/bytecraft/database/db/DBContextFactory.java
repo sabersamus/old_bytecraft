@@ -7,6 +7,7 @@ import java.sql.Statement;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.bukkit.configuration.file.FileConfiguration;
 
+import info.bytecraft.Bytecraft;
 import info.bytecraft.database.DAOException;
 import info.bytecraft.database.IContext;
 import info.bytecraft.database.IContextFactory;
@@ -14,9 +15,11 @@ import info.bytecraft.database.IContextFactory;
 public class DBContextFactory implements IContextFactory
 {
     private BasicDataSource ds;
+    private Bytecraft plugin;
 
-    public DBContextFactory(FileConfiguration config)
+    public DBContextFactory(FileConfiguration config, Bytecraft plugin)
     {
+        this.plugin = plugin;
         String driver = config.getString("database.driver");
         if (driver == null) {
             driver = "com.mysql.jdbc.Driver";
@@ -56,7 +59,7 @@ public class DBContextFactory implements IContextFactory
                 stm.execute("SET NAMES latin1");
             }
             
-            return new DBContext(conn);
+            return new DBContext(conn, plugin);
         }catch(SQLException e){
             throw new DAOException(e);
         }

@@ -1,10 +1,9 @@
 package info.bytecraft.commands;
 
-import java.sql.Date;
+import java.util.Date;
+import java.util.List;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
@@ -42,9 +41,14 @@ public class MuteCommand extends AbstractCommand
             return true;
         if (args.length != 2)
             return true;
-
-        Player delegate = Bukkit.getPlayer(args[0]);
-        BytecraftPlayer victim = plugin.getPlayer(delegate);
+        
+        List<BytecraftPlayer> cantidates = plugin.matchPlayer(args[0]);
+        if(cantidates.size() != 1){
+            return true;
+        }
+        
+        BytecraftPlayer victim = cantidates.get(0);
+        
         if (victim.isModerator())
             return true;
 

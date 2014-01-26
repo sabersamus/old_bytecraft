@@ -1,8 +1,8 @@
 package info.bytecraft.commands;
 
-import org.bukkit.Bukkit;
+import java.util.List;
+
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
@@ -21,23 +21,25 @@ public class MessageCommand extends AbstractCommand
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
         if (args.length >= 2) {
-            Player delegate = Bukkit.getPlayer(args[0]);
-            if (delegate != null) {
-                BytecraftPlayer target =
-                        plugin.getPlayer(delegate);
-                StringBuilder message = new StringBuilder();
-                for (int i = 1; i < args.length; i++) {
-                    message.append(args[i] + " ");
-                }
 
-                target.sendNotification(Notification.MESSAGE, ChatColor.GOLD + "<From> "
-                        + player.getDisplayName() + ": " + ChatColor.GREEN
+            List<BytecraftPlayer> cantidates = plugin.matchPlayer(args[0]);
+            if (cantidates.size() != 1) {
+                return true;
+            }
+
+            BytecraftPlayer target = cantidates.get(0);
+            StringBuilder message = new StringBuilder();
+            for (int i = 1; i < args.length; i++) {
+                message.append(args[i] + " ");
+            }
+
+            target.sendNotification(Notification.MESSAGE, ChatColor.GOLD
+                    + "<From> " + player.getDisplayName() + ": "
+                    + ChatColor.GREEN + message.toString().trim());
+            if (!target.hasFlag(Flag.INVISIBLE)) {
+                player.sendMessage(ChatColor.GOLD + "<To> "
+                        + target.getDisplayName() + ": " + ChatColor.GREEN
                         + message.toString().trim());
-                if (!target.hasFlag(Flag.INVISIBLE)) {
-                    player.sendMessage(ChatColor.GOLD + "<To> "
-                            + target.getDisplayName() + ": " + ChatColor.GREEN
-                            + message.toString().trim());
-                }
             }
         }
         return true;

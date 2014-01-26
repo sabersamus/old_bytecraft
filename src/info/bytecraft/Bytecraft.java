@@ -7,6 +7,9 @@ import info.bytecraft.database.*;
 import info.bytecraft.database.db.DBContextFactory;
 import info.bytecraft.listener.*;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.InetAddress;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -21,30 +24,40 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.maxmind.geoip.LookupService;
 
 public class Bytecraft extends JavaPlugin
 {
     private HashMap<String, BytecraftPlayer> players;
     private static IContextFactory contextFactory;
     
+    private LookupService lookup = null;
+    
     private final SimpleDateFormat format = new SimpleDateFormat(
             "MM/dd/YY hh:mm a");
     
     public void onLoad()
     {
+        File folder = getDataFolder();
         reloadConfig();
         
         FileConfiguration config = getConfig();
-        contextFactory = new DBContextFactory(config);
+        contextFactory = new DBContextFactory(config, this);
+        
+        try{
+            lookup = new LookupService(new File(folder, "GeoIPCity.dat"), 
+                    LookupService.GEOIP_MEMORY_CACHE);
+        }catch(IOException e){
+            getLogger().warning("Could not find GeoIPCity.dat, is it in the correct folder?");
+        }
     }
 
     public void onEnable()
     {
-        BytecraftPlayer.setPlugin(this);
         players = Maps.newHashMap();
         for (Player delegate : Bukkit.getOnlinePlayers()) {
             try {
-                addPlayer(delegate);
+                addPlayer(delegate, delegate.getAddress().getAddress());
             } catch (PlayerBannedException e) {}
         }
 
@@ -61,6 +74,7 @@ public class Bytecraft extends JavaPlugin
         getCommand("gamemode").setExecutor(new GameModeCommand(this, "gamemode"));
         getCommand("give").setExecutor(new GiveCommand(this));
         getCommand("god").setExecutor(new SayCommand(this, "god"));
+        getCommand("hardwarn").setExecutor(new WarnCommand(this, "hardwarn"));
         getCommand("home").setExecutor(new HomeCommand(this));
         getCommand("inv").setExecutor(new InventoryCommand(this));
         getCommand("item").setExecutor(new ItemCommand(this));
@@ -82,7 +96,7 @@ public class Bytecraft extends JavaPlugin
         getCommand("user").setExecutor(new UserCommand(this));
         getCommand("vanish").setExecutor(new VanishCommand(this));
         getCommand("wallet").setExecutor(new WalletCommand(this));
-        getCommand("warn").setExecutor(new WarnCommand(this));
+        getCommand("warn").setExecutor(new WarnCommand(this, "warn"));
         getCommand("warp").setExecutor(new WarpCommand(this));
         getCommand("who").setExecutor(new WhoCommand(this));
         //getCommand("zone").setExecutor(new ZoneCommand(this));
@@ -121,7 +135,7 @@ public class Bytecraft extends JavaPlugin
     public void reloadPlayer(BytecraftPlayer player)
     {
         try{
-            addPlayer(player.getDelegate());
+            addPlayer(player.getDelegate(), player.getAddress().getAddress());
         }catch(PlayerBannedException e){
             player.kickPlayer(e.getMessage());
         }
@@ -134,16 +148,7 @@ public class Bytecraft extends JavaPlugin
 
     public BytecraftPlayer getPlayer(String name)
     {
-        if (players.containsKey(name)) {
-            return players.get(name);
-        }
-        else {
-            try {
-                return addPlayer(Bukkit.getPlayer(name));
-            } catch (PlayerBannedException e) {
-                return null;
-            }
-        }
+        return players.get(name);
     }
     
     public BytecraftPlayer getPlayerOffline(String name)
@@ -155,7 +160,7 @@ public class Bytecraft extends JavaPlugin
         return null;
     }
 
-    public BytecraftPlayer addPlayer(Player srcPlayer)
+    public BytecraftPlayer addPlayer(Player srcPlayer,  InetAddress addr)
             throws PlayerBannedException
     {
         if (players.containsKey(srcPlayer.getName())) {
@@ -210,11 +215,23 @@ public class Bytecraft extends JavaPlugin
             }
             
             player.setDisplayName(color + player.getName() + ChatColor.WHITE);
+            String name = color + player.getName();
             
-            if(player.getName().length() + 4 > 16){
-                player.setPlayerListName(color + player.getName().substring(0, 12) + ChatColor.WHITE);
+            if(name.length() > 16){
+                player.setPlayerListName(name.substring(0, 15));
             }else{
-                player.setPlayerListName(color + player.getName() + ChatColor.WHITE);
+                player.setPlayerListName(name);
+            }
+            
+            player.setIp(addr.getHostAddress());
+            player.setHost(addr.getCanonicalHostName());
+            
+            if(lookup != null){
+                com.maxmind.geoip.Location loc = lookup.getLocation(player.getIp());
+                if(loc != null){
+                    player.setCountry(loc.countryName);
+                    player.setCity(loc.city);
+                }
             }
             
             players.put(player.getName(), player);
@@ -253,6 +270,18 @@ public class Bytecraft extends JavaPlugin
             }
         }
         return players;
+    }
+    
+    public BytecraftPlayer getBytecraftPlayerOffline(String name)
+    {
+        if(players.containsKey(name)){
+            return players.get(name);
+        }
+        try(IContext ctx = createContext()){
+            return ctx.getPlayerDAO().getPlayer(name);
+        }catch(DAOException e){
+            throw new RuntimeException(e);
+        }
     }
 
     // ========================================================

@@ -13,6 +13,7 @@ import java.util.Map;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.api.Rank;
 import info.bytecraft.api.BytecraftPlayer.Flag;
@@ -22,10 +23,12 @@ import info.bytecraft.database.IPlayerDAO;
 public class DBPlayerDAO implements IPlayerDAO
 {
     
+    private Bytecraft plugin;
     private Connection conn;
     
-    public DBPlayerDAO(Connection conn)
+    public DBPlayerDAO(Connection conn, Bytecraft plugin)
     {
+        this.plugin = plugin;
         this.conn = conn;
     }
 
@@ -65,10 +68,10 @@ public class DBPlayerDAO implements IPlayerDAO
     {
         BytecraftPlayer player;
         if (wrap != null) {
-            player = new BytecraftPlayer(wrap);
+            player = new BytecraftPlayer(wrap, plugin);
         }
         else {
-            player = new BytecraftPlayer(name);
+            player = new BytecraftPlayer(name, plugin);
         }
 
         String sql = "SELECT * FROM player WHERE player_name = ?";
@@ -93,11 +96,12 @@ public class DBPlayerDAO implements IPlayerDAO
     
     public void createFlags(BytecraftPlayer player) throws DAOException
     {
-        String sql = "INSERT INTO player_property (player_name, invisible, tpblock, god_color) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO player_property (player_name, invisible, tpblock, god_color, noble) VALUES (?, ?, ?, ?, ?)";
         try(PreparedStatement stm = conn.prepareStatement(sql)){
             stm.setString(1, player.getName());
-            stm.setString(2, String.valueOf(player.hasFlag(Flag.INVISIBLE)));
-            stm.setString(3, String.valueOf(player.hasFlag(Flag.TPBLOCK)));
+            stm.setString(2, "false");
+            stm.setString(3, "false");
+            stm.setString(5, "false");
             stm.setString(4, "red");
             stm.execute();
         } catch (SQLException e) {
@@ -132,7 +136,7 @@ public class DBPlayerDAO implements IPlayerDAO
 
     public BytecraftPlayer createPlayer(Player wrap) throws DAOException
     {
-        BytecraftPlayer player = new BytecraftPlayer(wrap);
+        BytecraftPlayer player = new BytecraftPlayer(wrap, plugin);
         String sql = "INSERT INTO player (player_name) VALUE (?)";
         try (PreparedStatement stm = conn.prepareStatement(sql)) {
             stm.setString(1, player.getName());

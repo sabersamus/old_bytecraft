@@ -1,8 +1,8 @@
 package info.bytecraft.commands;
 
-import org.bukkit.Bukkit;
+import java.util.List;
+
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
@@ -17,14 +17,17 @@ public class BlessCommand extends AbstractCommand
 
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
-        if(!player.isAdmin())return true;
-        if(args.length != 1)return true;
-        Player delegate = Bukkit.getPlayer(args[0]);
-        if(delegate != null){
-            BytecraftPlayer target = plugin.getPlayer(delegate);
-            player.setBlessTarget(target);
-            player.sendMessage(ChatColor.AQUA + "Preparing to bless a block for " + target.getDisplayName());
+        if (!player.isAdmin())return true;
+        if (args.length != 1)return true;
+        
+        List<BytecraftPlayer> cantidates = plugin.matchPlayer(args[0]);
+        if (cantidates.size() != 1) {
+            return true;
         }
+
+        BytecraftPlayer target = cantidates.get(0);
+        player.setBlessTarget(target);
+        player.sendMessage(ChatColor.AQUA + "Preparing to bless a block for " + target.getDisplayName());
         return true;
     }
 }

@@ -54,6 +54,7 @@ public class BytecraftPlayerListener implements Listener
     {
         event.setJoinMessage(null);
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
+        if(player == null)return;
         if (player.getRank() == Rank.ELDER && player.hasFlag(Flag.INVISIBLE)) {
             for (BytecraftPlayer other : plugin.getOnlinePlayers()) {
                 if (other.getRank() != Rank.ELDER) {
@@ -66,9 +67,15 @@ public class BytecraftPlayerListener implements Listener
             }
         }
         else {
-            Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "Welcome "
-                    + player.getDisplayName() + ChatColor.DARK_AQUA
-                    + " to bytecraft!");
+            if(player.getCountry() != null){
+                Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "Welcome "
+                        + player.getDisplayName() + ChatColor.DARK_AQUA
+                        + " from " + player.getCountry());
+            }else{
+                Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "Welcome "
+                        + player.getDisplayName() + ChatColor.DARK_AQUA
+                        + " to Bytecraft ");
+            }
             if (!player.hasPlayedBefore()) {
                 player.teleport(plugin.getWorldSpawn("world"));
             }
@@ -88,7 +95,7 @@ public class BytecraftPlayerListener implements Listener
     public void onLogin(PlayerLoginEvent event)
     {
         try {
-            plugin.addPlayer(event.getPlayer());
+            plugin.addPlayer(event.getPlayer(), event.getAddress());
         } catch (PlayerBannedException e) {
             event.disallow(Result.KICK_BANNED, e.getMessage());
         }

@@ -1,6 +1,7 @@
 package info.bytecraft.commands;
 
 import java.util.Date;
+import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -42,13 +43,14 @@ public class BanCommand extends AbstractCommand
             return true;
         }
         
-        Player delegate = Bukkit.getPlayer(args[0]);
-        if(delegate == null){
+        List<BytecraftPlayer> cantidates = plugin.matchPlayer(args[0]);
+        if(cantidates.size() != 1){
             return true;
         }
         
+        BytecraftPlayer target = cantidates.get(0);
+        
         String message = argsToMessage(args);
-        BytecraftPlayer target = plugin.getPlayer(delegate);
         target.kickPlayer(ChatColor.RED + "You have been banned by " + player.getDisplayName());
         Bukkit.broadcastMessage(target.getDisplayName() + ChatColor.RED + " has been banned by " + player.getDisplayName());
         

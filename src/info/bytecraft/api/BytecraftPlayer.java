@@ -12,7 +12,6 @@ import java.util.Date;
 import java.util.EnumSet;
 import java.util.Set;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -23,14 +22,16 @@ public class BytecraftPlayer extends PlayerDelegate
     
     public static enum Flag{
         HARDWARNED,
+        HIDDEN_LOCATION,
+        SILENT_JOIN,
         SOFTWARNED,
         MUTE,
         INVISIBLE,
         NOBLE,
         TPBLOCK;
-    }
+    };
     
-    private static Bytecraft plugin;
+    private Bytecraft plugin;
     
     private int id = 0;
     private Rank rank;
@@ -44,6 +45,10 @@ public class BytecraftPlayer extends PlayerDelegate
     private Block lotBlock1;
     private Block lotBlock2;
     
+    private String ip;
+    private String host;
+    private String city;
+    private String country;
     private Fill lastFill;
     private Zone currZone = null;
     
@@ -53,24 +58,23 @@ public class BytecraftPlayer extends PlayerDelegate
     
     private Date loginTime;
 
-    public BytecraftPlayer(Player player)
+    public BytecraftPlayer(Player player, Bytecraft plugin)
     {
         super(player);
         loginTime = new Date();
         flags = EnumSet.noneOf(Flag.class);
-    }
-    
-    public static void setPlugin(Bytecraft plugin)
-    {
-        BytecraftPlayer.plugin = plugin;
+        this.plugin = plugin;
     }
 
-    public BytecraftPlayer(String name)
+
+    public BytecraftPlayer(String name, Bytecraft plugin)
     {
-        super(Bukkit.getPlayer(name));
+        super(null);
         loginTime = new Date();
         flags = EnumSet.noneOf(Flag.class);
+        this.plugin = plugin;
     }
+
 
     //Bytecraft stored values
     public int getId()
@@ -91,7 +95,6 @@ public class BytecraftPlayer extends PlayerDelegate
     public void setRank(Rank rank)
     {
         this.rank = rank;
-        setPlayerListName(rank.getColor() + getName());
     }
     
     public String getChatChannel()
@@ -144,18 +147,19 @@ public class BytecraftPlayer extends PlayerDelegate
         this.currZone = zone;
     }
     
-    //org.bukkit.entity.Player override
-    public void setPlayerListName(String name)
-    {
-        super.setPlayerListName(name);
-    }
-    
-    public String getDisplayName()
-    {
-        return getRank().getColor() + getName();
-    }
-    
     //Bytecraft non-persistent 
+    public void setIp(String v) { this.ip = v; }
+    public String getIp() { return ip; }
+
+    public void setHost(String v) { this.host = v; }
+    public String getHost() { return host; }
+
+    public void setCity(String v) { this.city = v; }
+    public String getCity() { return city; }
+
+    public void setCountry(String v) { this.country = v; }
+    public String getCountry() { return country; }
+    
     public int getMaxTeleportDistance()
     {
         if(isAdmin())return Integer.MAX_VALUE;

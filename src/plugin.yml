@@ -18,7 +18,7 @@ commands:
         description: Clear your inventory
         usage: /<command>
     cmob:
-        description:
+        description: Create a new mob
         usage: /<command> <mob> [amount]
     creative:
         description: Change your gamemode to creative
@@ -39,6 +39,9 @@ commands:
     god:
         description: Send a message as the default red god
         usage: /<command> <message>
+    hardwarn:
+        description: Hard warn a player, taking their build powers
+        usage: /<command> <player>
     home:
         description: Manage your home
         usage: /<command> [save]
@@ -110,7 +113,7 @@ commands:
         usage: /<command> <balance>
     warn:
         description: Warn a player
-        usage: /<command> <player> [hard]
+        usage: /<command> <player>
     warp:
         description: Warp to a far away land
         usage: /<command> city

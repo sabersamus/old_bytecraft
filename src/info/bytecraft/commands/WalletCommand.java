@@ -1,10 +1,10 @@
 package info.bytecraft.commands;
 
 import java.text.NumberFormat;
+import java.util.List;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
@@ -38,9 +38,12 @@ public class WalletCommand extends AbstractCommand
         else if (args.length == 3) {
             if ("give".equalsIgnoreCase(args[0])) {
                 long amount = 0;
-                Player delegate = Bukkit.getPlayer(args[1]);
-                if (delegate != null) {
-                    BytecraftPlayer target = plugin.getPlayer(delegate);
+                List<BytecraftPlayer> cantidates = plugin.matchPlayer(args[1]);
+                if(cantidates.size() != 1){
+                    return true;
+                }
+                
+                BytecraftPlayer target = cantidates.get(0);
                     try {
                         amount = Long.parseLong(args[2]);
                     } catch (NumberFormatException e) {
@@ -70,7 +73,6 @@ public class WalletCommand extends AbstractCommand
                     }
                 }
             }
-        }
         return true;
     }
 

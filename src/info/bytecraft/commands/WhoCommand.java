@@ -2,12 +2,12 @@ package info.bytecraft.commands;
 
 import static org.bukkit.ChatColor.*;
 
-import org.bukkit.Bukkit;
+import java.util.List;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Server;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.entity.Player;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
@@ -45,11 +45,13 @@ public class WhoCommand extends AbstractCommand
         else if (args.length == 1) {
             if (!player.isAdmin())
                 return true;
-            Player delegate = Bukkit.getPlayer(args[0]);
-            if (delegate != null) {
-                BytecraftPlayer target = plugin.getPlayer(delegate);
-                whoOther(player.getDelegate(), target);
+            List<BytecraftPlayer> cantidates = plugin.matchPlayer(args[0]);
+            if (cantidates.size() != 1) {
+                return true;
             }
+
+            BytecraftPlayer target = cantidates.get(0);
+            whoOther(player.getDelegate(), target);
         }
         return true;
     }
@@ -74,38 +76,43 @@ public class WhoCommand extends AbstractCommand
                     + " player(s) online" + GRAY + "*****");
         }
         else if (args.length == 1) {
-            Player delegate = Bukkit.getPlayer(args[0]);
-            if (delegate != null) {
-                BytecraftPlayer target = plugin.getPlayer(delegate);
-                whoOther(sender, target);
+            List<BytecraftPlayer> cantidates = plugin.matchPlayer(args[0]);
+            if (cantidates.size() != 1) {
+                return true;
             }
+
+            BytecraftPlayer target = cantidates.get(0);
+            whoOther(sender, target);
         }
         return true;
     }
-    
-    public void whoOther(CommandSender player, BytecraftPlayer target)
-    {
-        int x = target.getLocation().getBlockX();
-        int y = target.getLocation().getBlockY();
-        int z = target.getLocation().getBlockZ();
 
-        String ip = target.getAddress().getHostName();
-        
-        player.sendMessage(DARK_GRAY + "******************** "
-                + DARK_PURPLE + "PLAYER INFO" + DARK_GRAY
-                + " ********************");
-        player.sendMessage(GRAY + "Player: " + target.getDisplayName());
-        player.sendMessage(GRAY + "Id: " + GREEN + target.getId());
-        player.sendMessage(GRAY + "World: " + GREEN
-                + target.getWorld().getName());
-        player.sendMessage(GRAY + "Location: " + GREEN + x + ", " + y
-                + ", " + z);
-        player.sendMessage(GRAY + "Channel: " + GREEN
-                + target.getChatChannel());
-        player.sendMessage(GRAY + "Wallet: "
-                + target.getFormattedBalance());
-        player.sendMessage(GRAY + "IP: " + GREEN
-                + ip);
+    public void whoOther(CommandSender player, BytecraftPlayer whoPlayer)
+    {
+        int x = whoPlayer.getLocation().getBlockX();
+        int y = whoPlayer.getLocation().getBlockY();
+        int z = whoPlayer.getLocation().getBlockZ();
+
+        player.sendMessage(DARK_GRAY + "******************** " + DARK_PURPLE
+                + "PLAYER INFO" + DARK_GRAY + " ********************");
+        player.sendMessage(GOLD + "Player: " + GRAY
+                + whoPlayer.getDisplayName());
+        player.sendMessage(GOLD + "World: " + GRAY
+                + whoPlayer.getWorld().getName());
+        player.sendMessage(GOLD + "Coords: " + GRAY + x + ", " + y + ", " + z);
+        player.sendMessage(GOLD + "Channel: " + GRAY
+                + whoPlayer.getChatChannel());
+        player.sendMessage(GOLD + "Wallet: " + GRAY + whoPlayer.getBalance()
+                + " bytes.");
+        player.sendMessage(GOLD + "Health: " + GRAY + whoPlayer.getHealth());
+        player.sendMessage(GOLD + "Country: " + GRAY + whoPlayer.getCountry());
+        player.sendMessage(GOLD + "City: " + GRAY + whoPlayer.getCity());
+        player.sendMessage(GOLD + "IP Address: " + GRAY + whoPlayer.getIp());
+        player.sendMessage(GOLD + "Port: " + GRAY
+                + whoPlayer.getAddress().getPort());
+        player.sendMessage(GOLD + "Gamemode: " + GRAY
+                + whoPlayer.getGameMode().toString().toLowerCase());
+        player.sendMessage(GOLD + "Level: " + GRAY + whoPlayer.getLevel());
         player.sendMessage(DARK_GRAY
                 + "******************************************************");
     }
