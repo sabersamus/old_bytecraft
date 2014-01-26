@@ -36,7 +36,7 @@ public class TeleportBlockCommand extends AbstractCommand
                         player.sendMessage(ChatColor.AQUA
                                 + "Teleport block de-activated");
                     }
-                    dao.updateProperties(player);
+                    dao.updateFlag(player, Flag.TPBLOCK);
                 }catch(DAOException e){
                     throw new RuntimeException(e);
                 }

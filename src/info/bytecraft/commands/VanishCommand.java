@@ -45,7 +45,7 @@ public class VanishCommand extends AbstractCommand
                                 + "You have disappeared");
                     }
 
-                    dao.updateProperties(player);
+                    dao.updateFlag(player, Flag.INVISIBLE);
                 } catch (DAOException e) {
                     throw new RuntimeException(e);
                 }

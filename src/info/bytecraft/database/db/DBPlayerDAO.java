@@ -96,13 +96,15 @@ public class DBPlayerDAO implements IPlayerDAO
     
     public void createFlags(BytecraftPlayer player) throws DAOException
     {
-        String sql = "INSERT INTO player_property (player_name, invisible, tpblock, god_color, noble) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO player_property (player_id, player_name, invisible, tpblock, noble, god_color)"
+                + "VALUES (?,?, ?, ?, ?, ?)";
         try(PreparedStatement stm = conn.prepareStatement(sql)){
-            stm.setString(1, player.getName());
-            stm.setString(2, "false");
+            stm.setInt(1, player.getId());
+            stm.setString(2, player.getName());
             stm.setString(3, "false");
+            stm.setString(4, "false");
             stm.setString(5, "false");
-            stm.setString(4, "red");
+            stm.setString(6, "red");
             stm.execute();
         } catch (SQLException e) {
             throw new DAOException(sql, e);
@@ -172,15 +174,20 @@ public class DBPlayerDAO implements IPlayerDAO
         }
     }
     
-    public void updateProperties(BytecraftPlayer player)
+    public void updateFlag(BytecraftPlayer player, Flag flag)
             throws DAOException
     {
-        String sql =
-                "REPLACE INTO player_property (player_name, invisible, tpblock) VALUES (?, ?, ?)";
+        String sql = "";
+        switch(flag){
+        case TPBLOCK: sql = "UPDATE player_property SET tpblock = ? WHERE player_name = ?";
+        break;
+        case INVISIBLE: sql = "UPDATE player_property SET invisible = ? WHERE player_name = ?";
+        break;
+        default: sql = "UPDATE player_property SET ? = ? WHERE player_name = ?";
+        }
         try (PreparedStatement stm = conn.prepareStatement(sql)) {
-            stm.setString(1, player.getName());
-            stm.setString(2, String.valueOf(player.hasFlag(Flag.INVISIBLE)));
-            stm.setString(3, String.valueOf(player.hasFlag(Flag.TPBLOCK)));
+            stm.setString(1, String.valueOf(player.hasFlag(flag)));
+            stm.setString(2, player.getName());
             stm.execute();
         } catch (SQLException e) {
             throw new DAOException(sql, e);

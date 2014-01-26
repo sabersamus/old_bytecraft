@@ -30,6 +30,7 @@ public class UserCommand extends AbstractCommand
                 }
 
                 BytecraftPlayer target = cantidates.get(0);
+                
                 try (IContext ctx = plugin.createContext()) {
                     IPlayerDAO dao = ctx.getPlayerDAO();
                     String input = args[1].toLowerCase();
@@ -64,8 +65,14 @@ public class UserCommand extends AbstractCommand
                         return true;
                     }
 
-                    dao.updateProperties(target);
                     dao.updatePermissions(target);
+                    String name = target.getName();
+                    name = target.getRank().getColor() + name + ChatColor.WHITE;
+                    if(name.length() > 16){
+                        target.setPlayerListName(name.substring(0, 15));
+                    }else{
+                        target.setPlayerListName(name);
+                    }
 
                 } catch (DAOException e) {
                     throw new RuntimeException(e);
@@ -113,8 +120,14 @@ public class UserCommand extends AbstractCommand
                                         + target.getRank().toString());
                     }
 
-                    dao.updateProperties(target);
                     dao.updatePermissions(target);
+                    String name = target.getName();
+                    name = target.getRank().getColor() + name + ChatColor.WHITE;
+                    if(name.length() > 16){
+                        target.setPlayerListName(name.substring(0, 15));
+                    }else{
+                        target.setPlayerListName(name);
+                    }
 
                 } catch (DAOException e) {
                     throw new RuntimeException(e);
