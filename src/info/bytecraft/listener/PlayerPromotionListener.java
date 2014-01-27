@@ -26,7 +26,7 @@ public class PlayerPromotionListener implements Listener
     {
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
         if(player == null)return;
-        if(player.getRank() == Rank.SETTLER && player.getPlayTime() - player.getPromotedTime() >= 7 * 24 * 60 * 60){
+        if(player.getRank() == Rank.SETTLER && player.getPlayTime() - player.getPromotedTime() >= 10 * 3600){
             player.setRank(Rank.MEMBER);
             player.sendMessage(ChatColor.AQUA + "Congratulations, you have been promoted to a member!");
             try (IContext ctx = plugin.createContext()){
