@@ -55,18 +55,20 @@ public class BytecraftPlayerListener implements Listener
         event.setJoinMessage(null);
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
         if(player == null)return;
-        if ((player.getRank() == Rank.ELDER || player.getRank() == Rank.PRINCESS) 
-                && player.hasFlag(Flag.INVISIBLE)) {
-            for (BytecraftPlayer other : plugin.getOnlinePlayers()) {
-                if(other == player){
-                    continue;
-                }
-                if (other.getRank() != Rank.ELDER && other.getRank() != Rank.PRINCESS) {
-                    other.hidePlayer(player.getDelegate());
-                }
-                else {
-                    other.sendMessage(player.getDisplayName() + ChatColor.RED
-                            + " has joined invisible");
+        if ((player.getRank() == Rank.ELDER || player.getRank() == Rank.PRINCESS)) {
+            if (player.hasFlag(Flag.INVISIBLE)) {
+                for (BytecraftPlayer other : plugin.getOnlinePlayers()) {
+                    if (other == player) {
+                        continue;
+                    }
+                    if (other.getRank() != Rank.ELDER
+                            && other.getRank() != Rank.PRINCESS) {
+                        other.hidePlayer(player.getDelegate());
+                    }
+                    else {
+                        other.sendMessage(player.getDisplayName()
+                                + ChatColor.RED + " has joined invisible");
+                    }
                 }
             }
             if (!player.hasFlag(Flag.SILENT_JOIN)) {
@@ -106,6 +108,7 @@ public class BytecraftPlayerListener implements Listener
                 }
             }
         }
+        player.sendMessage(ChatColor.AQUA + plugin.getConfig().getString("motd"));
     }
 
     @EventHandler
@@ -153,8 +156,10 @@ public class BytecraftPlayerListener implements Listener
                 if (player.getCurrentZone() == null
                         || !player.getCurrentZone().isPvp()) {
                     event.setCancelled(true);
+                    event.setDamage(0);
                     ((Player) event.getDamager()).sendMessage(ChatColor.RED
                             + "You are not in a pvp zone.");
+                    return;
                 }
             }
         }
