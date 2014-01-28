@@ -1,4 +1,7 @@
 This is the main plugin for the upcoming minecraft server 'Bytecraft'
 
+Before changing any code, please fill out a ticket, this will help me keep track of every change.
 
-Pull requests are welcome. Any questions feel free to message me.
+
+Developers:
+    Robert Catron - Sabersamus
