@@ -32,7 +32,7 @@ public class BytecraftPlayer extends PlayerDelegate
     };
     
     private Bytecraft plugin;
-    
+    private String name;
     private int id = 0;
     private Rank rank;
 
@@ -60,6 +60,7 @@ public class BytecraftPlayer extends PlayerDelegate
     public BytecraftPlayer(Player player, Bytecraft plugin)
     {
         super(player);
+        this.setName(player.getName());
         loginTime = new Date();
         flags = EnumSet.noneOf(Flag.class);
         this.plugin = plugin;
@@ -69,9 +70,22 @@ public class BytecraftPlayer extends PlayerDelegate
     public BytecraftPlayer(String name, Bytecraft plugin)
     {
         super(null);
+        this.setName(name);
         loginTime = new Date();
         flags = EnumSet.noneOf(Flag.class);
         this.plugin = plugin;
+    }
+
+
+    public String getName()
+    {
+        return name;
+    }
+
+
+    public void setName(String name)
+    {
+        this.name = name;
     }
 
 

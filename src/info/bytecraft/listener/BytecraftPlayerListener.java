@@ -14,13 +14,18 @@ import info.bytecraft.database.IBlessDAO;
 import info.bytecraft.database.IContext;
 import info.bytecraft.database.ILogDAO;
 
+import org.apache.commons.lang.WordUtils;
 import org.bukkit.Bukkit;
+
+import static org.bukkit.ChatColor.*;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -264,5 +269,48 @@ public class BytecraftPlayerListener implements Listener
         }catch(DAOException e){
             throw new RuntimeException(e);
         }
+    }
+    
+    @EventHandler
+    public void onCheckBlock(PlayerInteractEvent event)
+    {
+        if(event.getAction() != Action.RIGHT_CLICK_BLOCK)return;
+        BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
+        if(player.getItemInHand().getType() != Material.BOOK)return;
+        
+        Block block = event.getClickedBlock();
+        
+        int x = block.getX();
+        int y = block.getY();
+        int z = block.getZ();
+        
+        String biome = WordUtils.capitalize(block.getBiome().name().replaceAll("_", " "));
+        BytecraftPlayer owner = null;
+        int blessId = 0;
+        try(IContext ctx = plugin.createContext()){
+            IBlessDAO dao = ctx.getBlessDAO();
+            if(dao.isBlessed(block)){
+                owner = plugin.getPlayerOffline(dao.getOwner(block));
+                blessId = dao.getBlessId(block);
+            }
+        }catch(DAOException e){
+            throw new RuntimeException(e);
+        }
+        
+        player.sendMessage(DARK_AQUA + "========= Block Information =========");
+        player.sendMessage(DARK_AQUA + "X: " + WHITE + x);
+        player.sendMessage(DARK_AQUA + "Y: " + WHITE + y);
+        player.sendMessage(DARK_AQUA + "Z: " + WHITE + z);
+        player.sendMessage(DARK_AQUA + "Biome: " + WHITE + biome);
+        
+        if(owner != null){
+            String name = owner.getRank().getColor() + owner.getName() + WHITE;
+            player.sendMessage(DARK_AQUA + "Bless ID: " + WHITE + blessId);
+            player.sendMessage(DARK_AQUA + "Owner: " + name);
+        }
+        player.sendMessage(DARK_AQUA + "=====================");
+        event.setCancelled(true);
+        event.setUseInteractedBlock(Event.Result.DENY);
+        return;
     }
 }

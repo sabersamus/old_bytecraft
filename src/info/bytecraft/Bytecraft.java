@@ -181,8 +181,12 @@ public class Bytecraft extends JavaPlugin
         if(this.players.containsKey(name)){
             return players.get(name);
         }
-        
-        return null;
+        try(IContext ctx = createContext()){
+            IPlayerDAO dao = ctx.getPlayerDAO();
+            return dao.getPlayer(name);
+        }catch(DAOException e){
+            throw new RuntimeException(e);
+        }
     }
 
     public BytecraftPlayer addPlayer(Player srcPlayer,  InetAddress addr)

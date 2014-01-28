@@ -80,4 +80,29 @@ public class DBBlessDAO implements IBlessDAO
         }
         return null;
     }
+
+    @Override
+    public int getBlessId(Block block) throws DAOException
+    {
+        if(!isBlessed(block))return 0;
+        
+        String sql = "SELECT * FROM bless WHERE x = ? AND y = ? AND z = ? AND world = ?";
+        try (PreparedStatement stm = conn.prepareStatement(sql)){
+            stm.setInt(1, block.getX());
+            stm.setInt(2, block.getY());
+            stm.setInt(3, block.getZ());
+            stm.setString(4, block.getWorld().getName());
+            stm.execute();
+            
+            try(ResultSet rs = stm.getResultSet()){
+                if (rs.next()) {
+                    return rs.getInt("id");
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        
+        return 0;
+    }
 }
