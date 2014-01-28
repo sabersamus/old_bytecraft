@@ -26,7 +26,7 @@ public class TeleportCommand extends AbstractCommand
         @Override
         public void run()
         {
-            player.teleport(target.getLocation());
+            player.teleportWithVehicle(target.getLocation());
 
             player.setNoDamageTicks(1000);
             if (!player.isAdmin()) {
@@ -71,8 +71,7 @@ public class TeleportCommand extends AbstractCommand
                     plugin.getServer()
                             .getScheduler()
                             .scheduleSyncDelayedTask(plugin, task,
-                                    player.getTeleportTimeout());// no delay at
-                                                                 // the monent
+                                    player.getTeleportTimeout());
                     player.sendMessage(ChatColor.AQUA + "Teleporting to "
                             + target.getDisplayName());
                     return true;
@@ -83,8 +82,7 @@ public class TeleportCommand extends AbstractCommand
                 plugin.getServer()
                         .getScheduler()
                         .scheduleSyncDelayedTask(plugin, task,
-                                player.getTeleportTimeout());// no delay at the
-                                                             // monent
+                                player.getTeleportTimeout());
                 player.sendMessage(ChatColor.AQUA + "Teleporting to "
                         + target.getDisplayName());
                 return true;

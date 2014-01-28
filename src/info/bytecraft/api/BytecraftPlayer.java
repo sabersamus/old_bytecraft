@@ -14,6 +14,7 @@ import java.util.Set;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 public class BytecraftPlayer extends PlayerDelegate
@@ -335,6 +336,20 @@ public class BytecraftPlayer extends PlayerDelegate
     {
         Location loc = getLocation();
         return new Vector2D(loc.getBlockX(), loc.getBlockZ(), loc.getWorld());
+    }
+    
+    public boolean teleportWithVehicle(Location loc)
+    {
+        Entity vehicle = this.getVehicle();
+        if(vehicle == null){
+            return teleport(loc);
+        }
+        
+        vehicle.eject();
+        teleport(loc);
+        vehicle.teleport(loc);
+        vehicle.setPassenger(this.getDelegate());
+        return true;
     }
     
 }

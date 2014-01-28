@@ -33,7 +33,7 @@ public class WarpCommand extends AbstractCommand
 
         public void run()
         {
-            player.teleport(loc);
+            player.teleportWithVehicle(loc);
             player.sendMessage(ChatColor.AQUA + "Successfully teleported to " + name);
         }
 
@@ -49,6 +49,8 @@ public class WarpCommand extends AbstractCommand
             if (loc != null) {
                 Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new WarpTask(player, loc, warp), 20 * 3L);
                 player.sendMessage(ChatColor.AQUA + "Teleporting to " + ChatColor.GOLD + warp + ChatColor.AQUA + " please wait...");
+            }else{
+                player.sendMessage(ChatColor.RED + "Could not find warp " + args[0]);
             }
         } catch (DAOException e) {
             throw new RuntimeException(e);

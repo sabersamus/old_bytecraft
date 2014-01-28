@@ -78,7 +78,7 @@ public class HomeCommand extends AbstractCommand
 
                         public void run()
                         {
-                            player.teleport(loc);
+                            player.teleportWithVehicle(loc);
                         }
 
                     }, 20 * 3L);
@@ -102,7 +102,7 @@ public class HomeCommand extends AbstractCommand
 
                         public void run()
                         {
-                            player.teleport(loc);
+                            player.teleportWithVehicle(loc);
                         }
 
                     }, 20 * 3L);

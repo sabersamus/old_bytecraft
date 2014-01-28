@@ -13,7 +13,7 @@ public class SpawnCommand extends AbstractCommand
     
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
-        player.teleport(plugin.getWorldSpawn(player.getWorld().getName()));
+        player.teleportWithVehicle(plugin.getWorldSpawn(player.getWorld().getName()));
         return true;
     }
 
