@@ -1,6 +1,7 @@
 package info.bytecraft.listener;
 
 import java.util.HashMap;
+import java.util.List;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
@@ -312,5 +313,31 @@ public class BytecraftPlayerListener implements Listener
         event.setCancelled(true);
         event.setUseInteractedBlock(Event.Result.DENY);
         return;
+    }
+    
+    @EventHandler
+    public void onCheckChest(PlayerInteractEvent event)
+    {
+        if(event.getAction() != Action.RIGHT_CLICK_BLOCK)return;
+        BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
+        if(player.getItemInHand().getType() != Material.BLAZE_ROD)return;
+        
+        Block block = event.getClickedBlock();
+        if(block.getType() != Material.CHEST)return;
+        
+        try(IContext ctx = plugin.createContext()){
+            ILogDAO dao = ctx.getLogDAO();
+            List<ChestLog> logs = dao.getChestLogs(block);
+            for(ChestLog log: logs){
+                BytecraftPlayer other = plugin.getBytecraftPlayerOffline(log.getPlayerName());
+                ChatColor color = other.getRank().getColor();
+                String name = color + other.getName();
+                player.sendMessage(name + ChatColor.WHITE + " opened at " + ChatColor.AQUA + log.getTimestamp());
+            }
+        }catch(DAOException e){
+            throw new RuntimeException(e);
+        }
+        event.setCancelled(true);
+        event.setUseInteractedBlock(Event.Result.DENY);
     }
 }

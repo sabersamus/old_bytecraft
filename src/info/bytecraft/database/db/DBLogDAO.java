@@ -173,7 +173,8 @@ public class DBLogDAO implements ILogDAO
     
     public List<ChestLog> getChestLogs(Block block) throws DAOException
     {
-        String sql = "SELECT * FROM chest_log WHERE x = ? AND y = ? AND z = ? AND world = ?";
+        String sql = "SELECT * FROM chest_log WHERE x = ? AND y = ? AND z = ? AND world = ? ORDER BY "
+                + "log_timestamp DESC LIMIT 5";
         List<ChestLog> logs = Lists.newArrayList();
         try(PreparedStatement stm = conn.prepareStatement(sql)){
             stm.setInt(1, block.getX());
@@ -194,6 +195,7 @@ public class DBLogDAO implements ILogDAO
         } catch (SQLException e) {
             throw new DAOException(sql, e);
         }
+        //Collections.reverse(logs);
         return logs;
     }
 
