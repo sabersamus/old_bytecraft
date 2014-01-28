@@ -13,8 +13,8 @@ public class ChestLog
     private int y;
     private int z;
     private String world;
-    
     private Action action;
+    private String timestamp;
     
     public enum Action{
         OPEN, TAKE, DEPOSIT;
@@ -104,5 +104,15 @@ public class ChestLog
     public void setAction(Action action)
     {
         this.action = action;
+    }
+
+    public String getTimestamp()
+    {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp)
+    {
+        this.timestamp = timestamp;
     }
 }

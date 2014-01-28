@@ -13,6 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.bukkit.Location;
@@ -104,8 +105,8 @@ public class DBLogDAO implements ILogDAO
     
     public void insertChestLog(ChestLog log) throws DAOException
     {
-        String sql = "INSERT INTO chest_log (player_name, x, y, z, world, action) "
-                + "VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO chest_log (player_name, x, y, z, world, action, log_timestamp) "
+                + "VALUES (?, ?, ?, ?, ?, ?, unix_timestamp())";
         try(PreparedStatement stm = conn.prepareStatement(sql)){
             stm.setString(1, log.getPlayerName());
             stm.setInt(2, log.getX());
@@ -154,8 +155,7 @@ public class DBLogDAO implements ILogDAO
             try(ResultSet rs = stm.getResultSet()){
                 while (rs.next()) {
                     String player = rs.getString("player_name");
-                    java.util.Date date =
-                            new java.util.Date(rs.getInt("paper_time") * 1000L);
+                    Date date = new Date(rs.getInt("paper_time") * 1000L);
                     String action = rs.getString("action");
                     String material = rs.getString("block_type");
                     PaperLog log =
@@ -186,6 +186,8 @@ public class DBLogDAO implements ILogDAO
                 while(rs.next()){
                     ChestLog log = new ChestLog(rs.getString("player_name"), block.getLocation(), 
                             ChestLog.Action.valueOf(rs.getString("action").toUpperCase()));
+                    Date date = new Date(rs.getInt("log_timestamp") * 1000L);
+                    log.setTimestamp(format.format(date));
                     logs.add(log);
                 }
             }

@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS `chest_log` (
   `z` int (255) NOT NULL,
   `world` varchar(32) NOT NULL DEFAULT 'world',
   `action` enum('open','take','deposit'),
+  `log_timestamp` int(10) unsigned NOT NULL,
   UNIQUE KEY `id` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
 
