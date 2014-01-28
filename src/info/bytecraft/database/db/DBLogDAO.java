@@ -3,8 +3,7 @@ package info.bytecraft.database.db;
 import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.api.ChestLog;
 import info.bytecraft.api.PaperLog;
-import info.bytecraft.blockfill.Fill;
-import info.bytecraft.blockfill.Fill.Action;
+import info.bytecraft.blockfill.AbstractFiller;
 import info.bytecraft.database.DAOException;
 import info.bytecraft.database.ILogDAO;
 
@@ -64,16 +63,15 @@ public class DBLogDAO implements ILogDAO
         }
     }
 
-    public void insertFillLog(BytecraftPlayer player, Fill fill,
-            Material material, Action action) throws DAOException
+    public void insertFillLog(BytecraftPlayer player, AbstractFiller fill, Material mat, String action) throws DAOException
     {
         String sql =
                 "INSERT INTO fill_log (player_name, action, size, material) VALUES (?, ?, ?, ?)";
         try (PreparedStatement stm = conn.prepareStatement(sql)) {
             stm.setString(1, player.getName());
-            stm.setString(2, action.toString().toLowerCase());
-            stm.setInt(3, fill.getSize());
-            stm.setString(4, material.name().toLowerCase());
+            stm.setString(2, action.toLowerCase());
+            stm.setInt(3, fill.getTotalVolume());
+            stm.setString(4, mat.name().toLowerCase());
 
             stm.execute();
         } catch (SQLException e) {
@@ -196,4 +194,5 @@ public class DBLogDAO implements ILogDAO
         }
         return logs;
     }
+
 }

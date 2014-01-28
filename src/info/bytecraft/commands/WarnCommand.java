@@ -90,11 +90,11 @@ public class WarnCommand extends AbstractCommand
             victim.sendMessage(ChatColor.RED + "You have been warned for one week.");
             name = ChatColor.GRAY + name + ChatColor.WHITE;
             victim.setDisplayName(name);
-            player.setFlag(Flag.SOFTWARNED, true);
+            victim.setFlag(Flag.SOFTWARNED, true);
             if(name.length() > 16){
-                player.setPlayerListName(name.substring(0, 15));
+                victim.setPlayerListName(name.substring(0, 15));
             }else{
-                player.setPlayerListName(name);
+                victim.setPlayerListName(name);
             }
             
         }catch(DAOException e){
@@ -118,11 +118,11 @@ public class WarnCommand extends AbstractCommand
             victim.sendMessage(ChatColor.RED + "You have been hardwarned for one week.");
             name = ChatColor.GRAY + name + ChatColor.WHITE;
             victim.setDisplayName(name);
-            player.setFlag(Flag.HARDWARNED, true);
+            victim.setFlag(Flag.HARDWARNED, true);
             if(name.length() > 16){
-                player.setPlayerListName(name.substring(0, 15));
+                victim.setPlayerListName(name.substring(0, 15));
             }else{
-                player.setPlayerListName(name);
+                victim.setPlayerListName(name);
             }
             
         }catch(DAOException e){

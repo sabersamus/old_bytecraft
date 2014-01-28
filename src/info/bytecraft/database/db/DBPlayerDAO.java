@@ -97,8 +97,8 @@ public class DBPlayerDAO implements IPlayerDAO
     public void createFlags(BytecraftPlayer player) throws DAOException
     {
         String sql = "INSERT INTO player_property (player_id, player_name, invisible, tpblock, "
-                + "hidden_location, silent_join, noble, god_color)"
-                + "VALUES (?,?, ?, ?, ?, ?)";
+                + "hidden_location, silent_join, noble, lord, god_color)"
+                + "VALUES (? ,?, ?, ?, ?, ?, ?, ? ,?)";
         try(PreparedStatement stm = conn.prepareStatement(sql)){
             stm.setInt(1, player.getId());
             stm.setString(2, player.getName());
@@ -107,7 +107,8 @@ public class DBPlayerDAO implements IPlayerDAO
             stm.setString(5, "false");
             stm.setString(6, "false");
             stm.setString(7, "false");
-            stm.setString(8, "red");
+            stm.setString(8, "false");
+            stm.setString(9, "red");
             stm.execute();
         } catch (SQLException e) {
             throw new DAOException(sql, e);
@@ -127,12 +128,14 @@ public class DBPlayerDAO implements IPlayerDAO
                     boolean tpb = Boolean.valueOf(rs.getString("tpblock"));
                     boolean invisible = Boolean.valueOf(rs.getString("invisible"));
                     boolean noble = Boolean.valueOf(rs.getString("noble"));
+                    boolean lord = Boolean.valueOf(rs.getString("lord"));
                     boolean hiddenLoc = Boolean.valueOf(rs.getString("hidden_location"));
                     boolean silentJoin = Boolean.valueOf(rs.getString("silent_join"));
                     
                     player.setFlag(Flag.TPBLOCK, tpb);
                     player.setFlag(Flag.INVISIBLE, invisible);
                     player.setFlag(Flag.NOBLE, noble);
+                    player.setFlag(Flag.LORD, lord);
                     player.setFlag(Flag.HIDDEN_LOCATION, hiddenLoc);
                     player.setFlag(Flag.SILENT_JOIN, silentJoin);
 
@@ -179,6 +182,23 @@ public class DBPlayerDAO implements IPlayerDAO
         } catch (SQLException e) {
             throw new DAOException(sql, e);
         }
+    }
+    
+    public Rank getRank(BytecraftPlayer player) throws DAOException
+    {
+        String sql = "SELECT * FROM player WHERE player_name = ?";
+        try(PreparedStatement stm = conn.prepareStatement(sql)){
+            stm.setString(1, player.getName());
+            stm.execute();
+            try(ResultSet rs = stm.getResultSet()){
+                if(rs.next()){
+                    return Rank.getRank(rs.getString("player_rank"));
+                }
+            }
+        }catch(SQLException e){
+            throw new DAOException(sql, e);
+        }
+        return Rank.NEWCOMER;
     }
     
     public void updateFlag(BytecraftPlayer player, Flag flag)

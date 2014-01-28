@@ -5,6 +5,7 @@ import org.bukkit.entity.Player;
 
 import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.api.BytecraftPlayer.Flag;
+import info.bytecraft.api.Rank;
 
 public interface IPlayerDAO
 {
@@ -14,6 +15,7 @@ public interface IPlayerDAO
     public void loadFlags(BytecraftPlayer player) throws DAOException;
     public BytecraftPlayer createPlayer(Player wrap) throws DAOException;
     public void updatePermissions(BytecraftPlayer player) throws DAOException;
+    public Rank getRank(BytecraftPlayer player) throws DAOException;
     public void updateFlag(BytecraftPlayer player, Flag flag) throws DAOException;
     public long getBalance(BytecraftPlayer player) throws DAOException;
     public void give(BytecraftPlayer player, long amount) throws DAOException;

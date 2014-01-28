@@ -44,7 +44,6 @@ public class SayCommand extends AbstractCommand
             }
             other.sendNotification(Notification.SERVER_MESSAGE, null);
         }
-        plugin.getLogger().info("[COMMAND] /say used by " + player.getName());
         return true;
     }
 

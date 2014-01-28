@@ -9,3 +9,4 @@ support:
         - sabersamus@gmail.com
 spawn:
     world: 64, 64, 64, 1, 1
+motd: 'Welcome to Bytecraft! If no staff members are online, please try again later? :D'
