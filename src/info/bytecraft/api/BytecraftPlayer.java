@@ -2,7 +2,6 @@ package info.bytecraft.api;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.math.Vector2D;
-import info.bytecraft.blockfill.Fill;
 import info.bytecraft.database.DAOException;
 import info.bytecraft.database.IContext;
 import info.bytecraft.database.IPlayerDAO;
@@ -28,6 +27,7 @@ public class BytecraftPlayer extends PlayerDelegate
         MUTE,
         INVISIBLE,
         NOBLE,
+        LORD,
         TPBLOCK;
     };
     
@@ -49,7 +49,6 @@ public class BytecraftPlayer extends PlayerDelegate
     private String host;
     private String city;
     private String country;
-    private Fill lastFill;
     private Zone currZone = null;
     
     private Set<Flag> flags;
@@ -216,11 +215,6 @@ public class BytecraftPlayer extends PlayerDelegate
         this.fillBlock2 = fillBlock2;
     }
 
-    public void setLastFill(Fill fill)
-    {
-        this.lastFill = fill;
-    }
-    
     public Block getZoneBlock1()
     {
         return zoneBlock1;
@@ -261,11 +255,6 @@ public class BytecraftPlayer extends PlayerDelegate
         this.lotBlock2 = lotBlock2;
     }
 
-    public Fill getLastFill()
-    {
-        return this.lastFill;
-    }
-    
     public boolean hasFlag(Flag flag)
     {
         return flags.contains(flag);

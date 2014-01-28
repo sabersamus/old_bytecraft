@@ -2,6 +2,7 @@ package info.bytecraft.listener;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.Rank;
 import info.bytecraft.api.BytecraftPlayer.Flag;
 import info.bytecraft.database.*;
 
@@ -42,11 +43,20 @@ public class ChatListener implements Listener
                 color = ChatColor.WHITE;
             }
             
+            String coloredMessage = "<" + player.getDisplayName() + ChatColor.WHITE + "> " + color + message;
+            if(player.hasFlag(Flag.LORD)){
+                if(player.getRank() == Rank.SETTLER || player.getRank() == Rank.MEMBER){
+                    if(!player.hasFlag(Flag.SOFTWARNED) && !player.hasFlag(Flag.HARDWARNED)){
+                        coloredMessage = "<" + ChatColor.GREEN + "[Lord]" + player.getDisplayName() + "> " + color + message;
+                    }
+                }
+            }
+            
             if(to.getChatChannel().equalsIgnoreCase(player.getChatChannel())){
                 if(to.getChatChannel().equalsIgnoreCase("GLOBAL")){
-                    to.sendMessage("<" +player.getDisplayName() + ChatColor.WHITE + "> " + color + message);
+                    to.sendMessage(coloredMessage);
                 }else{
-                    to.sendMessage(to.getChatChannel() + "<" +player.getDisplayName() + ChatColor.WHITE + "> " + color + message);
+                    to.sendMessage(to.getChatChannel() + coloredMessage);
                 }
             }
             
