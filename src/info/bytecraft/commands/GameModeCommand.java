@@ -24,8 +24,13 @@ public class GameModeCommand extends AbstractCommand
                     player.setGameMode(GameMode.CREATIVE);
                 }
             }else if(args.length == 1){
-                GameMode gm = GameMode.valueOf(args[0].toUpperCase());
-                if(gm != null){
+                GameMode gm = GameMode.SURVIVAL;
+                try{
+                    gm = GameMode.getByValue(Integer.parseInt(args[0]));
+                }catch(NumberFormatException e){
+                    gm = GameMode.valueOf(args[0].toUpperCase());
+                }
+                if(gm != null && gm != GameMode.ADVENTURE){
                     player.setGameMode(gm);
                 }
             }
