@@ -46,7 +46,7 @@ public class FillCommand extends AbstractCommand
     @Override
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
-        if (!player.canFill()) {
+        if (!player.getRank().canFill()) {
             return true;
         }
 

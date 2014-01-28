@@ -11,7 +11,7 @@ public enum Rank
     MEMBER(DARK_GREEN),
     MENTOR(DARK_AQUA),
     PROTECTOR(BLUE),
-    BUILDER(YELLOW),
+    ARCHITECT(YELLOW),
     CODER(AQUA),
     ADMIN(RED),
     PRINCESS(LIGHT_PURPLE),
@@ -42,6 +42,12 @@ public enum Rank
     public boolean canBuild()
     {
         return (this != NEWCOMER);
+    }
+    
+    public boolean canFill()
+    {
+        return (this == ARCHITECT
+                || this == ADMIN || this == PRINCESS || this == ELDER);
     }
     
     

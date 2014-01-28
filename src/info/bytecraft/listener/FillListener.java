@@ -24,7 +24,7 @@ public class FillListener implements Listener
     {
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
         if(event.isCancelled())return;
-        if(player.canFill()){
+        if(player.getRank().canFill()){
             if(player.getItemInHand().getType() == Material.WOOD_SPADE && event.getAction() == Action.RIGHT_CLICK_BLOCK){
                 event.setCancelled(true);
                 Block block = event.getClickedBlock();

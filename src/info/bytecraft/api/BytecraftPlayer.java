@@ -176,7 +176,8 @@ public class BytecraftPlayer extends PlayerDelegate
     public int getMaxTeleportDistance()
     {
         if(isAdmin())return Integer.MAX_VALUE;
-        if(hasFlag(Flag.NOBLE))return 15000;
+        if(hasFlag(Flag.LORD))return 15000;
+        if(hasFlag(Flag.NOBLE))return 10000;
         
         return 300;
     }
@@ -185,8 +186,8 @@ public class BytecraftPlayer extends PlayerDelegate
     {
         if(isAdmin()) return 20 * 0L;
         if(rank == Rank.PROTECTOR) return 20 * 2L;
-        
-        if(hasFlag(Flag.NOBLE)) return 20 * 3L;
+        if(hasFlag(Flag.LORD)) return 20 * 3L;
+        if(hasFlag(Flag.NOBLE)) return 20 * 4L;
         
         return 20 * 5L;
     }
@@ -298,11 +299,6 @@ public class BytecraftPlayer extends PlayerDelegate
     public boolean isModerator()
     {
         return (isAdmin() || this.rank == Rank.PROTECTOR);
-    }
-    
-    public boolean canFill()
-    {
-        return (isAdmin() || this.rank == Rank.BUILDER);
     }
     
     public boolean isMentor()

@@ -31,7 +31,7 @@ public class ItemCommand extends AbstractCommand
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
         if(args.length == 0)return false;
-        if(!player.canFill())return true;
+        if(!player.getRank().canFill())return true;
 
         String param = args[0].toUpperCase();
 
