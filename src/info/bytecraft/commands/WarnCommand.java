@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.bukkit.ChatColor;
+import static org.bukkit.ChatColor.*;
 import org.bukkit.Server;
 
 import info.bytecraft.Bytecraft;
@@ -11,6 +12,7 @@ import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.api.BytecraftPlayer.Flag;
 import info.bytecraft.api.PlayerReport;
 import info.bytecraft.api.PlayerReport.Action;
+import info.bytecraft.api.PlayerReport.ReportTime;
 import info.bytecraft.database.DAOException;
 import info.bytecraft.database.IContext;
 import info.bytecraft.database.IReportDAO;
@@ -25,56 +27,141 @@ public class WarnCommand extends AbstractCommand
     
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
-        if(args.length != 1)return true;
         if(!player.isModerator())return true;
-        if("warn".equalsIgnoreCase(getCommand())){
-            List<BytecraftPlayer> cantidates = plugin.matchPlayer(args[0]);
-            if(cantidates.size() != 1){
+        if(args.length < 1)return true;
+        List<BytecraftPlayer> cantidates = plugin.matchPlayer(args[0]);
+        if (cantidates.size() != 1) {
+            return true;
+        }
+
+        BytecraftPlayer target = cantidates.get(0);
+        if(args.length == 1){
+            if("warn".equalsIgnoreCase(command)){
+                int i = 7;
+                ReportTime time = ReportTime.DAYS;
+                warnPlayer(player, target, time.getTime() * i);
+                player.sendMessage(RED + "You have warned " + target.getDisplayName() + 
+                        RED + i + " " + time.name().toLowerCase());
+                return true;
+            }else if("hardwarn".equalsIgnoreCase(command)){
+                int i = 7;
+                ReportTime time = ReportTime.DAYS;
+                hardWarnPlayer(player, target, time.getTime() * i);
+                player.sendMessage(RED + "You have hardwarned " + target.getDisplayName() + 
+                        RED + i + " " + time.name().toLowerCase());
                 return true;
             }
-            
-            BytecraftPlayer target = cantidates.get(0);
-                warnPlayer(null, target);
-                player.sendMessage(ChatColor.RED + "You have warned " + target.getDisplayName());
-        }else if("hardwarn".equalsIgnoreCase(getCommand())){
-            List<BytecraftPlayer> cantidates = plugin.matchPlayer(args[0]);
-            if(cantidates.size() != 1){
-                return true;
+        }
+        if (args.length == 3) {
+            if ("warn".equalsIgnoreCase(getCommand())) {
+                int i = 7;
+                try {
+                    i = Integer.parseInt(args[1]);
+                } catch (NumberFormatException e) {
+                    i = 7;
+                }
+
+                ReportTime time = ReportTime.byString(args[2]);
+                if (time == null) {
+                    time = ReportTime.DAYS;
+                }
+                warnPlayer(player, target, time.getTime() * i);
+                player.sendMessage(RED + "You have warned "
+                        + target.getDisplayName() + RED + i + " "
+                        + time.name().toLowerCase());
             }
-            
-            BytecraftPlayer target = cantidates.get(0);
-                    hardWarnPlayer(null, target);
-                    player.sendMessage(ChatColor.RED + "You have hardwarned " + target.getDisplayName());
+            else if ("hardwarn".equalsIgnoreCase(getCommand())) {
+                int i = 7;
+                try {
+                    i = Integer.parseInt(args[1]);
+                } catch (NumberFormatException e) {
+                    i = 7;
+                }
+
+                ReportTime time = ReportTime.byString(args[2]);
+                if (time == null) {
+                    time = ReportTime.DAYS;
+                }
+                hardWarnPlayer(player, target, time.getTime() * i);
+                player.sendMessage(RED + "You have warned "
+                        + target.getDisplayName() + RED + i + " "
+                        + time.name().toLowerCase());
+                player.sendMessage(ChatColor.RED + "You have hardwarned "
+                        + target.getDisplayName());
+            }
         }
         return true;
     }
     
     public boolean handleOther(Server server, String[] args)
     {
-        if(args.length != 1)return true;
-        if("warn".equalsIgnoreCase(getCommand())){
-            List<BytecraftPlayer> cantidates = plugin.matchPlayer(args[0]);
-            if(cantidates.size() != 1){
+        if (args.length < 1)
+            return true;
+        List<BytecraftPlayer> cantidates = plugin.matchPlayer(args[0]);
+        if (cantidates.size() != 1) {
+            return true;
+        }
+
+        BytecraftPlayer target = cantidates.get(0);
+        if (args.length == 1) {
+            if ("warn".equalsIgnoreCase(command)) {
+                int i = 7;
+                ReportTime time = ReportTime.DAYS;
+                warnPlayer(null, target, time.getTime() * i);
+                plugin.sendMessage(RED + "You have warned "
+                        + target.getDisplayName() + RED + i + " "
+                        + time.name().toLowerCase());
                 return true;
             }
-            
-            BytecraftPlayer target = cantidates.get(0);
-                warnPlayer(null, target);
-                plugin.getLogger().info(ChatColor.RED + "You have warned " + target.getDisplayName());
-        }else if("hardwarn".equalsIgnoreCase(getCommand())){
-            List<BytecraftPlayer> cantidates = plugin.matchPlayer(args[0]);
-            if(cantidates.size() != 1){
+            else if ("hardwarn".equalsIgnoreCase(command)) {
+                int i = 7;
+                ReportTime time = ReportTime.DAYS;
+                hardWarnPlayer(null, target, time.getTime() * i);
+                plugin.sendMessage(RED + "You have hardwarned "  + target.getDisplayName() + RED + i + " "
+                        + time.name().toLowerCase());
                 return true;
             }
-            
-            BytecraftPlayer target = cantidates.get(0);
-                    hardWarnPlayer(null, target);
-                    plugin.getLogger().info(ChatColor.RED + "You have hardwarned " + target.getDisplayName());
+        }
+        if (args.length == 3) {
+            if ("warn".equalsIgnoreCase(getCommand())) {
+                int i = 7;
+                try {
+                    i = Integer.parseInt(args[1]);
+                } catch (NumberFormatException e) {
+                    i = 7;
+                }
+
+                ReportTime time = ReportTime.byString(args[2]);
+                if (time == null) {
+                    time = ReportTime.DAYS;
+                }
+                warnPlayer(null, target, time.getTime() * i);
+                plugin.getLogger().info(
+                        ChatColor.RED + "You have warned "
+                                + target.getDisplayName());
+            }
+            else if ("hardwarn".equalsIgnoreCase(getCommand())) {
+                int i = 7;
+                try {
+                    i = Integer.parseInt(args[1]);
+                } catch (NumberFormatException e) {
+                    i = 7;
+                }
+
+                ReportTime time = ReportTime.byString(args[2]);
+                if (time == null) {
+                    time = ReportTime.DAYS;
+                }
+                hardWarnPlayer(null, target, time.getTime() * i);
+                plugin.getLogger().info(
+                        ChatColor.RED + "You have hardwarned "
+                                + target.getDisplayName());
+            }
         }
         return true;
     }
     
-    public void warnPlayer(BytecraftPlayer player, BytecraftPlayer victim)
+    public void warnPlayer(BytecraftPlayer player, BytecraftPlayer victim, long time)
     {
         try (IContext ctx = plugin.createContext()){
             String name = victim.getName();
@@ -83,9 +170,10 @@ public class WarnCommand extends AbstractCommand
             report.setIssuerName(player == null ? "CONSOLE" : player.getName());
             report.setSubjectName(name);
             report.setAction(Action.SOFTWARN);
+            report.setMessage("Banned by " + report.getIssuerName());
             report.setTimestamp(new Date(System.currentTimeMillis()));
             report.setValidUntil(new Date(System.currentTimeMillis() + 
-                    7 * 86400 * 1000l));
+                    time * 1000L));
             dao.insertReport(report);
             victim.sendMessage(ChatColor.RED + "You have been warned for one week.");
             name = ChatColor.GRAY + name + ChatColor.WHITE;
@@ -102,7 +190,7 @@ public class WarnCommand extends AbstractCommand
         }
     }
     
-    public void hardWarnPlayer(BytecraftPlayer player, BytecraftPlayer victim)
+    public void hardWarnPlayer(BytecraftPlayer player, BytecraftPlayer victim, long time)
     {
         try (IContext ctx = plugin.createContext()){
             String name = victim.getName();
@@ -111,9 +199,10 @@ public class WarnCommand extends AbstractCommand
             report.setIssuerName(player == null ? "CONSOLE" : player.getName());
             report.setSubjectName(name);
             report.setAction(Action.HARDWARN);
+            report.setMessage("Banned by " + report.getIssuerName());
             report.setTimestamp(new Date(System.currentTimeMillis()));
             report.setValidUntil(new Date(System.currentTimeMillis() + 
-                    7 * 86400 * 1000l));
+                    time * 1000L));
             dao.insertReport(report);
             victim.sendMessage(ChatColor.RED + "You have been hardwarned for one week.");
             name = ChatColor.GRAY + name + ChatColor.WHITE;

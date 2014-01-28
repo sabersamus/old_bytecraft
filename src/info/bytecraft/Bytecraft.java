@@ -400,5 +400,10 @@ public class Bytecraft extends JavaPlugin
             return 0.0F;
         }
     }
+
+    public void sendMessage(String string)
+    {
+        Bukkit.getConsoleSender().sendMessage(string);
+    }
     
 }

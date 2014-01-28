@@ -18,7 +18,37 @@ public class PlayerReport
 
             return null;
         }
-    }
+    };
+    
+    public enum ReportTime{
+        MINUTES(60L), 
+        HOURS(60 * 60L), 
+        DAYS(60 * 60 * 24L), 
+        WEEKS(60 * 60 * 24 * 7L), 
+        MONTHS(60 * 60 * 24 * 30L);
+        
+        private final long time;
+        
+        private ReportTime(long time)
+        {
+            this.time = time;
+        }
+
+        public long getTime()
+        {
+            return time;
+        }
+        
+        public static ReportTime byString(String args)
+        {
+            if(args.startsWith("minute"))return MINUTES;
+            if(args.startsWith("hour"))return HOURS;
+            if(args.startsWith("day"))return DAYS;
+            if(args.startsWith("week"))return WEEKS;
+            if(args.startsWith("month"))return MONTHS;
+            return null;
+        }
+    };
     
     private int id = 0;
     private String subjectName;
