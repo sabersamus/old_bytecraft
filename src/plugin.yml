@@ -2,12 +2,12 @@ name: Bytecraft
 author: Sabersamus
 main: info.bytecraft.Bytecraft
 description: The plugin for Bytecraft
-website: http://bytecraft.freeforums.org/
+website: http://bytecraft.info
 version: 0.2
 commands:
     ban:
-        description: Ban a player
-        usage: /<command> <player>
+        description: Ban a player from the server
+        usage: /<command> <player> [amount] [minutes|hours|days|weeks|months]
     bless:
         description: Bless a block for a player
         usage: /<command> <player>
@@ -17,21 +17,27 @@ commands:
     clear:
         description: Clear your inventory
         usage: /<command>
+        aliases: [cl, clean] 
     cmob:
         description: Create a new mob
-        usage: /<command> <mob> [amount]
+        usage: /<command> <mob> [amount] [name]
     creative:
         description: Change your gamemode to creative
         usage: /<command>
     fill:
         description: Fill some blocks
-        usage: /<command> <material>
+        usage: |
+            /<command> <material>
+            /<command> <oldMaterial> <newMaterial>
+            /<command> copy
+            /<command> paste [rotation]
+            /<command> undo
     force:
         description: Force a player into a channel
         usage: /<command> <player> <channel> 
     gamemode:
         description: Change your gamemode
-        usage: /<command> [creative|survival]
+        usage: /<command> [creative|survival:1:2]
         aliases: [gm]
     give:
         description: Give another player an item
@@ -41,7 +47,7 @@ commands:
         usage: /<command> <message>
     hardwarn:
         description: Hard warn a player, taking their build powers
-        usage: /<command> <player>
+        usage: /<command> <player> [amount] [minutes|hours|days|weeks|months]
     home:
         description: Manage your home
         usage: /<command> [save]
@@ -54,7 +60,7 @@ commands:
         aliases: [i]
     kick:
         description: Kick a player
-        usage: /<command> <player>
+        usage: /<command> <player> <message>
     kill:
         description: Kill yourself
         usage: /<command>
@@ -67,7 +73,7 @@ commands:
     message:
         description: Send a message to another player
         usage: /<command> <player> <message>
-        aliases: [m, to]
+        aliases: [m, to, msg]
     pos:
         description: Get your global position
         usage: /<command>
@@ -103,23 +109,26 @@ commands:
         usage: /<command> x y z
     user:
         description: Manage players permissions
-        usage: /<command> make <setter|warned|hardwarned> <player>
+        usage: /<command> make <setter|member> <player>
     vanish:
         description: Vanish
-        usage: /<command>
-        aliases: [v]
+        usage: /<command> [silentjoin:sj|hiddenloc:hl
+        aliases: [v, poof]
     wallet:
         description: Manage your wallet
-        usage: /<command> <balance>
+        usage: |
+            /<command> balance
+            /<command> tell
+            /<command> give <player> <amount>
     warn:
         description: Warn a player
-        usage: /<command> <player>
+        usage: /<command> <player> [amount] [minutes|hours|days|weeks|months]
     warp:
         description: Warp to a far away land
         usage: /<command> city
     who:
         description: See who's online
-        usage: /<command>
+        usage: /<command> [player]
         aliases: [list]
     zone:
         description: Manage zones
