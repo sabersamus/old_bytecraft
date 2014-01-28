@@ -24,11 +24,11 @@ public class GiveCommand extends AbstractCommand
     @SuppressWarnings("deprecation")
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
-        if (args.length == 0)
+        if (args.length <= 1)
             return true;
         if (!player.isAdmin())
             return true;
-
+        
         String param = args[1].toUpperCase();
         List<BytecraftPlayer> cantidates = plugin.matchPlayer(args[0]);
         if (cantidates.size() != 1) {
