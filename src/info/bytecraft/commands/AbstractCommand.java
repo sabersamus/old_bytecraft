@@ -12,7 +12,7 @@ import org.bukkit.entity.Player;
 public abstract class AbstractCommand implements CommandExecutor
 {
     protected Bytecraft plugin;
-    private String command;
+    protected String command;
     
     public AbstractCommand(Bytecraft instance){
         this.plugin = instance;
