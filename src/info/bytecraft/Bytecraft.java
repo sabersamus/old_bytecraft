@@ -69,7 +69,7 @@ public class Bytecraft extends JavaPlugin
         getCommand("cmob").setExecutor(new CreateMobCommand(this));
         getCommand("creative").setExecutor(new GameModeCommand(this, "creative"));
         getCommand("channel").setExecutor(new ChannelCommand(this));
-        getCommand("fill").setExecutor(new FillCommand(this));
+        getCommand("fill").setExecutor(new FillCommand(this, "fill"));
         getCommand("force").setExecutor(new ForceCommand(this));
         getCommand("gamemode").setExecutor(new GameModeCommand(this, "gamemode"));
         getCommand("give").setExecutor(new GiveCommand(this));
@@ -131,6 +131,31 @@ public class Bytecraft extends JavaPlugin
     // ========================================================
     // ================== Player Methods ======================
     // ========================================================
+    
+    public void refreshPlayer(BytecraftPlayer player)
+    {
+        try(IContext ctx = createContext()){
+            IPlayerDAO dao = ctx.getPlayerDAO();
+            dao.updatePlayTime(player);
+            dao.loadFlags(player);
+            player.setRank(dao.getRank(player));
+            ChatColor color = player.getRank().getColor();
+            if(player.hasFlag(Flag.NOBLE)){
+                if(player.getRank() == Rank.MEMBER || player.getRank() == Rank.SETTLER){
+                    color = ChatColor.GOLD;
+                }
+            }
+            String name = color + player.getName();
+            player.setDisplayName(name + ChatColor.WHITE);
+            if(name.length() > 16){
+                player.setPlayerListName(name.substring(0, 15));
+            }else{
+                player.setPlayerListName(name);
+            }
+        }catch(DAOException e){
+            throw new RuntimeException(e);
+        }
+    }
     
     public void reloadPlayer(BytecraftPlayer player)
     {
@@ -205,13 +230,14 @@ public class Bytecraft extends JavaPlugin
             }
             
             ChatColor color = player.getRank().getColor();
-            if(player.hasFlag(Flag.HARDWARNED) || player.hasFlag(Flag.SOFTWARNED)){
-                color = ChatColor.GRAY;
-            }
             if(player.hasFlag(Flag.NOBLE)){
                 if(player.getRank() == Rank.MEMBER || player.getRank() == Rank.SETTLER){
                     color = ChatColor.GOLD;
                 }
+            }
+            
+            if(player.hasFlag(Flag.HARDWARNED) || player.hasFlag(Flag.SOFTWARNED)){
+                color = ChatColor.GRAY;
             }
             
             player.setDisplayName(color + player.getName() + ChatColor.WHITE);
