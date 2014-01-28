@@ -10,6 +10,7 @@ import info.bytecraft.api.PlayerBannedException;
 import info.bytecraft.api.Rank;
 import info.bytecraft.api.BytecraftPlayer.Flag;
 import info.bytecraft.database.DAOException;
+import info.bytecraft.database.IBlessDAO;
 import info.bytecraft.database.IContext;
 import info.bytecraft.database.ILogDAO;
 
@@ -248,9 +249,15 @@ public class BytecraftPlayerListener implements Listener
         if(!(event.getInventory().getHolder() instanceof Chest))return;
         
         Chest chest = (Chest)event.getInventory().getHolder();
-        
+        Block block = chest.getBlock();
         try(IContext ctx = plugin.createContext()){
             ILogDAO dao = ctx.getLogDAO();
+            IBlessDAO bDao = ctx.getBlessDAO();
+            if(bDao.isBlessed(block)){
+                if(player.getName().equalsIgnoreCase(bDao.getOwner(block))){
+                    return;
+                }
+            }
             ChestLog log = new ChestLog(player.getName(), chest.getLocation(), ChestLog.Action.OPEN);
             
             dao.insertChestLog(log);
