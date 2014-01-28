@@ -5,13 +5,18 @@ import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.api.BytecraftPlayer.Flag;
 import info.bytecraft.database.*;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.BlockSpreadEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 
 public class BytecraftBlockListener implements Listener
@@ -64,6 +69,27 @@ public class BytecraftBlockListener implements Listener
             throw new RuntimeException(e);
         }
     }
+    
+    @EventHandler
+    public void onPlaceHopper(BlockPlaceEvent event)
+    {
+        if(event.getBlockPlaced().getType() != Material.HOPPER)return;
+        Block block = event.getBlockPlaced();
+        Block up = block.getRelative(0, 1, 0);
+        Block down = block.getRelative(0, -1, 0);
+        if(down.getType() != Material.CHEST && up.getType() != Material.CHEST)return;
+        BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
+        try(IContext ctx = plugin.createContext()){
+            IBlessDAO dao = ctx.getBlessDAO();
+            if(dao.isBlessed(down) || dao.isBlessed(up)){
+                player.sendMessage(ChatColor.RED + "You are not allowed to place hoppers above/beneath blessed chests");
+                event.setBuild(false);
+                event.setCancelled(true);
+            }
+        }catch(DAOException e){
+            throw new RuntimeException(e);
+        }
+    }
 
     @EventHandler
     public void onExplode(EntityExplodeEvent event)
@@ -75,5 +101,17 @@ public class BytecraftBlockListener implements Listener
         else if (event.getEntityType() == EntityType.PRIMED_TNT) {
             event.setCancelled(true);
         }
+    }
+    
+    @EventHandler
+    public void onSpread(BlockBurnEvent event)
+    {
+        event.setCancelled(true);
+    }
+    
+    @EventHandler
+    public void onDestroy(org.bukkit.event.entity.EntityChangeBlockEvent event)
+    {
+        event.setCancelled(true);
     }
 }
