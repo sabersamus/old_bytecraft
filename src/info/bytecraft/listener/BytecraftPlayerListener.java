@@ -115,7 +115,7 @@ public class BytecraftPlayerListener implements Listener
                     }
                 }
             }else{
-                player.sendMessage(ChatColor.AQUA + plugin.getConfig().getString("motd"));
+                player.sendMessage(ChatColor.AQUA + plugin.getConfig().getString("motd.normal"));
             }
         }
     }
