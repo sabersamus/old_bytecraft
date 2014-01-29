@@ -264,6 +264,9 @@ public class Bytecraft extends JavaPlugin
                 }
             }
             
+            ILogDAO logs = ctx.getLogDAO();
+            logs.insertLogin(player, "login");
+            
             players.put(player.getName(), player);
             return player;
         }catch(DAOException e){
@@ -275,6 +278,7 @@ public class Bytecraft extends JavaPlugin
     {
         try(IContext ctx = createContext()){
             ctx.getPlayerDAO().updatePlayTime(player);
+            ctx.getLogDAO().insertLogin(player, "logout");
         }catch(DAOException e){
             throw new RuntimeException(e);
         }

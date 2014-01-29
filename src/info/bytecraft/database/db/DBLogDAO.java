@@ -199,4 +199,19 @@ public class DBLogDAO implements ILogDAO
         return logs;
     }
 
+    @Override
+    public void insertLogin(BytecraftPlayer player, String action)
+            throws DAOException
+    {
+        String sql = "INSERT INTO player_login (player_name, login_timestamp, action) VALUES"
+                + " (?, unix_timestamp(), ?)";
+        try(PreparedStatement stm = conn.prepareStatement(sql)){
+            stm.setString(1, player.getName());
+            stm.setString(2, action.toLowerCase());
+            stm.execute();
+        }catch(SQLException e){
+            throw new DAOException(sql, e);
+        }
+    }
+
 }

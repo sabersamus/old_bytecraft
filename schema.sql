@@ -100,13 +100,21 @@ CREATE TABLE IF NOT EXISTS `player` (
 
 -- --------------------------------------------------------
 
+CREATE TABLE IF NOT EXISTS `player_login` (
+  `login_id` int(32) NOT NULL AUTO_INCREMENT,
+  `player_name` varchar(32) COLLATE utf8_bin NOT NULL,
+  `login_timestamp` int(10) unsigned NOT NULL,
+  `action` enum('login', 'logout') NOT NULL,
+  PRIMARY KEY (`login_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
 --
 -- Table structure for table `player_chatlog`
 --
 
 CREATE TABLE IF NOT EXISTS `player_chatlog` (
   `chatlog_id` int(10) NOT NULL AUTO_INCREMENT,
-  `player_name` varchar(32) COLLATE utf8_bin DEFAULT NULL,
+  `player_name` varchar(32) COLLATE utf8_bin NOT NULL,
   `chatlog_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `chatlog_channel` varchar(64) COLLATE utf8_bin DEFAULT NULL,
   `chatlog_message` varchar(255) COLLATE utf8_bin DEFAULT NULL,
