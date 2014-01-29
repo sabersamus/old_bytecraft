@@ -106,6 +106,7 @@ public class BytecraftPlayerListener implements Listener
                 player.teleport(plugin.getWorldSpawn("world"));
             }
             if (player.getRank() == Rank.NEWCOMER) {
+                player.sendMessage(ChatColor.AQUA + plugin.getConfig().getString("motd.new"));
                 for (BytecraftPlayer other : plugin.getOnlinePlayers()) {
                     if (other.isMentor()) {
                         other.sendMessage(player.getDisplayName()
@@ -113,9 +114,10 @@ public class BytecraftPlayerListener implements Listener
                                 + " has joined as a newcomer, you should help them out!");
                     }
                 }
+            }else{
+                player.sendMessage(ChatColor.AQUA + plugin.getConfig().getString("motd"));
             }
         }
-        player.sendMessage(ChatColor.AQUA + plugin.getConfig().getString("motd"));
     }
 
     @EventHandler
