@@ -55,6 +55,7 @@ public class BytecraftPlayer extends PlayerDelegate
     private Set<Flag> flags;
     
     private BytecraftPlayer blessTarget;
+    private BytecraftPlayer lastMessager;
     
     private Date loginTime;
 
@@ -201,6 +202,16 @@ public class BytecraftPlayer extends PlayerDelegate
     public void setBlessTarget(BytecraftPlayer blessTarget)
     {
         this.blessTarget = blessTarget;
+    }
+    
+    public BytecraftPlayer getLastMessager()
+    {
+        return lastMessager;
+    }
+    
+    public void setLastMessager(BytecraftPlayer player)
+    {
+        this.lastMessager = player;
     }
     
     public void sendNotification(Notification notif, String message)

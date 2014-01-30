@@ -78,6 +78,10 @@ commands:
         description: Get your global position
         usage: /<command>
         aliases: [coords]
+    reply:
+        description: Reply to your last message
+        usage: /<command> <message>
+        aliases: [r]
     say:
         description: Send a message as god
         usage: /<command> <message>
