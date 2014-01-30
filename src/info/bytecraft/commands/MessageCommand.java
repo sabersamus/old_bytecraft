@@ -7,6 +7,7 @@ import org.bukkit.ChatColor;
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.api.Notification;
+import info.bytecraft.api.Rank;
 import info.bytecraft.api.BytecraftPlayer.Flag;
 import info.bytecraft.commands.AbstractCommand;
 
@@ -54,7 +55,7 @@ public class MessageCommand extends AbstractCommand
         target.sendNotification(Notification.MESSAGE, ChatColor.GOLD
                 + "<From> " + player.getDisplayName() + ": "
                 + ChatColor.GREEN + message);
-        if (!target.hasFlag(Flag.INVISIBLE)) {
+        if (!target.hasFlag(Flag.INVISIBLE) && (player.getRank() != Rank.ELDER || player.getRank() != Rank.PRINCESS)) {
             player.sendMessage(ChatColor.GOLD + "<To> "
                     + target.getDisplayName() + ": " + ChatColor.GREEN
                     + message);
