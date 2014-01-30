@@ -42,6 +42,7 @@ public class WarnCommand extends AbstractCommand
                 warnPlayer(player, target, time.getTime() * i);
                 player.sendMessage(RED + "You have warned " + target.getDisplayName() + 
                         RED + i + " " + time.name().toLowerCase());
+                target.sendMessage(RED + "You have been warned for " + i + " " + time.name().toLowerCase());
                 return true;
             }else if("hardwarn".equalsIgnoreCase(command)){
                 int i = 7;
@@ -49,6 +50,8 @@ public class WarnCommand extends AbstractCommand
                 hardWarnPlayer(player, target, time.getTime() * i);
                 player.sendMessage(RED + "You have hardwarned " + target.getDisplayName() + 
                         RED + i + " " + time.name().toLowerCase());
+                
+                target.sendMessage(RED + "You have been hardwarned for " + i + " " + time.name().toLowerCase());
                 return true;
             }
         }
@@ -69,6 +72,7 @@ public class WarnCommand extends AbstractCommand
                 player.sendMessage(RED + "You have warned "
                         + target.getDisplayName() + RED + i + " "
                         + time.name().toLowerCase());
+                target.sendMessage(RED + "You have been warned for " + i + " " + time.name().toLowerCase());
             }
             else if ("hardwarn".equalsIgnoreCase(getCommand())) {
                 int i = 7;
@@ -88,6 +92,7 @@ public class WarnCommand extends AbstractCommand
                         + time.name().toLowerCase());
                 player.sendMessage(ChatColor.RED + "You have hardwarned "
                         + target.getDisplayName());
+                target.sendMessage(RED + "You have been hardwarned for " + i + " " + time.name().toLowerCase());
             }
         }
         return true;
@@ -111,6 +116,7 @@ public class WarnCommand extends AbstractCommand
                 plugin.sendMessage(RED + "You have warned "
                         + target.getDisplayName() + RED + i + " "
                         + time.name().toLowerCase());
+                target.sendMessage(RED + "You have been warned for " + i + " " + time.name().toLowerCase());
                 return true;
             }
             else if ("hardwarn".equalsIgnoreCase(command)) {
@@ -119,6 +125,7 @@ public class WarnCommand extends AbstractCommand
                 hardWarnPlayer(null, target, time.getTime() * i);
                 plugin.sendMessage(RED + "You have hardwarned "  + target.getDisplayName() + RED + i + " "
                         + time.name().toLowerCase());
+                target.sendMessage(RED + "You have been hardwarned for " + i + " " + time.name().toLowerCase());
                 return true;
             }
         }
@@ -139,6 +146,7 @@ public class WarnCommand extends AbstractCommand
                 plugin.getLogger().info(
                         ChatColor.RED + "You have warned "
                                 + target.getDisplayName());
+                target.sendMessage(RED + "You have been warned for " + i + " " + time.name().toLowerCase());
             }
             else if ("hardwarn".equalsIgnoreCase(getCommand())) {
                 int i = 7;
@@ -156,6 +164,7 @@ public class WarnCommand extends AbstractCommand
                 plugin.getLogger().info(
                         ChatColor.RED + "You have hardwarned "
                                 + target.getDisplayName());
+                target.sendMessage(RED + "You have been hardwarned for " + i + " " + time.name().toLowerCase());
             }
         }
         return true;
@@ -175,7 +184,6 @@ public class WarnCommand extends AbstractCommand
             report.setValidUntil(new Date(System.currentTimeMillis() + 
                     time * 1000L));
             dao.insertReport(report);
-            victim.sendMessage(ChatColor.RED + "You have been warned for one week.");
             name = ChatColor.GRAY + name + ChatColor.WHITE;
             victim.setDisplayName(name);
             victim.setFlag(Flag.SOFTWARNED, true);
@@ -204,7 +212,6 @@ public class WarnCommand extends AbstractCommand
             report.setValidUntil(new Date(System.currentTimeMillis() + 
                     time * 1000L));
             dao.insertReport(report);
-            victim.sendMessage(ChatColor.RED + "You have been hardwarned for one week.");
             name = ChatColor.GRAY + name + ChatColor.WHITE;
             victim.setDisplayName(name);
             victim.setFlag(Flag.HARDWARNED, true);
