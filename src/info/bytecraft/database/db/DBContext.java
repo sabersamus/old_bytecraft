@@ -7,6 +7,7 @@ import info.bytecraft.Bytecraft;
 import info.bytecraft.database.IBlessDAO;
 import info.bytecraft.database.IContext;
 import info.bytecraft.database.IHomeDAO;
+import info.bytecraft.database.IInventoryDAO;
 import info.bytecraft.database.ILogDAO;
 import info.bytecraft.database.IPlayerDAO;
 import info.bytecraft.database.IReportDAO;
@@ -74,6 +75,12 @@ public class DBContext implements IContext
     public IZoneDAO getZoneDAO()
     {
         return new DBZoneDAO(conn);
+    }
+
+    @Override
+    public IInventoryDAO getInventoryDAO()
+    {
+        return new DBInventoryDAO(conn);
     }
 
 }
