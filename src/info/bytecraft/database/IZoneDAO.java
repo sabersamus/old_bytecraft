@@ -18,7 +18,7 @@ public interface IZoneDAO
     public Map<String, Permission> getPermissions(Zone zone) throws DAOException;
     public Permission getUser(Zone zone, BytecraftPlayer player) throws DAOException;
     public void deleteZone(String name) throws DAOException;
-    public void updateFlag(String zone, Flag flag, String value) throws DAOException;
+    public void updateFlag(Zone zone, Flag flag, String value) throws DAOException;
     public void addUser(Zone zone, String name, Permission perm) throws DAOException;
     public void updateUser(Zone zone, String name, Permission perm) throws DAOException;
     public boolean deleteUser(Zone zone, String name) throws DAOException;

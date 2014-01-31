@@ -198,7 +198,7 @@ public class DBZoneDAO implements IZoneDAO
         }
     }
     
-    public void updateFlag(String zone, Flag flag, String value)
+    public void updateFlag(Zone zone, Flag flag, String value)
     throws DAOException
     {
         String sql = null;
@@ -219,7 +219,7 @@ public class DBZoneDAO implements IZoneDAO
         }
         try(PreparedStatement stm = conn.prepareStatement(sql)){
             stm.setString(1, value);
-            stm.setString(2, zone);
+            stm.setString(2, zone.getName());
             stm.execute();
         }catch(SQLException e){
             throw new DAOException(sql, e);

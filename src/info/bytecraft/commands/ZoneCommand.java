@@ -49,131 +49,94 @@ public class ZoneCommand extends AbstractCommand
                     }
                 }
             }
-        }
-        else if (args.length == 3) {// zone [flag] [name] [true/false]
-            if (!zoneExists(args[1])) {
-                player.sendMessage(ChatColor.RED + "Zone " + args[1]
-                        + " not found");
-            }
-            else {
+        } else if (args.length == 3){ //zone deluser zone player
+            if("deluser".equalsIgnoreCase(args[0])){
+                if(!zoneExists(args[1])){
+                    player.sendMessage(ChatColor.RED + "Zone not found");
+                    return true;
+                }
                 Zone zone = plugin.getZone(args[1]);
                 Permission p = zone.getUser(player);
                 if ((p != null && p == Permission.OWNER) || player.isAdmin()) {
-                    if ("pvp".equalsIgnoreCase(args[0])) {
-                        changeSetting(args[1], Flag.PVP,
-                                (args[2].equalsIgnoreCase("true")) ? "true"
-                                        : "false");
-                        player.sendMessage(ChatColor.RED
-                                + "["
-                                + zone.getName()
-                                + "] Changed pvp to "
-                                + ((args[2].equalsIgnoreCase("true")) ? "true"
-                                        : "false"));
+                    List<BytecraftPlayer> cantidates =
+                            plugin.matchPlayer(args[2]);
+                    if (cantidates.size() > 1) {
+                        return true;
                     }
-                    else if ("whitelist".equalsIgnoreCase(args[0])) {
-                        changeSetting(args[1], Flag.WHITELIST,
-                                (args[2].equalsIgnoreCase("true")) ? "true"
-                                        : "false");
-                        player.sendMessage(ChatColor.RED
-                                + "["
-                                + zone.getName()
-                                + "] Changed whitelist to "
-                                + ((args[2].equalsIgnoreCase("true")) ? "true"
-                                        : "false"));
-                    }
-                    else if ("build".equalsIgnoreCase(args[0])) {
-                        changeSetting(args[1], Flag.BUILD,
-                                (args[2].equalsIgnoreCase("true")) ? "true"
-                                        : "false");
-                        player.sendMessage(ChatColor.RED
-                                + "["
-                                + zone.getName()
-                                + "] Changed build settings to "
-                                + ((args[2].equalsIgnoreCase("true")) ? "true"
-                                        : "false"));
-                    }
-                    else if ("hostile".equalsIgnoreCase(args[0])) {
-                        changeSetting(args[1], Flag.HOSTILE,
-                                (args[2].equalsIgnoreCase("true")) ? "true"
-                                        : "false");
-                        player.sendMessage(ChatColor.RED
-                                + "["
-                                + zone.getName()
-                                + "] Changed hostile mob spawning to "
-                                + ((args[2].equalsIgnoreCase("true")) ? "true"
-                                        : "false"));
-                    }
-                    else if ("deluser".equalsIgnoreCase(args[0])) {
-                        if ((p != null && p == Permission.OWNER)
-                                || player.isAdmin()) {
-                            String pattern = args[2];
+                    BytecraftPlayer target = cantidates.get(0);
 
-                            List<BytecraftPlayer> cantidates =
-                                    plugin.matchPlayer(pattern);
-                            if (cantidates.size() > 1) {
-                                return true;
-                            }
-
-                            BytecraftPlayer target = cantidates.get(0);
-
-                            this.delUser(zone, target, player);
-                        }
-                    }
+                    this.delUser(zone, target, player);
                 }
             }
-        }
-        else if (args.length == 4) {
+        } else if (args.length == 4) {
             if ("adduser".equalsIgnoreCase(args[0])) {
                 if (!zoneExists(args[1])) {
                     player.sendMessage(ChatColor.RED + "Zone " + args[1]
                             + " not found");
-                }
-                else {
-                    Zone zone = plugin.getZone(args[1]);
-                    Permission p = zone.getUser(player);
-                    if ((p != null && p == Permission.OWNER)
-                            || player.isAdmin()) {
-                        String pattern = args[2];
-                        
-                        List<BytecraftPlayer> cantidates = plugin.matchPlayer(pattern);
-                        if(cantidates.size() > 1){
-                            return true;
-                        }
-                        
-                        BytecraftPlayer target = cantidates.get(0);
-                        
-                        Permission p2 =
-                                Permission.valueOf(args[3].toUpperCase());
-                        if (p2 != null) {
-                            this.addUser(zone, target, p2, player);
-                        }
+                    return true;
+                } 
+                
+                Zone zone = plugin.getZone(args[1]);
+                Permission p = zone.getUser(player);
+                if ((p != null && p == Permission.OWNER) || player.isAdmin()) {
+                    String pattern = args[2];
+
+                    List<BytecraftPlayer> cantidates =
+                            plugin.matchPlayer(pattern);
+                    if (cantidates.size() > 1) {
+                        return true;
                     }
+
+                    BytecraftPlayer target = cantidates.get(0);
+
+                    Permission p2 = Permission.valueOf(args[3].toUpperCase());
+                    if (p2 != null) {
+                        this.addUser(zone, target, p2, player);
+                    }
+                }
+            }else if(args[0].equalsIgnoreCase("flag")){
+                if(!zoneExists(args[1])){
+                    player.sendMessage(ChatColor.RED + "Zone " + args[1] + " not found");
+                    return true;
+                }//zone flag zone flag_name value
+                Zone zone = plugin.getZone(args[1]);
+                Permission p = zone.getUser(player);
+                if ((p != null && p == Permission.OWNER) || player.isAdmin()) {
+                    Flag flag = Flag.valueOf(args[2].toUpperCase());
+                    if (flag == null) {
+                        player.sendMessage(ChatColor.RED + "Flag not found");
+                        return true;
+                    }
+
+                    boolean value = Boolean.parseBoolean(args[3]);
+                    this.updateFlag(zone, flag, value);
+                    player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] Changed " + flag.name().toLowerCase() + " to " + value);
                 }
             }
         }
-        else if (args.length >= 4) {
+        else if (args.length >= 4) {//zone entermsg zone message
+            //zone entermsg test hello fuckers mother
             if (args[0].equalsIgnoreCase("entermsg")
                     || args[0].equalsIgnoreCase("exitmsg")) {
-                if (!zoneExists(args[1])) {
-                    player.sendMessage(ChatColor.RED + "Zone " + args[1]
-                            + " does not exist");
+                if(!zoneExists(args[1])){
+                    player.sendMessage(ChatColor.RED + "Zone " + args[1] + " not found");
+                    return true;
                 }
-                else {
-                    Permission p = plugin.getZone(args[1]).getUser(player);
-                    if ((p != null && p == Permission.OWNER)
-                            || player.isAdmin()) {
-                        StringBuilder sb = new StringBuilder();
-                        for (int i = 2; i < args.length; i++) {
-                            sb.append(args[i] + " ");
-                        }
-                        Flag f =
-                                args[0].equalsIgnoreCase("entermsg") ? Flag.ENTERMSG
-                                        : Flag.EXITMSG;
-                        changeSetting(args[1], f, sb.toString().trim());
-                        player.sendMessage(ChatColor.RED + "[" + args[1]
-                                + "] Changed " + f.name().toLowerCase()
-                                + " to: " + sb.toString().trim());
+                Zone zone = plugin.getZone(args[1]);
+                Permission p = zone.getUser(player);
+                if ((p != null && p == Permission.OWNER) || player.isAdmin()) {
+                    Flag flag =
+                            args[0].equalsIgnoreCase("entermsg") ? Flag.ENTERMSG
+                                    : Flag.EXITMSG;
+
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 2; i < args.length; i++) {
+                        sb.append(args[i] + " ");
                     }
+
+                    this.changeSetting(zone, flag, sb.toString());
+                    player.sendMessage(ChatColor.RED + "[" + zone.getName()
+                            + "] Changed " + flag.name().toLowerCase() + " to " + sb.toString());
                 }
             }
         }
@@ -222,7 +185,7 @@ public class ZoneCommand extends AbstractCommand
         return plugin.getZone(name) != null;
     }
 
-    private void changeSetting(String zone, Flag flag, String value)
+    private void changeSetting(Zone zone, Flag flag, String value)
     {
         try (IContext ctx = plugin.createContext()) {
             IZoneDAO dao = ctx.getZoneDAO();
@@ -271,6 +234,18 @@ public class ZoneCommand extends AbstractCommand
                 + String.format(delNotif, zone.getName()));
             return dao.deleteUser(zone, target.getName());
         } catch (DAOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+    private void updateFlag(Zone zone, Flag flag, boolean value)
+    {
+        zone.setFlag(flag, value);
+        
+        try(IContext ctx = plugin.createContext()){
+            IZoneDAO dao = ctx.getZoneDAO();
+            dao.updateFlag(zone, flag, String.valueOf(value));
+        }catch(DAOException e){
             throw new RuntimeException(e);
         }
     }
