@@ -1,10 +1,10 @@
 package info.bytecraft.database;
 
 import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.api.Zone;
-import info.bytecraft.api.Zone.Flag;
-import info.bytecraft.api.Zone.Permission;
 import info.bytecraft.api.math.Rectangle;
+import info.bytecraft.zones.Zone;
+import info.bytecraft.zones.Zone.Flag;
+import info.bytecraft.zones.Zone.Permission;
 
 import java.util.List;
 import java.util.Map;
@@ -15,7 +15,7 @@ public interface IZoneDAO
     public void createZone(Zone zone, BytecraftPlayer player) throws DAOException;
     public Zone getZone(String name) throws DAOException;
     public Rectangle getRect(Zone zone) throws DAOException;
-    public Map<String, Permission> getPerms(Zone zone) throws DAOException;
+    public Map<String, Permission> getPermissions(Zone zone) throws DAOException;
     public Permission getUser(Zone zone, BytecraftPlayer player) throws DAOException;
     public void deleteZone(String name) throws DAOException;
     public void updateFlag(String zone, Flag flag, String value) throws DAOException;

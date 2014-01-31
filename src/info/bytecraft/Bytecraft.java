@@ -1,6 +1,7 @@
 package info.bytecraft;
 
 import info.bytecraft.api.*;
+import info.bytecraft.zones.Zone;
 import info.bytecraft.api.BytecraftPlayer.Flag;
 import info.bytecraft.commands.*;
 import info.bytecraft.database.*;
@@ -100,7 +101,7 @@ public class Bytecraft extends JavaPlugin
         getCommand("warn").setExecutor(new WarnCommand(this, "warn"));
         getCommand("warp").setExecutor(new WarpCommand(this));
         getCommand("who").setExecutor(new WhoCommand(this));
-        //getCommand("zone").setExecutor(new ZoneCommand(this));
+        getCommand("zone").setExecutor(new ZoneCommand(this));
     }
     
     public IContextFactory getContextFactory()
@@ -124,9 +125,10 @@ public class Bytecraft extends JavaPlugin
         pm.registerEvents(new BytecraftBlockListener(this), this);
         //pm.registerEvents(new DamageListener(this), this);
         pm.registerEvents(new FillListener(this), this);
+        pm.registerEvents(new InventoryListener(this), this);
         pm.registerEvents(new PlayerPromotionListener(this), this);
-        //pm.registerEvents(new SelectListener(this), this);
-        //pm.registerEvents(new ZoneListener(this), this);
+        pm.registerEvents(new SelectListener(this), this);
+        pm.registerEvents(new ZoneListener(this), this);
     }
     
     // ========================================================

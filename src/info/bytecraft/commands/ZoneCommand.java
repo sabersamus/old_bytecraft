@@ -1,12 +1,14 @@
 package info.bytecraft.commands;
 
+import java.util.List;
+
 import org.bukkit.ChatColor;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.api.Zone;
-import info.bytecraft.api.Zone.Flag;
-import info.bytecraft.api.Zone.Permission;
+import info.bytecraft.zones.Zone;
+import info.bytecraft.zones.Zone.Flag;
+import info.bytecraft.zones.Zone.Permission;
 import info.bytecraft.database.DAOException;
 import info.bytecraft.database.IContext;
 import info.bytecraft.database.IZoneDAO;
@@ -102,14 +104,19 @@ public class ZoneCommand extends AbstractCommand
                                         : "false"));
                     }
                     else if ("deluser".equalsIgnoreCase(args[0])) {
-                        String target = args[2];
-                        if (delUser(zone, target, player))
-                            return true;
-                        else {
-                            player.sendMessage(ChatColor.RED + "["
-                                    + zone.getName()
-                                    + "] Could not find player " + target
-                                    + " in zone " + zone.getName());
+                        if ((p != null && p == Permission.OWNER)
+                                || player.isAdmin()) {
+                            String pattern = args[2];
+
+                            List<BytecraftPlayer> cantidates =
+                                    plugin.matchPlayer(pattern);
+                            if (cantidates.size() > 1) {
+                                return true;
+                            }
+
+                            BytecraftPlayer target = cantidates.get(0);
+
+                            this.delUser(zone, target, player);
                         }
                     }
                 }
@@ -126,7 +133,15 @@ public class ZoneCommand extends AbstractCommand
                     Permission p = zone.getUser(player);
                     if ((p != null && p == Permission.OWNER)
                             || player.isAdmin()) {
-                        String target = args[2];
+                        String pattern = args[2];
+                        
+                        List<BytecraftPlayer> cantidates = plugin.matchPlayer(pattern);
+                        if(cantidates.size() > 1){
+                            return true;
+                        }
+                        
+                        BytecraftPlayer target = cantidates.get(0);
+                        
                         Permission p2 =
                                 Permission.valueOf(args[3].toUpperCase());
                         if (p2 != null) {
@@ -217,44 +232,29 @@ public class ZoneCommand extends AbstractCommand
         }
     }
 
-    private void addUser(Zone zone, String target, Permission p,
+    private void addUser(Zone zone, BytecraftPlayer target, Permission p,
             BytecraftPlayer player)
     {
         try (IContext ctx = plugin.createContext()) {
             IZoneDAO dao = ctx.getZoneDAO();
-
-            BytecraftPlayer victim = plugin.getPlayerOffline(target);
-
             String addConfirm = p.getAddedConfirm();
             player.sendMessage(ChatColor.RED
-                    + "["
-                    + zone.getName()
-                    + "] "
-                    + String.format(addConfirm, victim.getDisplayName()
-                            + ChatColor.RED, zone.getName()));
+                    + "[" + zone.getName() + "] "
+                    + String.format(addConfirm, target.getDisplayName() + ChatColor.RED, zone.getName()));
 
-            BytecraftPlayer player2 = plugin.getPlayer(target);
-            if (player2 != null) {
                 String addNotif = p.getAddedNotif();
-                player2.sendMessage(ChatColor.RED + "[" + zone.getName() + "] "
+                target.sendMessage(ChatColor.RED + "[" + zone.getName() + "] "
                         + String.format(addNotif, zone.getName()));
-            }
-
-            dao.addUser(zone, target, p);
+            dao.addUser(zone, target.getName(), p);
         } catch (DAOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private boolean delUser(Zone zone, String name, BytecraftPlayer deleter)
+    private boolean delUser(Zone zone, BytecraftPlayer target, BytecraftPlayer deleter)
     {
         try (IContext ctx = plugin.createContext()) {
             IZoneDAO dao = ctx.getZoneDAO();
-            BytecraftPlayer target = plugin.getPlayerOffline(name);
-            if (target == null) {
-                deleter.sendMessage(ChatColor.RED + "Could not find user.");
-                return false;
-            }
             Permission p = zone.getUser(target);
             if (p == null) {
                 deleter.sendMessage(ChatColor.RED + "[" + zone.getName() + "] "
@@ -263,19 +263,13 @@ public class ZoneCommand extends AbstractCommand
                 return false;
             }
             String delConfirm = p.getDelConfirm();
-            deleter.sendMessage(ChatColor.RED
-                    + "["
-                    + zone.getName()
-                    + "] "
-                    + String.format(delConfirm, target.getDisplayName()
-                            + ChatColor.RED, zone.getName()));
-            BytecraftPlayer player2 = plugin.getPlayer(name);
-            if (player2 != null) {
+            deleter.sendMessage(ChatColor.RED + "[" + zone.getName() + "] "
+                    + String.format(delConfirm, target.getDisplayName() + ChatColor.RED, zone.getName()));
+            
                 String delNotif = p.getDelNotif();
-                player2.sendMessage(ChatColor.RED + "[" + zone.getName() + "] "
-                        + String.format(delNotif, zone.getName()));
-            }
-            return dao.deleteUser(zone, name);
+                target.sendMessage(ChatColor.RED + "[" + zone.getName() + "] "  
+                + String.format(delNotif, zone.getName()));
+            return dao.deleteUser(zone, target.getName());
         } catch (DAOException e) {
             throw new RuntimeException(e);
         }

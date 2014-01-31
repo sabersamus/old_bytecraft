@@ -1,6 +1,7 @@
 package info.bytecraft.api;
 
 import info.bytecraft.Bytecraft;
+import info.bytecraft.zones.Zone;
 import info.bytecraft.api.math.Vector2D;
 import info.bytecraft.database.DAOException;
 import info.bytecraft.database.IContext;
@@ -29,9 +30,10 @@ public class BytecraftPlayer extends PlayerDelegate
         INVISIBLE,
         NOBLE,
         LORD,
-        TPBLOCK;
-    };
-    
+        TPBLOCK, 
+        CHEST_LOG;
+    }
+
     private Bytecraft plugin;
     private String name;
     private int id = 0;

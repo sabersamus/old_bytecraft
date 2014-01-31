@@ -1,12 +1,12 @@
 package info.bytecraft.database.db;
 
 import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.api.Zone;
-import info.bytecraft.api.Zone.Flag;
-import info.bytecraft.api.Zone.Permission;
 import info.bytecraft.api.math.Rectangle;
 import info.bytecraft.database.DAOException;
 import info.bytecraft.database.IZoneDAO;
+import info.bytecraft.zones.Zone;
+import info.bytecraft.zones.Zone.Flag;
+import info.bytecraft.zones.Zone.Permission;
 
 import java.sql.*;
 import java.util.List;
@@ -38,14 +38,15 @@ public class DBZoneDAO implements IZoneDAO
                     Zone zone = new Zone();
                     zone.setName(rs.getString("zone_name"));
                     zone.setId(rs.getInt("zone_id"));
-                    zone.setEnterMsg(rs.getString("zone_entermsg"));
-                    zone.setExitMsg(rs.getString("zone_exitmsg"));
-                    zone.setPvp(false);//no pvp for now
-                    zone.setBuildable(Boolean.parseBoolean(rs.getString("zone_build")));
-                    zone.setHostile(Boolean.parseBoolean(rs.getString("zone_hostile")));
-                    zone.setWhitelisted(Boolean.parseBoolean(rs.getString("zone_whitelist")));
+                    zone.setEnterMessage(rs.getString("zone_entermsg"));
+                    zone.setExitMessage(rs.getString("zone_exitmsg"));
+                    zone.setFlag(Flag.PVP, false);
+                    zone.setFlag(Flag.BUILD, Boolean.parseBoolean(rs.getString("zone_build")));
+                    zone.setFlag(Flag.HOSTILE, Boolean.parseBoolean(rs.getString("zone_hostile")));
+                    zone.setFlag(Flag.WHITELIST, Boolean.parseBoolean(rs.getString("zone_whitelist")));
                     zone.setWorld(rs.getString("zone_world"));
-                    zone.setRect(getRect(zone));
+                    zone.setRectangle(getRect(zone));
+                    zone.setPermissions(getPermissions(zone));
                     zones.add(zone);
                 }
             }
@@ -59,7 +60,6 @@ public class DBZoneDAO implements IZoneDAO
     throws DAOException
     {
         String sql = "INSERT INTO zone (zone_name, zone_world, zone_entermsg, zone_exitmsg) VALUES (?, ?, ?, ?)";
-        String sql2 = "INSERT INTO zone_rect (zone_name, rect_x1, rect_z1, rect_x2, rect_z2) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement stm = conn.prepareStatement(sql)){
             stm.setString(1, zone.getName());
             stm.setString(2, zone.getWorld());
@@ -67,7 +67,8 @@ public class DBZoneDAO implements IZoneDAO
             stm.setString(4, "Now leaving " + zone.getName());
             stm.execute();
             
-            try(PreparedStatement stmt = conn.prepareStatement(sql2)){
+            sql = "INSERT INTO zone_rect (zone_name, rect_x1, rect_z1, rect_x2, rect_z2) VALUES (?, ?, ?, ?, ?)";
+            try(PreparedStatement stmt = conn.prepareStatement(sql)){
                 stmt.setString(1, zone.getName());
                 stmt.setInt(2, player.getZoneBlock1().getX());
                 stmt.setInt(3, player.getZoneBlock1().getZ());
@@ -94,14 +95,15 @@ public class DBZoneDAO implements IZoneDAO
                     return null;
                 }
                 zone.setId(rs.getInt("zone_id"));
-                zone.setEnterMsg(rs.getString("zone_entermsg"));
-                zone.setExitMsg(rs.getString("zone_exitmsg"));
-                zone.setPvp(false);//no pvp for now
-                zone.setBuildable(Boolean.parseBoolean(rs.getString("zone_build")));
-                zone.setHostile(Boolean.parseBoolean(rs.getString("zone_hostile")));
-                zone.setWhitelisted(Boolean.parseBoolean(rs.getString("zone_whitelist")));
+                zone.setEnterMessage(rs.getString("zone_entermsg"));
+                zone.setExitMessage(rs.getString("zone_exitmsg"));
+                zone.setFlag(Flag.PVP, false);
+                zone.setFlag(Flag.BUILD, Boolean.parseBoolean(rs.getString("zone_build")));
+                zone.setFlag(Flag.HOSTILE, Boolean.parseBoolean(rs.getString("zone_hostile")));
+                zone.setFlag(Flag.WHITELIST, Boolean.parseBoolean(rs.getString("zone_whitelist")));
                 zone.setWorld(rs.getString("zone_world"));
-                zone.setRect(getRect(zone));
+                zone.setRectangle(getRect(zone));
+                zone.setPermissions(getPermissions(zone));
             }
         }catch(SQLException e){
             throw new DAOException(sql, e);
@@ -131,17 +133,20 @@ public class DBZoneDAO implements IZoneDAO
         return null;
     }
     
-    public Map<String, Permission> getPerms(Zone zone)
+    public Map<String, Permission> getPermissions(Zone zone)
     throws DAOException
     {
+        if(zone == null)return null;
         Map<String, Permission> map = Maps.newHashMap();
         
         String sql = "SELECT * FROM zone_user WHERE zone_name = ?";
         try (PreparedStatement stm = conn.prepareStatement(sql)){
             stm.setString(1, zone.getName());
+            stm.execute();
             try(ResultSet rs = stm.getResultSet()){
                 while(rs.next()){
-                    map.put(rs.getString("player_name"), Permission.valueOf(rs.getString("player_perm").toUpperCase()));
+                    map.put(rs.getString("player_name"), 
+                            Permission.valueOf(rs.getString("player_perm").toUpperCase()));
                 }
             }
         }catch(SQLException e){
@@ -256,6 +261,7 @@ public class DBZoneDAO implements IZoneDAO
             stm.setString(2, zone.getName());
             stm.setString(3, name);
             stm.execute();
+            zone.addPermissions(name, p);
         }catch(SQLException e){
             throw new DAOException(sql, e);
         }
@@ -269,6 +275,7 @@ public class DBZoneDAO implements IZoneDAO
             stm.setString(1, zone.getName());
             stm.setString(2, name);
             stm.execute();
+            zone.removePermission(name);
         }catch(SQLException e){
             throw new DAOException(sql, e);
         }

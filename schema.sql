@@ -225,7 +225,7 @@ CREATE TABLE IF NOT EXISTS `zone` (
   `zone_id` int(11) NOT NULL AUTO_INCREMENT,
   `zone_world` varchar(50) NOT NULL DEFAULT 'world',
   `zone_name` varchar(32) NOT NULL,
-  `zone_whitelist` enum('true','false') NOT NULL DEFAULT 'true',
+  `zone_whitelist` enum('true','false') NOT NULL DEFAULT 'false',
   `zone_build` enum('true','false') NOT NULL DEFAULT 'true',
   `zone_pvp` enum('true','false') NOT NULL DEFAULT 'false',
   `zone_hostile` enum('true','false') DEFAULT 'true',
@@ -275,9 +275,9 @@ CREATE TABLE IF NOT EXISTS `zone_rect` (
   `rect_id` int(10) NOT NULL AUTO_INCREMENT,
   `zone_name` varchar(32) NOT NULL,
   `rect_x1` int(10) DEFAULT NULL,
-  `rect_y1` int(10) DEFAULT NULL,
+  `rect_z1` int(10) DEFAULT NULL,
   `rect_x2` int(10) DEFAULT NULL,
-  `rect_y2` int(10) DEFAULT NULL,
+  `rect_z2` int(10) DEFAULT NULL,
   PRIMARY KEY (`rect_id`),
   KEY `zone_name` (`zone_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
@@ -294,3 +294,63 @@ CREATE TABLE IF NOT EXISTS `zone_user` (
   `player_perm` enum('owner','maker','allowed','banned') NOT NULL DEFAULT 'allowed',
   PRIMARY KEY (`zone_name`,`player_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `inventory` (
+  `inventory_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `player_name` varchar(32) NOT NULL,
+  `inventory_checksum` int(11) DEFAULT NULL,
+  `inventory_x` int(11) DEFAULT NULL,
+  `inventory_y` int(11) DEFAULT NULL,
+  `inventory_z` int(11) DEFAULT NULL,
+  `inventory_world` varchar(32) COLLATE utf8_general_ci DEFAULT NULL,
+  `inventory_type` enum('block','player','player_armor') COLLATE utf8_general_ci DEFAULT NULL,
+  PRIMARY KEY (`inventory_id`),
+  KEY `idx_coords` (`inventory_x`,`inventory_y`,`inventory_z`,`inventory_world`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+DROP TABLE IF EXISTS `inventory_accesslog`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE IF NOT EXISTS`inventory_accesslog` (
+  `accesslog_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `inventory_id` int(10) unsigned DEFAULT NULL,
+  `player_name` varchar(32) NOT NULL,
+  `accesslog_timestamp` int(10) unsigned DEFAULT NULL,
+  PRIMARY KEY (`accesslog_id`),
+  KEY `idx_inventory` (`inventory_id`,`accesslog_timestamp`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+DROP TABLE IF EXISTS `inventory_changelog`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE IF NOT EXISTS`inventory_changelog` (
+  `changelog_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `inventory_id` int(10) unsigned DEFAULT NULL,
+  `player_name` varchar(32) NOT NULL,
+  `changelog_timestamp` int(10) unsigned DEFAULT NULL,
+  `changelog_slot` int(10) unsigned DEFAULT NULL,
+  `changelog_material` int(10) unsigned DEFAULT NULL,
+  `changelog_data` int(11) DEFAULT NULL,
+  `changelog_meta` text,
+  `changelog_amount` int(10) unsigned DEFAULT NULL,
+  `changelog_type` enum('add','remove') DEFAULT NULL,
+  PRIMARY KEY (`changelog_id`),
+  KEY `idx_inventory` (`inventory_id`,`changelog_timestamp`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `inventory_item`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE IF NOT EXISTS`inventory_item` (
+  `item_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `inventory_id` int(10) unsigned DEFAULT NULL,
+  `item_slot` int(10) unsigned DEFAULT NULL,
+  `item_material` int(10) unsigned DEFAULT NULL,
+  `item_data` int(11) DEFAULT NULL,
+  `item_meta` text CHARACTER SET utf8,
+  `item_count` int(10) unsigned DEFAULT NULL,
+  PRIMARY KEY (`item_id`),
+  KEY `inventory_idx` (`inventory_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_swedish_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
