@@ -22,17 +22,6 @@ public class KickCommand extends AbstractCommand
         super(instance, "kick");
     }
 
-    private String argsToMessage(String[] args)
-    {
-        StringBuffer buf = new StringBuffer();
-        for (int i = 1; i < args.length; ++i) {
-            buf.append(" ");
-            buf.append(args[i]);
-        }
-
-        return buf.toString();
-    }
-
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
         if (!player.isModerator()) {
@@ -40,11 +29,10 @@ public class KickCommand extends AbstractCommand
             return true;
         }
 
-        if (args.length < 2) {
+        if (args.length != 2) {
             return true;
         }
 
-        String message = argsToMessage(args);
         List<BytecraftPlayer> cantidates = plugin.matchPlayer(args[0]);
         if (cantidates.size() != 1) {
             return true;
@@ -61,7 +49,7 @@ public class KickCommand extends AbstractCommand
             report.setSubjectName(target.getName());
             report.setIssuerName(player.getName());
             report.setAction(PlayerReport.Action.KICK);
-            report.setMessage(message);
+            report.setMessage("Kicked by " + player.getName());
 
             IReportDAO reportDAO = ctx.getReportDAO();
             reportDAO.insertReport(report);
