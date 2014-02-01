@@ -1,9 +1,9 @@
 name: Bytecraft
 author: Sabersamus
 main: info.bytecraft.Bytecraft
-description: The plugin for Bytecraft
-website: http://bytecraft.info
-version: 0.2
+description: The main plugin for Bytecraft
+website: http://www.bytecraft.info
+version: 1.0
 commands:
     ban:
         description: Ban a player from the server
@@ -138,5 +138,6 @@ commands:
         description: Manage zones
         usage: |
             /<command> create <name>
-            /<command> <pvp|hostile|build|whitelist> <name> <true|false>
+            /<command> flag <name> <pvp|whitelist|build|hostiles> <true|false>
             /<command> <entermsg|exitmsg> <name> <message>
+            /<command> info <name>

@@ -10,5 +10,5 @@ support:
 spawn:
     world: 64, 64, 64, 1, 1
 motd: 
-    normal: 'Welcome to Bytecraft! Please enjoy your stay'
+    normal: 'Welcome to Bytecraft! Please join the forums at http://www.bytecraft.info'
     new: 'Welcome to Bytecraft! If no staff members are online, please try again later? :D'

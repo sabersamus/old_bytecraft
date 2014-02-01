@@ -46,11 +46,13 @@ public class UserCommand extends AbstractCommand
                 
                 if("settler".equalsIgnoreCase(args[1])){
                     this.makeSettler(target, player);
-                    player.sendMessage(ChatColor.AQUA + "You have promoted " + target.getDisplayName() + " to settler");
+                    player.sendMessage(ChatColor.AQUA + "You have promoted " + target.getDisplayName() 
+                            + ChatColor.AQUA + " to settler");
                     return true;
                 }else if("member".equalsIgnoreCase(args[1])){
                     this.makeMember(target);
-                    player.sendMessage(ChatColor.AQUA + "You have promoted " + target.getDisplayName() + " to member");
+                    player.sendMessage(ChatColor.AQUA + "You have promoted " + target.getDisplayName() + ChatColor.AQUA
+                            + " to member");
                     return true;
                 }
             }

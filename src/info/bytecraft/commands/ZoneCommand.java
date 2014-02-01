@@ -117,7 +117,7 @@ public class ZoneCommand extends AbstractCommand
 
                     BytecraftPlayer target = cantidates.get(0);
 
-                    Permission p2 = Permission.fromString(args[3);
+                    Permission p2 = Permission.fromString(args[3]);
                     if (p2 == null) {
                         player.sendMessage(ChatColor.RED + args[3] + " is not a valid permission");
                     }else{
