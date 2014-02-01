@@ -4,8 +4,10 @@ import java.util.List;
 
 import org.bukkit.ChatColor;
 
+import static org.bukkit.ChatColor.*;
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.math.Rectangle;
 import info.bytecraft.zones.Zone;
 import info.bytecraft.zones.Zone.Flag;
 import info.bytecraft.zones.Zone.Permission;
@@ -50,7 +52,33 @@ public class ZoneCommand extends AbstractCommand
                 }
             }
         } else if (args.length == 3){ //zone deluser zone player
-            if("deluser".equalsIgnoreCase(args[0])){
+            if("info".equalsIgnoreCase(args[0])){
+              if(!zoneExists(args[1])){
+                  player.sendMessage(ChatColor.RED + "Zone " + args[0] + " not found");
+                  return true;
+              }
+              Zone zone = plugin.getZone(args[1]);
+              Rectangle rect = zone.getRectangle();
+              player.sendMessage(GOLD + "Information about " + args[1]);
+              player.sendMessage(GOLD + "ID: " + WHITE + zone.getId());
+              player.sendMessage(GOLD + "Rect: " + WHITE + "("+ 
+              rect.getPoint1().getX() + "," + + rect.getPoint1().getZ() + ")" 
+                      + rect.getPoint2().getX() + "," + + rect.getPoint2().getZ() + ")");
+              player.sendMessage(GOLD
+                      + "Enter: " + WHITE
+                      + (zone.hasFlag(Flag.WHITELIST) ? "Everyone (true)"
+                              : "Only allowed (false)"));
+              player.sendMessage(GOLD
+                      + "Build: " + WHITE
+                      + (zone.hasFlag(Flag.BUILD) ? "Everyone (true)"
+                              : "Only makers (false)"));
+              player.sendMessage(GOLD + "PVP: " + WHITE + zone.hasFlag(Flag.PVP));
+              player.sendMessage(GOLD + "Hostiles: " + WHITE + zone.hasFlag(Flag.HOSTILE));
+              player.sendMessage(GOLD + "Enter message: " + WHITE + zone.getEnterMessage());
+              player.sendMessage(GOLD + "Exit Message: " + WHITE + zone.getExitMessage());
+              return true;
+              
+            } else if("deluser".equalsIgnoreCase(args[0])){
                 if(!zoneExists(args[1])){
                     player.sendMessage(ChatColor.RED + "Zone not found");
                     return true;
@@ -89,8 +117,10 @@ public class ZoneCommand extends AbstractCommand
 
                     BytecraftPlayer target = cantidates.get(0);
 
-                    Permission p2 = Permission.valueOf(args[3].toUpperCase());
-                    if (p2 != null) {
+                    Permission p2 = Permission.fromString(args[3);
+                    if (p2 == null) {
+                        player.sendMessage(ChatColor.RED + args[3] + " is not a valid permission");
+                    }else{
                         this.addUser(zone, target, p2, player);
                     }
                 }

@@ -11,7 +11,7 @@ import org.bukkit.Location;
 
 public class Zone
 {
-    public static enum Permission {
+    public enum Permission {
         OWNER("%s is now an owner of %s.", "You are now an owner of %s.",
                 "%s is no longer an owner of %s.",
                 "You are no longer an owner of %s.",
@@ -97,6 +97,16 @@ public class Zone
         public void setPermNotification(String permNotification)
         {
             this.permNotification = permNotification;
+        }
+        
+        public static Permission fromString(String name)
+        {
+            for(Permission perm: values()){
+                if(perm.name().equalsIgnoreCase(name)){
+                    return perm;
+                }
+            }
+            return null;
         }
         
     }
