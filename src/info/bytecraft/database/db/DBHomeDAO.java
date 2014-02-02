@@ -90,8 +90,8 @@ public class DBHomeDAO implements IHomeDAO
     public void updateHome(BytecraftPlayer player)
     throws DAOException
     {
-        String sql = "UPDATE player_home SET block_x = ?, block_y = ?, block_z = ?, "
-                + "block_yaw = ?, block_pitch = ?, block_world = ? WHERE player_name = ?";
+        String sql = "UPDATE player_home SET home_x = ?, home_y = ?, home_z = ?, "
+                + "home_yaw = ?, home_pitch = ?, home_world = ? WHERE player_name = ?";
         Location homeLoc = player.getLocation();
         try(PreparedStatement stm = conn.prepareStatement(sql)){
             stm.setInt(1, homeLoc.getBlockX());
