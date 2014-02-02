@@ -9,6 +9,7 @@ import info.bytecraft.database.IContext;
 import info.bytecraft.database.IHomeDAO;
 import info.bytecraft.database.IInventoryDAO;
 import info.bytecraft.database.ILogDAO;
+import info.bytecraft.database.IMessageDAO;
 import info.bytecraft.database.IPlayerDAO;
 import info.bytecraft.database.IReportDAO;
 import info.bytecraft.database.IWarpDAO;
@@ -51,6 +52,12 @@ public class DBContext implements IContext
     public ILogDAO getLogDAO()
     {
         return new DBLogDAO(conn);
+    }
+    
+    @Override
+    public IMessageDAO getMessageDAO()
+    {
+        return new DBMessageDAO(conn);
     }
 
     @Override

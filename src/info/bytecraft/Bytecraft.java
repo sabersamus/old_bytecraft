@@ -32,6 +32,9 @@ public class Bytecraft extends JavaPlugin
     private HashMap<String, BytecraftPlayer> players;
     private static IContextFactory contextFactory;
     
+    private List<String> deathMessages;
+    private List<String> quitMessages;
+    
     private LookupService lookup = null;
     
     private final SimpleDateFormat format = new SimpleDateFormat(
@@ -50,6 +53,15 @@ public class Bytecraft extends JavaPlugin
                     LookupService.GEOIP_MEMORY_CACHE);
         }catch(IOException e){
             getLogger().warning("Could not find GeoIPCity.dat, is it in the correct folder?");
+        }
+        
+        try(IContext ctx = createContext())
+        {
+            IMessageDAO dao = ctx.getMessageDAO();
+            this.deathMessages = dao.loadDeathMessages();
+            this.quitMessages = dao.loadQuitMessages();
+        }catch(DAOException e){
+            throw new RuntimeException(e);
         }
     }
 
@@ -70,6 +82,7 @@ public class Bytecraft extends JavaPlugin
         getCommand("cmob").setExecutor(new CreateMobCommand(this));
         getCommand("creative").setExecutor(new GameModeCommand(this, "creative"));
         getCommand("channel").setExecutor(new ChannelCommand(this));
+        getCommand("chestlog").setExecutor(new ChestLogCommand(this));
         getCommand("fill").setExecutor(new FillCommand(this, "fill"));
         getCommand("force").setExecutor(new ForceCommand(this));
         getCommand("gamemode").setExecutor(new GameModeCommand(this, "gamemode"));
@@ -91,6 +104,7 @@ public class Bytecraft extends JavaPlugin
         getCommand("support").setExecutor(new SupportCommand(this));
         getCommand("spawn").setExecutor(new SpawnCommand(this));
         getCommand("survival").setExecutor(new GameModeCommand(this, "survival"));
+        getCommand("testfill").setExecutor(new FillCommand(this, "testfill"));
         getCommand("time").setExecutor(new TimeCommand(this));
         getCommand("tpblock").setExecutor(new TeleportBlockCommand(this));
         getCommand("teleport").setExecutor(new TeleportCommand(this));
@@ -363,6 +377,8 @@ public class Bytecraft extends JavaPlugin
             return 5;
         case LAPIS_ORE:
             return 5;
+        case OBSIDIAN:
+            return 50;
         case GOLD_ORE:
             return 50;
         case EMERALD_ORE:
@@ -411,6 +427,16 @@ public class Bytecraft extends JavaPlugin
     public void sendMessage(String string)
     {
         Bukkit.getConsoleSender().sendMessage(string);
+    }
+    
+    public List<String> getQuitMessages()
+    {
+        return this.quitMessages;
+    }
+    
+    public List<String> getDeathMessages()
+    {
+        return this.deathMessages;
     }
     
 }

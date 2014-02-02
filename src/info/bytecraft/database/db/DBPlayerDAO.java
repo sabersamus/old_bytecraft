@@ -309,6 +309,12 @@ public class DBPlayerDAO implements IPlayerDAO
         try (PreparedStatement stm = conn.prepareStatement(sql)) {
             stm.setString(1, player.getName());
             stm.execute();
+            sql = "UPDATE player SET player_rank = ? WHERE player_name = ?";
+            try(PreparedStatement stm2 = conn.prepareStatement(sql)){
+                stm2.setString(1, "settler");
+                stm2.setString(2, player.getName());
+                stm.execute();
+            }
         } catch (SQLException e) {
             throw new DAOException(sql, e);
         }

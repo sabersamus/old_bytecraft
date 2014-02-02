@@ -2,6 +2,7 @@ package info.bytecraft.listener;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.BytecraftPlayer.Flag;
 import info.bytecraft.api.InventoryAccess;
 import info.bytecraft.database.DAOException;
 import info.bytecraft.database.IContext;
@@ -16,7 +17,6 @@ import java.util.Map;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.entity.Player;
@@ -89,7 +89,7 @@ public class InventoryListener implements Listener
                     }
                 }
 
-                if (others > 0 && player.getItemInHand().getType() == Material.BLAZE_ROD) {
+                if (others > 0 && player.hasFlag(Flag.CHEST_LOG)) {
                     player.sendMessage(ChatColor.YELLOW + "Last accessed by:");
                     SimpleDateFormat dfm = new SimpleDateFormat("dd/MM/yy hh:mm:ss a");
                     int i = 0;

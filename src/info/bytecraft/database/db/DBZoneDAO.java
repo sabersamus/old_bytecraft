@@ -76,6 +76,27 @@ public class DBZoneDAO implements IZoneDAO
                 stmt.setInt(5, player.getZoneBlock2().getZ());
                 stmt.execute();
             }
+            
+            sql = "SELECT * FROM zone WHERE zone_name = ?";
+            try(PreparedStatement stm2 = conn.prepareStatement(sql)){
+                stm2.setString(1, zone.getName());
+                stm2.execute();
+                
+                try(ResultSet rs = stm2.getResultSet()){
+                    if(rs.next()){
+                        zone.setId(rs.getInt("zone_id"));
+                        zone.setEnterMessage(rs.getString("zone_entermsg"));
+                        zone.setExitMessage(rs.getString("zone_exitmsg"));
+                        zone.setFlag(Flag.PVP, false);
+                        zone.setFlag(Flag.BUILD, Boolean.parseBoolean(rs.getString("zone_build")));
+                        zone.setFlag(Flag.HOSTILE, Boolean.parseBoolean(rs.getString("zone_hostile")));
+                        zone.setFlag(Flag.WHITELIST, Boolean.parseBoolean(rs.getString("zone_whitelist")));
+                        zone.setWorld(rs.getString("zone_world"));
+                        zone.setRectangle(getRect(zone));
+                        zone.setPermissions(getPermissions(zone));
+                    }
+                }
+            }
         }catch(SQLException e){
             throw new DAOException(sql, e);
         }

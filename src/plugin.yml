@@ -14,6 +14,10 @@ commands:
     channel:
         description: Change your chat channel
         usage: /<command> <channel>
+    chestlog:
+        description: Change your chest log flag
+        usage: /<command> <true|false>
+        aliases: [clog]
     clear:
         description: Clear your inventory
         usage: /<command>
@@ -98,6 +102,9 @@ commands:
     survival:
         description: Change your gamemode to survival
         usage: /<command>
+    testfill:
+        description: Do a test fill that only shows until you log out
+        usage: /<command> <material>
     time:
         description: Change your personal time
         usage: /<command> [day|night|normal]

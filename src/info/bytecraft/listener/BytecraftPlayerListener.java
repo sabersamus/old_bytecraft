@@ -1,6 +1,8 @@
 package info.bytecraft.listener;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.Random;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
@@ -13,6 +15,7 @@ import info.bytecraft.database.IBlessDAO;
 import info.bytecraft.database.IContext;
 import info.bytecraft.database.ILogDAO;
 import info.bytecraft.zones.Zone;
+import info.bytecraft.api.TargetBlock;
 
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.Bukkit;
@@ -20,7 +23,9 @@ import org.bukkit.Bukkit;
 import static org.bukkit.ChatColor.*;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -30,12 +35,16 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.player.PlayerAnimationEvent;
+import org.bukkit.event.player.PlayerAnimationType;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.player.PlayerLoginEvent.Result;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -88,13 +97,13 @@ public class BytecraftPlayerListener implements Listener
                             + " to Bytecraft ");
                 }
             }
-        }
-        else {
+        } else {
             if(player.getCountry() != null && !player.hasFlag(Flag.HIDDEN_LOCATION)){
                 Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "Welcome "
                         + player.getDisplayName() + ChatColor.DARK_AQUA
                         + " from " + player.getCountry());
-            }else{
+            }
+            else {
                 Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "Welcome "
                         + player.getDisplayName() + ChatColor.DARK_AQUA
                         + " to Bytecraft ");
@@ -102,19 +111,26 @@ public class BytecraftPlayerListener implements Listener
             if (!player.hasPlayedBefore()) {
                 player.teleport(plugin.getWorldSpawn("world"));
             }
-            if (player.getRank() == Rank.NEWCOMER) {
-                player.sendMessage(ChatColor.AQUA + plugin.getConfig().getString("motd.new"));
-                for (BytecraftPlayer other : plugin.getOnlinePlayers()) {
-                    if (other.isMentor()) {
-                        other.sendMessage(player.getDisplayName()
-                                + ChatColor.AQUA
-                                + " has joined as a newcomer, you should help them out!");
-                    }
+
+        }
+        
+        if (player.getRank() == Rank.NEWCOMER) {
+            player.sendMessage(ChatColor.AQUA
+                    + plugin.getConfig().getString("motd.new"));
+            for (BytecraftPlayer other : plugin.getOnlinePlayers()) {
+                if (other.isMentor()) {
+                    other.sendMessage(player.getDisplayName()
+                            + ChatColor.AQUA
+                            + " has joined as a newcomer, you should help them out!");
                 }
-            }else{
-                player.sendMessage(ChatColor.AQUA + plugin.getConfig().getString("motd.normal"));
             }
         }
+        else {
+            player.sendMessage(ChatColor.AQUA
+                    + plugin.getConfig().getString("motd.normal"));
+        }
+        
+        player.setAllowFlight(player.hasFlag(Flag.NOBLE));
     }
 
     @EventHandler
@@ -131,14 +147,22 @@ public class BytecraftPlayerListener implements Listener
     public void onQuit(PlayerQuitEvent event)
     {
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
+        if(player == null)return;
         if (player.hasFlag(Flag.SILENT_JOIN)) {
             event.setQuitMessage(null);
             plugin.removePlayer(player);
             return;
         }
-        event.setQuitMessage(ChatColor.GRAY + "-QUIT- "
-                + plugin.getPlayer(event.getPlayer()).getDisplayName()
-                + ChatColor.AQUA + " has left the game");
+        
+        List<String> quitMessages = plugin.getQuitMessages();
+        String message = "";
+        if(quitMessages.isEmpty()){
+            message = ChatColor.AQUA + "- quit - " + player.getDisplayName() + ChatColor.AQUA + " has left the game!";
+        }else{
+            message = ChatColor.AQUA + "- quit - " + quitMessages.get(new Random().nextInt(quitMessages.size() - 1)).replace("%s", player.getDisplayName() + ChatColor.AQUA)
+                    .replaceAll("(?i)&([a-f0-9])", "\u00A7$1");
+        }
+        event.setQuitMessage(message);
         plugin.removePlayer(player);
         return;
     }
@@ -149,7 +173,14 @@ public class BytecraftPlayerListener implements Listener
         if (!(event.getEntity() instanceof Player))
             return;
         BytecraftPlayer player = plugin.getPlayer((Player) event.getEntity());
-        event.setCancelled(player.isAdmin());
+        
+        if(event.getCause() == DamageCause.FALL){
+            event.setCancelled(true);
+            return;
+        }else{
+            event.setCancelled(player.isAdmin());
+            return;
+        }
     }
 
     @EventHandler
@@ -211,7 +242,18 @@ public class BytecraftPlayerListener implements Listener
     @EventHandler
     public void onDeath(PlayerDeathEvent event)
     {
-        event.setDeathMessage(null);
+        BytecraftPlayer player = plugin.getPlayer(event.getEntity());
+        if(player == null)return;
+        List<String> deathMessages = plugin.getDeathMessages();
+        String message = "";
+        if(deathMessages.isEmpty()){
+            message = ChatColor.GRAY + "- death - " + player.getDisplayName() + ChatColor.GRAY + " has died!";
+        }else{
+            message = ChatColor.GRAY + "- death - " + deathMessages.get(
+                    new Random().nextInt(deathMessages.size() - 1)).replace("%s", player.getDisplayName() + ChatColor.GRAY)
+                    .replaceAll("(?i)&([a-f0-9])", "\u00A7$1");
+        }
+        event.setDeathMessage(message);
     }
 
     @EventHandler
@@ -285,6 +327,95 @@ public class BytecraftPlayerListener implements Listener
         event.setCancelled(true);
         event.setUseInteractedBlock(Event.Result.DENY);
         return;
+    }
+    
+    @EventHandler
+    public void onFlight(PlayerToggleFlightEvent event)
+    {
+        BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
+        if(player == null)return;
+        if(!player.hasFlag(Flag.NOBLE)){
+            event.setCancelled(true);
+        }
+        
+        if(player.hasFlag(Flag.SOFTWARNED) || player.hasFlag(Flag.HARDWARNED)){
+            event.setCancelled(true);
+        }
+        
+    }
+    
+    @EventHandler
+    public void onCompass(PlayerAnimationEvent event)
+    {
+        if (event.getAnimationType() != PlayerAnimationType.ARM_SWING) {
+            return;
+        }
+
+        BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
+        ItemStack heldItem = player.getItemInHand();
+        if (heldItem.getType() != Material.COMPASS) {
+            return;
+        }
+
+        World world = player.getWorld();
+
+        if (player.hasFlag(Flag.LORD)) {
+
+            float pitch = event.getPlayer().getLocation().getPitch();
+            float yaw = event.getPlayer().getLocation().getYaw();
+
+            TargetBlock targetCalc = new TargetBlock(event.getPlayer());
+            Block target = targetCalc.getTargetBlock();
+            
+            if (target != null) {
+
+                for (int i = 0; i < 100; i++) {
+
+                    int landingType =
+                            world.getBlockAt(target.getX(), target.getY() + i,
+                                    target.getZ()).getTypeId();
+
+                    int landingAbove =
+                            world.getBlockAt(target.getX(),
+                                    target.getY() + i + 1, target.getZ())
+                                    .getTypeId();
+
+                    if (landingType == 0 && landingAbove == 0) {
+                        Location loc = target.getLocation();
+
+                        loc.setX(loc.getX() + .5);
+                        loc.setZ(loc.getZ() + .5);
+                        loc.setY(loc.getY() + i);
+                        loc.setPitch(pitch);
+                        loc.setYaw(yaw);
+                        if (loc.getY() < 255) {
+                            player.teleport(loc);
+                        }
+                        break;
+                    }
+                }
+            }
+        } else {
+            if (player.hasFlag(Flag.NOBLE)) {
+
+            Block target = player.getDelegate().getTargetBlock(null, 300);
+
+            Block b1 =
+                    world.getBlockAt(new Location(player.getWorld(), target
+                            .getX(), target.getY() + 1, target.getZ()));
+
+            Block b2 =
+                    world.getBlockAt(new Location(player.getWorld(), target
+                            .getX(), target.getY() + 2, target.getZ()));
+
+            int top = world.getHighestBlockYAt(target.getLocation());
+            Location loc =
+                    new Location(player.getWorld(), target.getX() + 0.5, top,
+                            target.getZ() + 0.5, player.getLocation().getYaw(),
+                            player.getLocation().getPitch());
+            player.teleport(loc);
+            }
+        }
     }
     
 }

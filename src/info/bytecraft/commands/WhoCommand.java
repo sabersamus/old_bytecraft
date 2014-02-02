@@ -100,6 +100,7 @@ public class WhoCommand extends AbstractCommand
                 + "PLAYER INFO" + DARK_GRAY + " ********************");
         player.sendMessage(GOLD + "Player: " + GRAY
                 + whoPlayer.getDisplayName());
+        player.sendMessage(GOLD + "ID: " + GRAY + whoPlayer.getId());
         player.sendMessage(GOLD + "World: " + GRAY
                 + whoPlayer.getWorld().getName());
         player.sendMessage(GOLD + "Coords: " + GRAY + x + ", " + y + ", " + z);

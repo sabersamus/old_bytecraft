@@ -15,6 +15,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
+import org.bukkit.event.block.BlockIgniteEvent;
+import org.bukkit.event.block.BlockIgniteEvent.IgniteCause;
+import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 
@@ -32,6 +35,12 @@ public class BytecraftBlockListener implements Listener
     {
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
         if (!player.getRank().canBuild() || player.hasFlag(Flag.HARDWARNED)) {
+            event.setCancelled(true);
+            return;
+        }
+        
+        if((player.hasFlag(Flag.NOBLE) || player.hasFlag(Flag.LORD)) &&
+                player.getItemInHand().getType() == Material.COMPASS){
             event.setCancelled(true);
             return;
         }
@@ -103,14 +112,28 @@ public class BytecraftBlockListener implements Listener
     }
     
     @EventHandler
-    public void onSpread(BlockBurnEvent event)
+    public void onIgnite(BlockIgniteEvent event)
     {
         event.setCancelled(true);
     }
     
     @EventHandler
-    public void onDestroy(org.bukkit.event.entity.EntityChangeBlockEvent event)
+    public void onBurn(BlockBurnEvent event)
     {
         event.setCancelled(true);
+    }
+    
+    @EventHandler
+    public void onFall(BlockPhysicsEvent event)
+    {
+        event.setCancelled(false);
+    }
+    
+    @EventHandler
+    public void onDestroy(org.bukkit.event.entity.EntityChangeBlockEvent event)
+    {
+        if(event.getEntityType() == EntityType.CREEPER || event.getEntityType() == EntityType.ENDER_DRAGON){
+            event.setCancelled(true);
+        }
     }
 }

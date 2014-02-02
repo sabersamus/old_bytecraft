@@ -182,17 +182,23 @@ public class ZoneCommand extends AbstractCommand
         }
         Zone zone = new Zone(name);
         zone.setWorld(player.getWorld().getName());
-        for (Zone other : plugin.getZones(player.getWorld().getName())) {
-            if (zone.intersects(other)) {
-                player.sendMessage(ChatColor.RED
-                        + "Zone intersects with zone: " + other.getName()
-                        + " . Please try somewhere else.");
-                return false;
-            }
-        }
         try (IContext ctx = plugin.createContext()) {
-            IZoneDAO dao = ctx.getZoneDAO();
-            dao.createZone(zone, player);
+                IZoneDAO dao = ctx.getZoneDAO();
+                dao.createZone(zone, player);
+                List<Zone> zones = plugin.getZones(player.getWorld().getName());
+                if(zones.isEmpty())return false;
+                for (Zone other : zones) {
+                if(other.getName().equalsIgnoreCase(zone.getName())){
+                    continue;
+                }
+                    if (zone.intersects(other)) {
+                        player.sendMessage(ChatColor.RED
+                                + "Zone intersects with zone: " + other.getName()
+                                + " . Please try somewhere else.");
+                        dao.deleteZone(name);
+                        return false;
+                    }
+                }
         } catch (DAOException e) {
             throw new RuntimeException(e);
         }
