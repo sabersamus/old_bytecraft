@@ -54,6 +54,9 @@ public class UserCommand extends AbstractCommand
                     player.sendMessage(ChatColor.AQUA + "You have promoted " + target.getDisplayName() + ChatColor.AQUA
                             + " to member");
                     return true;
+                }else if("child".equalsIgnoreCase(args[1])){
+                    this.makeChild(target);
+                    player.sendMessage(ChatColor.AQUA + "You have made " + target.getDisplayName() + " a child");
                 }
             }
         }
@@ -85,12 +88,15 @@ public class UserCommand extends AbstractCommand
                 
                 if("settler".equalsIgnoreCase(args[1])){
                     this.makeSettler(target, null);
-                    plugin.getLogger().info(ChatColor.AQUA + "You have promoted " + target.getDisplayName() + " to settler");
+                    plugin.sendMessage(ChatColor.AQUA + "You have promoted " + target.getDisplayName() + " to settler");
                     return true;
                 }else if("member".equalsIgnoreCase(args[1])){
                     this.makeMember(target);
-                    plugin.getLogger().info(ChatColor.AQUA + "You have promoted " + target.getDisplayName() + " to member");
+                    plugin.sendMessage(ChatColor.AQUA + "You have promoted " + target.getDisplayName() + " to member");
                     return true;
+                }else if("child".equalsIgnoreCase(args[1])){
+                    this.makeChild(target);
+                    plugin.sendMessage(ChatColor.AQUA + "You have made " + target.getDisplayName() + " a child");
                 }
             }
         }
@@ -107,6 +113,7 @@ public class UserCommand extends AbstractCommand
         try(IContext ctx = plugin.createContext()){
             IPlayerDAO dao = ctx.getPlayerDAO();
             dao.promoteToSettler(player);
+            player.setRank(Rank.SETTLER);
             String name = player.getRank().getColor() + player.getName();
             player.setDisplayName(name + ChatColor.WHITE);
             if(name.length() > 16){
@@ -116,6 +123,7 @@ public class UserCommand extends AbstractCommand
             }
             String mentorName = mentor == null ? ChatColor.BLUE  + "God" : mentor.getDisplayName();
             player.sendMessage(ChatColor.AQUA + "You have been made a settler by " + mentorName);
+            dao.updatePermissions(player);
         }catch(DAOException e){
             throw new RuntimeException(e);
         }
@@ -139,5 +147,23 @@ public class UserCommand extends AbstractCommand
             throw new RuntimeException(e);
         }
     }
-
+    
+    private void makeChild(BytecraftPlayer player)
+    {
+        try(IContext ctx = plugin.createContext()){
+            IPlayerDAO dao = ctx.getPlayerDAO();
+            player.setRank(Rank.CHILD);
+            String name = player.getRank().getColor() + player.getName();
+            player.setDisplayName(name + ChatColor.WHITE);
+            if(name.length() > 16){
+                player.setPlayerListName(name.substring(0, 15));
+            }else{
+                player.setPlayerListName(name);
+            }
+            dao.updatePermissions(player);
+            player.sendMessage(ChatColor.AQUA + "You have been made a child");
+        }catch(DAOException e){
+            throw new RuntimeException(e);
+        }
+    }
 }
