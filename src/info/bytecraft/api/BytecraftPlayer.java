@@ -189,7 +189,19 @@ public class BytecraftPlayer extends PlayerDelegate
     public long getTeleportTimeout()
     {
         if(isAdmin()) return 20 * 0L;
-        if(rank == Rank.PROTECTOR) return 20 * 2L;
+        if(rank == Rank.PROTECTOR) return 20 * 1L;
+        if(rank == Rank.MENTOR) return 20 * 2L;
+        if(hasFlag(Flag.LORD)) return 20 * 3L;
+        if(hasFlag(Flag.NOBLE)) return 20 * 4L;
+        
+        return 20 * 5L;
+    }
+    
+    public long getWarpTimeout()
+    {
+        if(isAdmin()) return 20 * 0L;
+        if(rank == Rank.PROTECTOR) return 20 * 1L;
+        if(rank == Rank.MENTOR) return 20 * 2L;
         if(hasFlag(Flag.LORD)) return 20 * 3L;
         if(hasFlag(Flag.NOBLE)) return 20 * 4L;
         
