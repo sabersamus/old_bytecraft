@@ -12,7 +12,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -156,15 +158,43 @@ public class DBLogDAO implements ILogDAO
     public void insertLogin(BytecraftPlayer player, String action)
             throws DAOException
     {
-        String sql = "INSERT INTO player_login (player_name, login_timestamp, action) VALUES"
-                + " (?, unix_timestamp(), ?)";
+        String sql = "INSERT INTO player_login (player_name, login_timestamp, login_ip, action) VALUES"
+                + " (?, unix_timestamp(), ?, ?)";
         try(PreparedStatement stm = conn.prepareStatement(sql)){
             stm.setString(1, player.getName());
-            stm.setString(2, action.toLowerCase());
+            stm.setString(2, player.getIp());
+            stm.setString(3, action.toLowerCase());
             stm.execute();
         }catch(SQLException e){
             throw new DAOException(sql, e);
         }
+    }
+    
+    @Override
+    public Set<String> getAliases(BytecraftPlayer player)
+    throws DAOException
+    {
+        String sql = "SELECT DISTINCT player_name FROM player " +
+            "INNER JOIN player_login USING (player_name) " +
+            "WHERE login_ip = ?";
+
+        Set<String> aliases = new HashSet<String>();
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, player.getIp());
+            stmt.execute();
+
+            try (ResultSet rs = stmt.getResultSet()) {
+                while (rs.next()) {
+                    aliases.add(rs.getString("player_name"));
+                }
+            }
+        }
+        catch (SQLException e) {
+            throw new DAOException(sql, e);
+        }
+
+        return aliases;
     }
 
 }

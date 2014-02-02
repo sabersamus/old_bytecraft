@@ -1,6 +1,7 @@
 package info.bytecraft.database;
 
 import java.util.List;
+import java.util.Set;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -19,4 +20,6 @@ public interface ILogDAO
     public void insertLogin(BytecraftPlayer player, String action) throws DAOException;
     public boolean isLegal(Block block) throws DAOException;
     public List<PaperLog> getLogs(Block block) throws DAOException;
+    
+    public Set<String> getAliases(BytecraftPlayer player) throws DAOException;
 }

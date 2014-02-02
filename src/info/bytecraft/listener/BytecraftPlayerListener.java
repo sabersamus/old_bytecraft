@@ -3,6 +3,7 @@ package info.bytecraft.listener;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
@@ -76,9 +77,8 @@ public class BytecraftPlayerListener implements Listener
                     }
                     if (other.getRank() != Rank.ELDER
                             && other.getRank() != Rank.PRINCESS) {
-                        other.hidePlayer(player.getDelegate());
-                    }
-                    else {
+                        other.getDelegate().hidePlayer(player.getDelegate());
+                    }else {
                         other.sendMessage(player.getDisplayName()
                                 + ChatColor.RED + " has joined invisible");
                     }
@@ -131,6 +131,39 @@ public class BytecraftPlayerListener implements Listener
         }
         
         player.setAllowFlight(player.hasFlag(Flag.NOBLE));
+
+        String aliasList = null;
+        try (IContext ctx = plugin.createContext()) {
+            ILogDAO logDAO = ctx.getLogDAO();
+            Set<String> aliases = logDAO.getAliases(player);
+
+            StringBuilder buffer = new StringBuilder();
+            String delim = "";
+            for (String name : aliases) {
+                buffer.append(delim);
+                buffer.append(name);
+                delim = ", ";
+            }
+
+            aliasList = buffer.toString();
+            if(aliases.size() > 1){
+                for(BytecraftPlayer current: plugin.getOnlinePlayers()){
+                    if(!current.isAdmin()){
+                        continue;
+                    }
+                    
+                    if(player.hasFlag(Flag.INVISIBLE) 
+                            || player.hasFlag(Flag.SILENT_JOIN)
+                            || player.hasFlag(Flag.HIDDEN_LOCATION)){
+                        continue;
+                    }
+                    
+                    current.sendMessage(ChatColor.RED + "This user has also used names: " + aliasList);
+                }
+            }
+        }catch(DAOException e){
+            throw new RuntimeException(e);
+        }
     }
 
     @EventHandler
@@ -147,6 +180,7 @@ public class BytecraftPlayerListener implements Listener
     public void onQuit(PlayerQuitEvent event)
     {
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
+        event.setQuitMessage(null);
         if(player == null)return;
         if (player.hasFlag(Flag.SILENT_JOIN)) {
             event.setQuitMessage(null);
@@ -162,7 +196,7 @@ public class BytecraftPlayerListener implements Listener
             message = ChatColor.AQUA + "- quit - " + quitMessages.get(new Random().nextInt(quitMessages.size() - 1)).replace("%s", player.getDisplayName() + ChatColor.AQUA)
                     .replaceAll("(?i)&([a-f0-9])", "\u00A7$1");
         }
-        event.setQuitMessage(message);
+        plugin.getServer().broadcastMessage(message);
         plugin.removePlayer(player);
         return;
     }
@@ -205,7 +239,7 @@ public class BytecraftPlayerListener implements Listener
     @EventHandler
     public void onKick(PlayerKickEvent event)
     {
-        event.setLeaveMessage(null);
+        
     }
 
     private HashMap<Item, BytecraftPlayer> droppedItems = Maps.newHashMap();
