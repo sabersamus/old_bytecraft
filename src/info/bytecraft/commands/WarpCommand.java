@@ -47,7 +47,7 @@ public class WarpCommand extends AbstractCommand
             IWarpDAO dao = ctx.getWarpDAO();
             Location loc = dao.getWarp(warp);
             if (loc != null) {
-                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new WarpTask(player, loc, warp), player.getWarpTimeOut());
+                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new WarpTask(player, loc, warp), player.getWarpTimeout());
                 player.sendMessage(ChatColor.AQUA + "Teleporting to " + ChatColor.GOLD + warp + ChatColor.AQUA + " please wait...");
             }else{
                 player.sendMessage(ChatColor.RED + "Could not find warp " + args[0]);

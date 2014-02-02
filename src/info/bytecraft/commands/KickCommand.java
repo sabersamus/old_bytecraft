@@ -29,7 +29,7 @@ public class KickCommand extends AbstractCommand
             return true;
         }
 
-        if (args.length != 2) {
+        if (args.length != 1) {
             return true;
         }
 

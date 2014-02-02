@@ -40,16 +40,16 @@ public class WarnCommand extends AbstractCommand
                 int i = 7;
                 ReportTime time = ReportTime.DAYS;
                 warnPlayer(player, target, time.getTime() * i);
-                player.sendMessage(RED + "You have warned " + target.getDisplayName() + 
-                        RED + i + " " + time.name().toLowerCase());
+                player.sendMessage(RED + "You have warned " + target.getDisplayName() + RED + " for " + 
+                        i + " " + time.name().toLowerCase());
                 target.sendMessage(RED + "You have been warned for " + i + " " + time.name().toLowerCase());
                 return true;
             }else if("hardwarn".equalsIgnoreCase(command)){
                 int i = 7;
                 ReportTime time = ReportTime.DAYS;
                 hardWarnPlayer(player, target, time.getTime() * i);
-                player.sendMessage(RED + "You have hardwarned " + target.getDisplayName() + 
-                        RED + i + " " + time.name().toLowerCase());
+                player.sendMessage(RED + "You have hardwarned " + target.getDisplayName() + RED + " for " + 
+                        i + " " + time.name().toLowerCase());
                 
                 target.sendMessage(RED + "You have been hardwarned for " + i + " " + time.name().toLowerCase());
                 return true;
@@ -70,7 +70,7 @@ public class WarnCommand extends AbstractCommand
                 }
                 warnPlayer(player, target, time.getTime() * i);
                 player.sendMessage(RED + "You have warned "
-                        + target.getDisplayName() + RED + i + " "
+                        + target.getDisplayName() + RED + " for " + i + " "
                         + time.name().toLowerCase());
                 target.sendMessage(RED + "You have been warned for " + i + " " + time.name().toLowerCase());
             }
@@ -87,11 +87,9 @@ public class WarnCommand extends AbstractCommand
                     time = ReportTime.DAYS;
                 }
                 hardWarnPlayer(player, target, time.getTime() * i);
-                player.sendMessage(RED + "You have warned "
-                        + target.getDisplayName() + RED + i + " "
+                player.sendMessage(RED + "You have hardwarned "
+                        + target.getDisplayName() + RED + " for " + i + " "
                         + time.name().toLowerCase());
-                player.sendMessage(ChatColor.RED + "You have hardwarned "
-                        + target.getDisplayName());
                 target.sendMessage(RED + "You have been hardwarned for " + i + " " + time.name().toLowerCase());
             }
         }
@@ -114,7 +112,7 @@ public class WarnCommand extends AbstractCommand
                 ReportTime time = ReportTime.DAYS;
                 warnPlayer(null, target, time.getTime() * i);
                 plugin.sendMessage(RED + "You have warned "
-                        + target.getDisplayName() + RED + i + " "
+                        + target.getDisplayName() + RED + " for " +  i + " "
                         + time.name().toLowerCase());
                 target.sendMessage(RED + "You have been warned for " + i + " " + time.name().toLowerCase());
                 return true;
@@ -123,7 +121,7 @@ public class WarnCommand extends AbstractCommand
                 int i = 7;
                 ReportTime time = ReportTime.DAYS;
                 hardWarnPlayer(null, target, time.getTime() * i);
-                plugin.sendMessage(RED + "You have hardwarned "  + target.getDisplayName() + RED + i + " "
+                plugin.sendMessage(RED + "You have hardwarned "  + target.getDisplayName() + RED + " for " + i + " "
                         + time.name().toLowerCase());
                 target.sendMessage(RED + "You have been hardwarned for " + i + " " + time.name().toLowerCase());
                 return true;
@@ -145,7 +143,7 @@ public class WarnCommand extends AbstractCommand
                 warnPlayer(null, target, time.getTime() * i);
                 plugin.getLogger().info(
                         ChatColor.RED + "You have warned "
-                                + target.getDisplayName());
+                                + target.getDisplayName() + RED + " for " + i + " " + time.name().toLowerCase());
                 target.sendMessage(RED + "You have been warned for " + i + " " + time.name().toLowerCase());
             }
             else if ("hardwarn".equalsIgnoreCase(getCommand())) {
@@ -163,7 +161,7 @@ public class WarnCommand extends AbstractCommand
                 hardWarnPlayer(null, target, time.getTime() * i);
                 plugin.getLogger().info(
                         ChatColor.RED + "You have hardwarned "
-                                + target.getDisplayName());
+                                + target.getDisplayName() + RED + " for " + i + " " + time.name().toLowerCase());
                 target.sendMessage(RED + "You have been hardwarned for " + i + " " + time.name().toLowerCase());
             }
         }
@@ -179,7 +177,7 @@ public class WarnCommand extends AbstractCommand
             report.setIssuerName(player == null ? "CONSOLE" : player.getName());
             report.setSubjectName(name);
             report.setAction(Action.SOFTWARN);
-            report.setMessage("Banned by " + report.getIssuerName());
+            report.setMessage("Warned by " + report.getIssuerName());
             report.setTimestamp(new Date(System.currentTimeMillis()));
             report.setValidUntil(new Date(System.currentTimeMillis() + 
                     time * 1000L));
@@ -207,7 +205,7 @@ public class WarnCommand extends AbstractCommand
             report.setIssuerName(player == null ? "CONSOLE" : player.getName());
             report.setSubjectName(name);
             report.setAction(Action.HARDWARN);
-            report.setMessage("Banned by " + report.getIssuerName());
+            report.setMessage("Warned by " + report.getIssuerName());
             report.setTimestamp(new Date(System.currentTimeMillis()));
             report.setValidUntil(new Date(System.currentTimeMillis() + 
                     time * 1000L));
