@@ -11,10 +11,10 @@ SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
 
 --
--- Database: `minecraft`
+-- Database: `mcs28`
 --
-CREATE DATABASE IF NOT EXISTS `minecraft` DEFAULT CHARACTER SET utf8 COLLATE utf8_bin;
-USE `minecraft`;
+CREATE DATABASE IF NOT EXISTS `mcs28` DEFAULT CHARACTER SET utf8 COLLATE utf8_bin;
+USE `mcs28`;
 
 -- --------------------------------------------------------
 
@@ -60,6 +60,17 @@ CREATE TABLE IF NOT EXISTS `fill_log` (
   UNIQUE KEY `id` (`fill_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
+--
+-- Table structure for table 'messages'
+--
+
+CREATE TABLE IF NOT EXISTS messages (
+  id int(10) NOT NULL AUTO_INCREMENT,
+  message varchar(100) NOT NULL,
+  `type` enum('death','quit') NOT NULL,
+  PRIMARY KEY (id)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
+
 -- --------------------------------------------------------
 
 --
@@ -90,7 +101,7 @@ CREATE TABLE IF NOT EXISTS `player` (
   `player_name` varchar(46) DEFAULT NULL,
   `player_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `player_wallet` bigint(20) DEFAULT '1000',
-  `player_rank` enum('newcomer','settler','member','mentor','protector'
+  `player_rank` enum('newcomer','settler', 'child','member','mentor','protector'
   ,'architect','admin', 'princess','elder') NOT NULL DEFAULT 'newcomer',
   `player_promoted` int(10) unsigned DEFAULT NULL,
   `player_playtime` int(10) unsigned DEFAULT '0',
