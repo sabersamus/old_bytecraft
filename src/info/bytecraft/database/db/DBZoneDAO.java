@@ -26,6 +26,38 @@ public class DBZoneDAO implements IZoneDAO
         this.conn = conn;
     }
     
+    @Override
+    public List<Zone> loadZones() throws DAOException
+    {
+        List<Zone> zones = Lists.newArrayList();
+        
+        String sql = "SELECT * FROM zone";
+        try (PreparedStatement stm = conn.prepareStatement(sql)){
+            stm.execute();
+            try(ResultSet rs = stm.getResultSet()){
+                while(rs.next()){
+                    Zone zone = new Zone();
+                    zone.setName(rs.getString("zone_name"));
+                    zone.setId(rs.getInt("zone_id"));
+                    zone.setEnterMessage(rs.getString("zone_entermsg"));
+                    zone.setExitMessage(rs.getString("zone_exitmsg"));
+                    zone.setFlag(Flag.PVP, false);
+                    zone.setFlag(Flag.BUILD, Boolean.parseBoolean(rs.getString("zone_build")));
+                    zone.setFlag(Flag.HOSTILE, Boolean.parseBoolean(rs.getString("zone_hostile")));
+                    zone.setFlag(Flag.WHITELIST, Boolean.parseBoolean(rs.getString("zone_whitelist")));
+                    zone.setWorld(rs.getString("zone_world"));
+                    zone.setRectangle(getRect(zone));
+                    zone.setPermissions(getPermissions(zone));
+                    zone.setLots(getLots(zone));
+                    zones.add(zone);
+                }
+            }
+        }catch(SQLException e){
+            throw new DAOException(sql, e);
+        }
+        return zones;
+    }
+    
     public List<Zone> getZones(String world)
     throws DAOException
     {
@@ -507,4 +539,5 @@ public class DBZoneDAO implements IZoneDAO
             throw new RuntimeException(sql, e);
         }
     }
+
 }

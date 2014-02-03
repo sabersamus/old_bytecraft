@@ -40,7 +40,7 @@ public class HomeCommand extends AbstractCommand
             }
         }
         else if (args.length == 2) {
-            if ("to".equalsIgnoreCase(args[0]) && player.isAdmin()) {
+            if ("to".equalsIgnoreCase(args[0]) && player.getRank().canGoToPlayersHomes()) {
                 if (homeTo(player, args[1])) {
                     return true;
                 } else {
@@ -78,7 +78,7 @@ public class HomeCommand extends AbstractCommand
 
                         public void run()
                         {
-                            player.teleportWithVehicle(loc);
+                            player.teleport(loc);
                         }
 
                     }, 20 * 3L);
@@ -102,7 +102,7 @@ public class HomeCommand extends AbstractCommand
 
                         public void run()
                         {
-                            player.teleportWithVehicle(loc);
+                            player.teleport(loc);
                         }
 
                     }, 20 * 3L);

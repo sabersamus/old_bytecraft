@@ -67,30 +67,27 @@ public class PlayerLookupListener implements Listener
             throw new RuntimeException(e);
         }
 
-        if (!player.hasFlag(Flag.HIDDEN_LOCATION)) {
-            if (player.hasFlag(Flag.INVISIBLE)) {
-                for (BytecraftPlayer to : plugin.getOnlinePlayers()) {
-                    if (to.getRank() == Rank.ELDER || to.getRank() == Rank.PRINCESS) {
-                        if (player.getCountry() != null) {
-                            to.sendMessage(
-                                    player.getDisplayName() + ChatColor.DARK_AQUA + " is invisible!");
-                        } else {
-                            to.sendMessage(
-                                    ChatColor.DARK_AQUA + "Welcome " + player.getDisplayName());
-                            to.sendMessage(
-                                    player.getDisplayName() + ChatColor.DARK_AQUA + " is invisible!");
-                        }
-                    }
+        if (player.hasFlag(Flag.INVISIBLE)) {
+            for (BytecraftPlayer to : plugin.getOnlinePlayers()) {
+                if (to.getId() == player.getId()) {
+                    to.sendMessage(ChatColor.AQUA + "You have joined invisble");
+                    continue;
                 }
-            } else {
-                if (player.getCountry() != null && !player.hasFlag(Flag.HIDDEN_LOCATION)) {
-                    plugin.getServer().broadcastMessage(
-                        ChatColor.DARK_AQUA + "Welcome " + player.getDisplayName() +
-                        ChatColor.DARK_AQUA + " from " + player.getCountry() + "!");
-                } else {
-                    plugin.getServer().broadcastMessage(
-                        ChatColor.DARK_AQUA + "Welcome " + player.getDisplayName());
-                }
+                
+                this.hidePlayer(player, to);
+            }
+        } else {
+            if (player.getCountry() != null
+                    && !player.hasFlag(Flag.HIDDEN_LOCATION)) {
+                plugin.getServer().broadcastMessage(
+                        ChatColor.DARK_AQUA + "Welcome "
+                                + player.getDisplayName() + ChatColor.DARK_AQUA
+                                + " from " + player.getCountry() + "!");
+            }
+            else {
+                plugin.getServer().broadcastMessage(
+                        ChatColor.DARK_AQUA + "Welcome "
+                                + player.getDisplayName());
             }
         }
 
@@ -112,7 +109,7 @@ public class PlayerLookupListener implements Listener
             if (aliases.size() > 1) {
 
                 for (BytecraftPlayer current : plugin.getOnlinePlayers()) {
-                    if (!current.isAdmin()) {
+                    if (!current.getRank().canSeePlayerInfo()) {
                         continue;
                     }
                     if (player.hasFlag(Flag.INVISIBLE) ||
@@ -125,6 +122,26 @@ public class PlayerLookupListener implements Listener
             }
         } catch (DAOException e) {
             throw new RuntimeException(e);
+        }
+    }
+    
+    private void hidePlayer(BytecraftPlayer logging, BytecraftPlayer on)
+    {
+        if(logging.getRank().canVanish()){
+            if(on.hasFlag(Flag.INVISIBLE)){
+                on.showPlayer(logging.getDelegate());
+            }
+            if(logging.hasFlag(Flag.INVISIBLE)){
+                if(!on.getRank().canVanish()){
+                    logging.hidePlayer(on.getDelegate());
+                }else{
+                    logging.showPlayer(on.getDelegate());
+                }
+            }
+        }else{
+            if(on.hasFlag(Flag.INVISIBLE)){
+                on.hidePlayer(logging.getDelegate());
+            }
         }
     }
 }

@@ -2,7 +2,9 @@ package info.bytecraft.commands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.World;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
@@ -33,7 +35,7 @@ public class WarpCommand extends AbstractCommand
 
         public void run()
         {
-            player.teleportWithVehicle(loc.add(0, 0.5, 0));
+            player.teleport(loc);
             player.sendMessage(ChatColor.AQUA + "Successfully teleported to " + name);
         }
 
@@ -47,7 +49,9 @@ public class WarpCommand extends AbstractCommand
             IWarpDAO dao = ctx.getWarpDAO();
             Location loc = dao.getWarp(warp);
             if (loc != null) {
-                loc.getWorld().loadChunk(loc.getBlockX(), loc.getBlockZ());
+                World world = loc.getWorld();
+                Chunk chunk = world.getChunkAt(loc);
+                world.loadChunk(chunk);
                 Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new WarpTask(player, loc, warp), player.getWarpTimeout());
                 player.sendMessage(ChatColor.AQUA + "Teleporting to " + ChatColor.GOLD + warp + ChatColor.AQUA + " please wait...");
             }else{

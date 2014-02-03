@@ -3,6 +3,7 @@ package info.bytecraft.commands;
 import java.util.List;
 
 import org.bukkit.ChatColor;
+import org.bukkit.block.Block;
 
 import static org.bukkit.ChatColor.*;
 import info.bytecraft.Bytecraft;
@@ -28,7 +29,7 @@ public class ZoneCommand extends AbstractCommand
         if (args.length == 2)// zone create|delete name
         {
             if ("create".equalsIgnoreCase(args[0])) {
-                if (player.isAdmin()) {
+                if (player.getRank().canCreateZones()) {
                     if (!zoneExists(args[1])) {
                         if (createZone(player, args[1])) {
                             player.sendMessage(ChatColor.RED + "Created zone "
@@ -39,7 +40,7 @@ public class ZoneCommand extends AbstractCommand
                 }
             }
             else if ("delete".equalsIgnoreCase(args[0])) {
-                if (player.isAdmin()) {
+                if (player.getRank().canCreateZones()) {
                     if (!zoneExists(args[1])) {
                         player.sendMessage(ChatColor.RED + "Zone " + args[1]
                                 + " doesn't exist");
@@ -59,9 +60,9 @@ public class ZoneCommand extends AbstractCommand
                 Rectangle rect = zone.getRectangle();
                 player.sendMessage(GOLD + "Information about " + args[1]);
                 player.sendMessage(GOLD + "ID: " + WHITE + zone.getId());
-                player.sendMessage(GOLD + "Rect: " + WHITE + "("+ 
-                rect.getLeft() + "," + + rect.getTop() + ") (" 
-                        + rect.getRight()+ "," + + rect.getBottom() + ")");
+                player.sendMessage((GOLD + "Rect: " + WHITE + "("+ 
+                rect.getLeft() + ", " + + rect.getTop() + ") (" 
+                        + rect.getRight()+ ", " + + rect.getBottom() + ")").replace(",", ChatColor.GOLD + ","));
                 player.sendMessage(GOLD
                         + "Enter: " + WHITE
                         + (zone.hasFlag(Flag.WHITELIST) ? "Everyone (true)"
@@ -84,7 +85,7 @@ public class ZoneCommand extends AbstractCommand
                 }
                 Zone zone = plugin.getZone(args[1]);
                 Permission p = zone.getUser(player);
-                if ((p != null && p == Permission.OWNER) || player.isAdmin()) {
+                if ((p != null && p == Permission.OWNER) || player.getRank().canEditZones()) {
                     List<BytecraftPlayer> cantidates =
                             plugin.matchPlayer(args[2]);
                     if (cantidates.size() > 1) {
@@ -105,7 +106,7 @@ public class ZoneCommand extends AbstractCommand
                 
                 Zone zone = plugin.getZone(args[1]);
                 Permission p = zone.getUser(player);
-                if ((p != null && p == Permission.OWNER) || player.isAdmin()) {
+                if ((p != null && p == Permission.OWNER) || player.getRank().canEditZones()) {
                     String pattern = args[2];
 
                     List<BytecraftPlayer> cantidates =
@@ -130,7 +131,7 @@ public class ZoneCommand extends AbstractCommand
                 }//zone flag zone flag_name value
                 Zone zone = plugin.getZone(args[1]);
                 Permission p = zone.getUser(player);
-                if ((p != null && p == Permission.OWNER) || player.isAdmin()) {
+                if ((p != null && p == Permission.OWNER) || player.getRank().canEditZones()) {
                     Flag flag = Flag.valueOf(args[2].toUpperCase());
                     if (flag == null) {
                         player.sendMessage(ChatColor.RED + "Flag not found");
@@ -153,7 +154,7 @@ public class ZoneCommand extends AbstractCommand
                 }
                 Zone zone = plugin.getZone(args[1]);
                 Permission p = zone.getUser(player);
-                if ((p != null && p == Permission.OWNER) || player.isAdmin()) {
+                if ((p != null && p == Permission.OWNER) || player.getRank().canEditZones()) {
                     Flag flag =
                             args[0].equalsIgnoreCase("entermsg") ? Flag.ENTERMSG
                                     : Flag.EXITMSG;
@@ -181,11 +182,18 @@ public class ZoneCommand extends AbstractCommand
         }
         Zone zone = new Zone(name);
         zone.setWorld(player.getWorld().getName());
+        Block b1 = player.getZoneBlock1();
+        Block b2 = player.getZoneBlock2();
+        if(b1 == null || b2 == null){
+            player.sendMessage(ChatColor.RED + "Please select 2 points");
+            return true;
+        }
+        
+        zone.setRectangle(new Rectangle(b1.getX(), b1.getZ(), b2.getX(), b2.getZ()));
+        
         try (IContext ctx = plugin.createContext()) {
                 IZoneDAO dao = ctx.getZoneDAO();
-                dao.createZone(zone, player);
                 List<Zone> zones = plugin.getZones(player.getWorld().getName());
-                if(zones.isEmpty())return false;
                 for (Zone other : zones) {
                 if(other.getName().equalsIgnoreCase(zone.getName())){
                     continue;
@@ -194,10 +202,11 @@ public class ZoneCommand extends AbstractCommand
                         player.sendMessage(ChatColor.RED
                                 + "Zone intersects with zone: " + other.getName()
                                 + " . Please try somewhere else.");
-                        dao.deleteZone(name);
-                        return false;
+                        return true;
                     }
                 }
+                dao.createZone(zone, player);
+                plugin.addZone(zone);
         } catch (DAOException e) {
             throw new RuntimeException(e);
         }
@@ -209,6 +218,7 @@ public class ZoneCommand extends AbstractCommand
         try (IContext ctx = plugin.createContext()) {
             IZoneDAO dao = ctx.getZoneDAO();
             dao.deleteZone(name);
+            plugin.deleteZone(plugin.getZone(name));
         } catch (DAOException e) {
             throw new RuntimeException(e);
         }

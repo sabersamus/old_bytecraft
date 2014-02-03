@@ -102,7 +102,7 @@ public class LotCommand extends AbstractCommand
             Zone zone = plugin.getZoneAt(b1.getWorld(), new Point(b1.getX(), b1.getZ()));
             
             Permission perm = zone.getUser(player);
-            if (perm != Permission.OWNER && !player.isAdmin()) {
+            if (perm != Permission.OWNER && !player.getRank().canEditZones()) {
                 player.sendMessage(RED
                         + "You are not allowed to create lots in zone "
                         + zone.getName() + " (" + perm + ").");
@@ -113,7 +113,7 @@ public class LotCommand extends AbstractCommand
 
             // identity check. both lookups should return exactly the same
             // object
-            if (zone != checkZone) {
+            if (zone.getId() != checkZone.getId()) {
                 return;
             }
 
@@ -132,7 +132,8 @@ public class LotCommand extends AbstractCommand
                     return;
                 }
             }
-
+            
+            zone.addLot(lot);
             dao.addLot(lot);
             dao.addLotUser(lot.getId(), victim.getName());
 
@@ -168,7 +169,7 @@ public class LotCommand extends AbstractCommand
         else if (lot.isOwner(player)) {
             // Lot owners can always do it
         }
-        else if (player.isAdmin()) {
+        else if (player.getRank().canEditZones()) {
             // Admins etc.
         }
         else {
@@ -252,7 +253,7 @@ public class LotCommand extends AbstractCommand
         else if (lot.isOwner(player)) {
             // Lot owners can always do it
         }
-        else if (player.isAdmin()) {
+        else if (player.getRank().canEditZones()) {
             // Admins etc.
         }
         else {

@@ -21,7 +21,7 @@ public class CreateMobCommand extends AbstractCommand
     @Override
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
-        if(player.isAdmin()){
+        if(player.getRank().canSpawnMobs()){
             EntityType mobType;
             try {
                 String mobName = args[0];

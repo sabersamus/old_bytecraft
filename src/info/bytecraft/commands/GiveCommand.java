@@ -26,7 +26,7 @@ public class GiveCommand extends AbstractCommand
     {
         if (args.length <= 1)
             return true;
-        if (!player.isAdmin())
+        if (!player.getRank().canSpawnItemsForPlayers())
             return true;
         
         String param = args[1].toUpperCase();

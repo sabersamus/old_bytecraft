@@ -93,6 +93,12 @@ commands:
         description: Reply to your last message
         usage: /<command> <message>
         aliases: [r]
+    ride:
+        description: lolol
+        usage: /<command> [target]
+    rideme:
+        description: lolol
+        usage: /<command> [target]
     say:
         description: Send a message as god
         usage: /<command> <message>
@@ -118,6 +124,13 @@ commands:
     time:
         description: Change your personal time
         usage: /<command> [day|night|normal]
+    town:
+        description: Manage your current zone
+        usage: |
+            /<command> adduser <player> <rank>
+            /<command> deluser <player>
+            /<command> info
+            /<command> flag <hostiles|pvp|whitelist|build> <true|false>
     tpblock:
         description: Manage your teleport block
         usage: /<command> <on|off|status>

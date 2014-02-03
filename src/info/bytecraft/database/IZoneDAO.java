@@ -12,6 +12,7 @@ import java.util.Map;
 
 public interface IZoneDAO
 {
+    public List<Zone> loadZones() throws DAOException;
     public List<Zone> getZones(String world) throws DAOException;
     public void createZone(Zone zone, BytecraftPlayer player) throws DAOException;
     public Zone getZone(String name) throws DAOException;

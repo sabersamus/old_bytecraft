@@ -24,7 +24,7 @@ public class KickCommand extends AbstractCommand
 
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
-        if (!player.isModerator()) {
+        if (!player.getRank().canKick()) {
             player.sendNotification(Notification.COMMAND_FAIL, null);
             return true;
         }

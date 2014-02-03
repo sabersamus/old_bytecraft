@@ -56,7 +56,7 @@ public class BlessListener implements Listener
     public void onClick(PlayerInteractEvent event)
     {
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
-        if (event.getAction() == Action.RIGHT_CLICK_BLOCK && player.isAdmin()
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK && player.getRank().canBless()
                 && player.getItemInHand().getType() == Material.BONE
                 && allowedBlocks.contains(event.getClickedBlock().getType())) {
             BytecraftPlayer target = player.getBlessTarget();
@@ -73,7 +73,7 @@ public class BlessListener implements Listener
                 player.sendMessage(ChatColor.AQUA
                         + "You have blessed a block for "
                         + target.getDisplayName());
-                player.setBlessTarget(null);
+                //player.setBlessTarget(null);
             } catch (DAOException e) {
                 throw new RuntimeException(e);
             }
@@ -92,7 +92,7 @@ public class BlessListener implements Listener
                             player.sendMessage(ChatColor.RED + "Blessed to: "
                                     + ChatColor.AQUA
                                     + dao.getOwner(event.getClickedBlock()));
-                            if (!player.isAdmin()) {
+                            if (!player.getRank().canOverrideBless()) {
                                 event.setCancelled(true);
                                 return;
                             }

@@ -26,10 +26,10 @@ public class TeleportCommand extends AbstractCommand
         @Override
         public void run()
         {
-            player.teleportWithVehicle(target.getLocation());
+            player.teleport(target.getLocation().add(0, 0.5, 0));
 
             player.setNoDamageTicks(1000);
-            if (!player.isAdmin()) {
+            if (!player.getRank().canTeleportSilently()) {
                 target.sendMessage(player.getDisplayName() + ChatColor.AQUA
                         + " has teleported to you");
             }
@@ -59,7 +59,7 @@ public class TeleportCommand extends AbstractCommand
         }
         else {
             if (target.hasFlag(Flag.TPBLOCK)) {// teleport block
-                if (!player.isAdmin()) {// not admin
+                if (!player.getRank().canOverrideTeleportBlock()) {// not admin
                     player.sendMessage(target.getDisplayName() + ChatColor.RED
                             + " is not accepting teleports right now");
                     target.sendMessage(player.getDisplayName() + ChatColor.RED

@@ -1,14 +1,14 @@
 package info.bytecraft.commands;
 
+import static org.bukkit.ChatColor.RED;
+
 import java.util.Date;
 import java.util.List;
-
-import org.bukkit.ChatColor;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.api.PlayerReport;
-import info.bytecraft.api.PlayerReport.Action;
+import info.bytecraft.api.PlayerReport.ReportTime;
 import info.bytecraft.database.DAOException;
 import info.bytecraft.database.IContext;
 import info.bytecraft.database.IReportDAO;
@@ -21,63 +21,78 @@ public class MuteCommand extends AbstractCommand
         super(instance, "mute");
     }
 
-    public String modifierFrom(String args)
-    {
-        return args.split(":")[1];
-    }
-
-    public int timeFrom(String args)
-    {
-        try {
-            return Integer.parseInt(args.split(":")[0]);
-        } catch (NumberFormatException e) {
-            return modifierFrom(args).equalsIgnoreCase("m") ? 5 : 1;
-        }
-    }
-
     public boolean handleUser(BytecraftPlayer player, String[] args)
     {
-        if (!player.isModerator())
+        if (!player.getRank().canMute())
             return true;
-        if (args.length != 2)
-            return true;
+        if (args.length < 1) return true;
         
         List<BytecraftPlayer> cantidates = plugin.matchPlayer(args[0]);
         if(cantidates.size() != 1){
             return true;
         }
         
-        BytecraftPlayer victim = cantidates.get(0);
+        BytecraftPlayer target = cantidates.get(0);
         
-        if (victim.isModerator())
+        if (target.getRank().canMute())
             return true;
-
-        boolean hours = modifierFrom(args[1]).equalsIgnoreCase("h");
-        long l =  60 * 1000l * timeFrom(args[1]);
-        String time = l + " minutes";
-
-        if (hours) {
-            l = l * 60L;
-            time = l + " hours";
+        
+        if(args.length == 1){
+            int i = 3;
+            ReportTime time = ReportTime.DAYS;
+            player.sendMessage(RED + "You have muted " + target.getDisplayName() + RED + " for " + 
+                    i + " " + time.name().toLowerCase());
+            target.sendMessage(RED + "You have been hardwarned for " + i + " " + time.name().toLowerCase());
+            try(IContext ctx = plugin.createContext()){
+                IReportDAO dao = ctx.getReportDAO();
+                PlayerReport report = new PlayerReport();
+                report.setSubjectName(target.getName());
+                report.setIssuerName(player.getName());
+                report.setAction(PlayerReport.Action.MUTE);
+                report.setMessage("Muted by " + player.getName());
+                report.setTimestamp(new Date(System.currentTimeMillis()));
+                report.setValidUntil(new Date(System.currentTimeMillis() + 
+                        time.getTime() * i * 1000L));
+                dao.insertReport(report);
+            }catch(DAOException e){
+                throw new RuntimeException(e);
+            }
+            return true;
         }
+        
+        if (args.length == 3) {
 
-        try (IContext ctx = plugin.createContext()) {
-            IReportDAO dao = ctx.getReportDAO();
-            PlayerReport report = new PlayerReport();
-            report.setAction(Action.MUTE);
-            report.setIssuerName(player.getName());
-            report.setSubjectName(victim.getName());
-            report.setTimestamp(new Date(System.currentTimeMillis()));
-            report.setValidUntil(new Date(System.currentTimeMillis() + l));
-            dao.insertReport(report);
+            int i = 3;
+            try {
+                i = Integer.parseInt(args[1]);
+            } catch (NumberFormatException e) {
+                i = 3;
+            }
 
-            player.sendMessage(ChatColor.RED + "You muted "
-                    + victim.getDisplayName() + ChatColor.RED + " for" + time);
-            victim.sendMessage(ChatColor.RED + "You have been muted for" + time);
-        } catch (DAOException e) {
-            throw new RuntimeException(e);
+            ReportTime time = ReportTime.byString(args[2]);
+            if (time == null) {
+                time = ReportTime.DAYS;
+            }
+
+            player.sendMessage(RED + "You have muted " + target.getDisplayName() + RED + " for " + 
+                    i + " " + time.name().toLowerCase());
+            target.sendMessage(RED + "You have been hardwarned for " + i + " " + time.name().toLowerCase());
+            try (IContext ctx = plugin.createContext()) {
+                IReportDAO dao = ctx.getReportDAO();
+                PlayerReport report = new PlayerReport();
+                report.setSubjectName(target.getName());
+                report.setIssuerName(player.getName());
+                report.setAction(PlayerReport.Action.MUTE);
+                report.setMessage("Muted by " + player.getName());
+                report.setTimestamp(new Date(System.currentTimeMillis()));
+                report.setValidUntil(new Date(System.currentTimeMillis()
+                        + time.getTime() * i * 1000L));
+
+                dao.insertReport(report);
+            } catch (DAOException e) {
+                throw new RuntimeException(e);
+            }
         }
-
         return true;
     }
 

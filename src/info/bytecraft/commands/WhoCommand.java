@@ -46,7 +46,7 @@ public class WhoCommand extends AbstractCommand
                     + " player(s) online" + GRAY + "*****");
         }
         else if (args.length == 1) {
-            if (!player.isAdmin())
+            if (!player.getRank().canSeePlayerInfo())
                 return true;
             List<BytecraftPlayer> cantidates = plugin.matchPlayer(args[0]);
             if (cantidates.size() != 1) {

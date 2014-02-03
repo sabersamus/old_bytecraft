@@ -22,7 +22,7 @@ public class UserCommand extends AbstractCommand
 
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
-        if(!player.isMentor())return true;
+        if(!player.getRank().canMentor())return true;
         if(args.length == 2){
             if(args[0].equalsIgnoreCase("refresh")){
                 List<BytecraftPlayer> cantidates = plugin.matchPlayer(args[1]);

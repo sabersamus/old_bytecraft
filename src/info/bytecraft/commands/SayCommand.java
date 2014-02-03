@@ -30,7 +30,7 @@ public class SayCommand extends AbstractCommand
 
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
-        if(!player.isAdmin())return true;
+        if(!player.getRank().canUseGod())return true;
         if(args.length == 0)return true;
         if ("say".equalsIgnoreCase(getCommand())) {
             Bukkit.broadcastMessage(player.getGodColor() + "<GOD> " + ChatColor.LIGHT_PURPLE + argsToMessage(args));
@@ -39,7 +39,7 @@ public class SayCommand extends AbstractCommand
             Bukkit.broadcastMessage(ChatColor.RED + "<GOD> " + ChatColor.LIGHT_PURPLE + argsToMessage(args));
         }
         for(BytecraftPlayer other: plugin.getOnlinePlayers()){
-            if(other.isAdmin()){
+            if(other.getRank().canUseGod()){
                 other.sendMessage(ChatColor.AQUA + "/say used by " + player.getDisplayName());
             }
             other.sendNotification(Notification.SERVER_MESSAGE, null);

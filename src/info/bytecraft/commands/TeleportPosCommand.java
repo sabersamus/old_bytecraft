@@ -15,7 +15,7 @@ public class TeleportPosCommand extends AbstractCommand
     
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
-        if(!player.isAdmin())return true;
+        if(!player.getRank().canTeleportToPosition())return true;
         if(args.length != 3)return true;
         int x, y, z;
         try{

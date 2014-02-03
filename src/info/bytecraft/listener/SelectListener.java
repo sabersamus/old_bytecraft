@@ -34,10 +34,10 @@ public class SelectListener implements Listener
             if(player.getCurrentZone() != null){
                 Zone zone = player.getCurrentZone();
                 Permission perm = zone.getUser(player);
-                if((perm == null || perm != Permission.OWNER) && !player.isAdmin())return;
+                if((perm == null || perm != Permission.OWNER) && !player.getRank().canEditZones())return;
                 if(zone.findLot(block.getLocation()) != null){
                     Lot lot = zone.findLot(block.getLocation());
-                    if(lot.isOwner(player) || perm == Permission.OWNER || player.isAdmin()){
+                    if(lot.isOwner(player) || perm == Permission.OWNER || player.getRank().canEditZones()){
                         player.sendMessage(ChatColor.YELLOW + "This lots name is: " + lot.getName());
                         return;
                     }
@@ -63,7 +63,7 @@ public class SelectListener implements Listener
                 }
             }else{
                 //Outside zone
-                if(!player.isAdmin())return;
+                if(!player.getRank().canCreateZones())return;
                 if(player.getZoneBlock1() == null && player.getZoneBlock2() == null){
                     //player has selected no blocks
                     player.setZoneBlock1(block);

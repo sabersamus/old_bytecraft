@@ -181,7 +181,7 @@ public class BytecraftPlayer extends PlayerDelegate
     
     public int getMaxTeleportDistance()
     {
-        if(isAdmin())return Integer.MAX_VALUE;
+        if(getRank().isImmortal())return Integer.MAX_VALUE;
         if(hasFlag(Flag.LORD))return 15000;
         if(hasFlag(Flag.NOBLE))return 10000;
         
@@ -190,7 +190,7 @@ public class BytecraftPlayer extends PlayerDelegate
     
     public long getTeleportTimeout()
     {
-        if(isAdmin()) return 20 * 0L;
+        if(getRank().isImmortal()) return 20 * 0L;
         if(rank == Rank.PROTECTOR) return 20 * 1L;
         if(rank == Rank.MENTOR) return 20 * 2L;
         if(hasFlag(Flag.LORD)) return 20 * 3L;
@@ -201,7 +201,7 @@ public class BytecraftPlayer extends PlayerDelegate
     
     public long getWarpTimeout()
     {
-        if(isAdmin()) return 20 * 0L;
+        if(getRank().isImmortal()) return 20 * 0L;
         if(rank == Rank.PROTECTOR) return 20 * 1L;
         if(rank == Rank.MENTOR) return 20 * 2L;
         if(hasFlag(Flag.LORD)) return 20 * 3L;
@@ -313,22 +313,6 @@ public class BytecraftPlayer extends PlayerDelegate
         
     }
     
-    //Bytecraft Rank-Inheritance 
-    public boolean isAdmin()
-    {
-        return (this.rank == Rank.ADMIN || this.rank == Rank.ELDER || rank == Rank.PRINCESS);
-    }
-    
-    public boolean isModerator()
-    {
-        return (isAdmin() || this.rank == Rank.PROTECTOR);
-    }
-    
-    public boolean isMentor()
-    {
-        return (isAdmin() || this.rank == Rank.MENTOR);
-    }
-
     public int getOnlineTime()
     {
         return (int)((new Date().getTime() - loginTime.getTime())/1000L);
@@ -360,20 +344,6 @@ public class BytecraftPlayer extends PlayerDelegate
         return new Vector2D(loc.getBlockX(), loc.getBlockZ(), loc.getWorld());
     }
     
-    public boolean teleportWithVehicle(Location loc)
-    {
-        Entity vehicle = this.getVehicle();
-        if(vehicle == null){
-            return teleport(loc);
-        }
-        
-        vehicle.eject();
-        teleport(loc);
-        vehicle.teleport(loc);
-        vehicle.setPassenger(this.getDelegate());
-        return true;
-    }
-    
     public BooleanStringReturn canBeHere(Location loc)
     {
         Zone zone = plugin.getZoneAt(loc.getWorld(), new Point(loc.getBlockX(), loc.getBlockZ()));
@@ -381,7 +351,7 @@ public class BytecraftPlayer extends PlayerDelegate
             return new BooleanStringReturn(true, null);
         }
 
-        if (isAdmin()) { // Admins can be there
+        if (getRank().canEditZones()) { // Admins can be there
             return new BooleanStringReturn(true, null);
         }
 

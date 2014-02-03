@@ -15,7 +15,7 @@ public class InventoryCommand extends AbstractCommand
     
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
-        if(!player.isAdmin())return true;
+        if(!player.getRank().canViewInventories())return true;
         if(args.length == 1){
             List<BytecraftPlayer> cantidates = plugin.matchPlayer(args[0]);
             if(cantidates.size() != 1){

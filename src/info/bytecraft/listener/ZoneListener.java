@@ -16,7 +16,6 @@ import info.bytecraft.zones.Zone.Permission;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -27,6 +26,7 @@ import org.bukkit.event.*;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.util.Vector;
 
@@ -38,6 +38,22 @@ public class ZoneListener implements Listener
     public ZoneListener(Bytecraft instance)
     {
         plugin = instance;
+    }
+    
+    @EventHandler
+    public void onJoin(PlayerJoinEvent event)
+    {
+        BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
+        if(player == null)return;
+        
+        Location l = player.getLocation();
+        
+        Zone zone = plugin.getZoneAt(l.getWorld(), new Point(l.getBlockX(), l.getBlockZ()));
+        
+        if(zone == null)return;
+        
+        player.setCurrentZone(zone);
+        this.welcomeMessage(zone, player, zone.getUser(player));
     }
     
     @EventHandler
@@ -69,13 +85,14 @@ public class ZoneListener implements Listener
     public void onPlace(BlockPlaceEvent event)
     {
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
-        if(player.getCurrentZone() != null){
-            Zone zone = player.getCurrentZone();
+        Block block = event.getBlock();
+        Zone zone = plugin.getZoneAt(block.getWorld(), new Point(block.getX(), block.getZ()));
+        if(zone != null){
             if(!zone.hasFlag(Flag.BUILD)){
                 
                 Lot lot = zone.findLot(event.getBlock().getLocation());
                 if(lot != null){
-                    if(!lot.isOwner(player) && !player.isAdmin()){
+                    if(!lot.isOwner(player) && !player.getRank().canEditZones()){
                         event.setCancelled(true);
                         player.setFireTicks(20 * 2);
                         player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] You are not allowed to build in " + lot.getName());
@@ -85,7 +102,7 @@ public class ZoneListener implements Listener
                 
                 Permission p = zone.getUser(player);
                 if(p == null){
-                    if(!player.isAdmin()){
+                    if(!player.getRank().canEditZones()){
                         event.setBuild(false);
                         event.setCancelled(true);
                         player.setFireTicks(20 * 2);
@@ -94,7 +111,7 @@ public class ZoneListener implements Listener
                     }
                 }else{
                     if((p != Permission.MAKER && p != Permission.OWNER)){
-                        if(!player.isAdmin()){
+                        if(!player.getRank().canEditZones()){
                             event.setBuild(false);
                             event.setCancelled(true);
                             player.setFireTicks(20 * 2);
@@ -106,7 +123,7 @@ public class ZoneListener implements Listener
             }else{
                 Lot lot = zone.findLot(event.getBlock().getLocation());
                 if(lot != null){
-                    if(!lot.isOwner(player) && !player.isAdmin()){
+                    if(!lot.isOwner(player) && !player.getRank().canEditZones()){
                         event.setCancelled(true);
                         player.setFireTicks(20 * 2);
                         player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] You are not allowed to build in " + lot.getName());
@@ -121,13 +138,14 @@ public class ZoneListener implements Listener
     public void onBreak(BlockBreakEvent event)
     {
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
-        if(player.getCurrentZone() != null){
-            Zone zone = player.getCurrentZone();
+        Block block = event.getBlock();
+        Zone zone = plugin.getZoneAt(block.getWorld(), new Point(block.getX(), block.getZ()));
+        if(zone != null){
             if(!zone.hasFlag(Flag.BUILD)){
                 Lot lot = zone.findLot(event.getBlock().getLocation());
                 
                 if(lot != null){
-                    if(!lot.isOwner(player) && !player.isAdmin()){
+                    if(!lot.isOwner(player) && !player.getRank().canEditZones()){
                         event.setCancelled(true);
                         player.setFireTicks(20 * 2);
                         player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] You are not allowed to build in " + lot.getName());
@@ -137,7 +155,7 @@ public class ZoneListener implements Listener
                 
                 Permission p = zone.getUser(player);
                 if(p == null){
-                    if(!player.isAdmin()){
+                    if(!player.getRank().canEditZones()){
                         event.setCancelled(true);
                         player.setFireTicks(20 * 2);
                         player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] You are not allowed to build in " + zone.getName());
@@ -145,7 +163,7 @@ public class ZoneListener implements Listener
                     }
                 }else{
                     if((p != Permission.MAKER && p != Permission.OWNER)){
-                        if(!player.isAdmin()){
+                        if(!player.getRank().canEditZones()){
                             event.setCancelled(true);
                             player.setFireTicks(20 * 2);
                             player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] You are not allowed to build in " + zone.getName());
@@ -155,7 +173,8 @@ public class ZoneListener implements Listener
                 }
             }else{
                 Lot lot = zone.findLot(event.getBlock().getLocation());
-                if(!lot.isOwner(player) && !player.isAdmin()){
+                if(lot == null)return;
+                if(!lot.isOwner(player) && !player.getRank().canEditZones()){
                     event.setCancelled(true);
                     player.setFireTicks(20 * 2);
                     player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] You are not allowed to build in " + lot.getName());
@@ -225,7 +244,7 @@ public class ZoneListener implements Listener
                 Permission p = zone.getUser(player);
                 if(zone.hasFlag(Flag.WHITELIST)){
                     if((p == null || p == Permission.BANNED)){
-                        if(!player.isAdmin()){
+                        if(!player.getRank().canEditZones()){
                             event.setCancelled(true);
                             player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] You are not allowed in " + zone.getName());
                         }else{
@@ -239,7 +258,7 @@ public class ZoneListener implements Listener
                         player.setCurrentZone(zone);
                     }
                 }else{
-                    if((p != null && p == Permission.BANNED) && !player.isAdmin()){
+                    if((p != null && p == Permission.BANNED) && !player.getRank().canEditZones()){
                         event.setCancelled(true);
                         player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] You are not allowed in " + zone.getName());
                     }else{

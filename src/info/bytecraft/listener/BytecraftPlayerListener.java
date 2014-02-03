@@ -16,14 +16,11 @@ import info.bytecraft.database.IContext;
 import info.bytecraft.database.ILogDAO;
 import info.bytecraft.zones.Zone;
 import info.bytecraft.api.TargetBlock;
-import info.bytecraft.api.event.PlayerLeaveEvent;
-import info.bytecraft.api.event.PlayerLeaveEvent.Reason;
 
 import org.apache.commons.lang.WordUtils;
 
 import static org.bukkit.ChatColor.*;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -78,7 +75,7 @@ public class BytecraftPlayerListener implements Listener
             player.sendMessage(ChatColor.AQUA
                     + plugin.getConfig().getString("motd.new"));
             for (BytecraftPlayer other : plugin.getOnlinePlayers()) {
-                if (other.isMentor()) {
+                if (other.getRank().canMentor()) {
                     other.sendMessage(player.getDisplayName()
                             + ChatColor.AQUA
                             + " has joined as a newcomer, you should help them out!");
@@ -91,6 +88,7 @@ public class BytecraftPlayerListener implements Listener
         }
         
         player.setAllowFlight(player.hasFlag(Flag.NOBLE) || player.getRank().canFill());
+        
     }
 
     @EventHandler
@@ -108,6 +106,12 @@ public class BytecraftPlayerListener implements Listener
     {
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
         
+        if(player.getRank().canVanish() && player.hasFlag(Flag.INVISIBLE)){
+            event.setQuitMessage(null);
+            plugin.removePlayer(player);
+            return;
+        }
+        
         List<String> messages = plugin.getQuitMessages();
         String mess =
                 ChatColor.AQUA
@@ -119,6 +123,7 @@ public class BytecraftPlayerListener implements Listener
                                         player.getDisplayName()
                                                 + ChatColor.GRAY)
                                 .replaceAll("(?i)&([a-f0-9])", "\u00A7$1");
+        
         
         event.setQuitMessage(mess);
         plugin.removePlayer(player);
@@ -135,7 +140,7 @@ public class BytecraftPlayerListener implements Listener
             event.setCancelled(true);
             return;
         }else{
-            event.setCancelled(player.isAdmin());
+            event.setCancelled(player.getRank().isImmortal());
             return;
         }
     }
@@ -144,9 +149,9 @@ public class BytecraftPlayerListener implements Listener
     public void onPvp(EntityDamageByEntityEvent event)
     {
         if (event.getDamager() instanceof Player) {
+            BytecraftPlayer player =
+                    plugin.getPlayer((Player) event.getDamager());
             if (event.getEntity() instanceof Player) {
-                BytecraftPlayer player =
-                        plugin.getPlayer((Player) event.getEntity());
                 if (player.getCurrentZone() == null
                         || !player.getCurrentZone().hasFlag(Zone.Flag.PVP)) {
                     event.setCancelled(true);
@@ -155,6 +160,8 @@ public class BytecraftPlayerListener implements Listener
                             + "You are not in a pvp zone.");
                     return;
                 }
+            }else{
+                event.setCancelled(player.getRank() == Rank.NEWCOMER);
             }
         }
     }
@@ -163,6 +170,8 @@ public class BytecraftPlayerListener implements Listener
     public void onKick(PlayerKickEvent event)
     {
         event.setLeaveMessage(null);
+        BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
+        plugin.removePlayer(player);
     }
 
     private HashMap<Item, BytecraftPlayer> droppedItems = Maps.newHashMap();

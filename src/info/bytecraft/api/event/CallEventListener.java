@@ -4,8 +4,10 @@ import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.api.math.Point;
 import info.bytecraft.zones.Zone;
+import info.bytecraft.zones.Zone.Flag;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -107,5 +109,24 @@ public class CallEventListener implements Listener
         PlayerMoveBlockEvent customEvent = new PlayerMoveBlockEvent(event.getFrom(), event.getTo(), player);
         Bukkit.getPluginManager().callEvent(customEvent);
     }
+    
+    private void welcomeMessage(Zone currentZone, BytecraftPlayer player,
+            Zone.Permission perm)
+    {
 
+        player.sendMessage(ChatColor.RED + "[" + currentZone.getName() + "] "
+                + currentZone.getEnterMessage());
+
+        if (currentZone.hasFlag(Flag.PVP)) {
+            player.sendMessage(ChatColor.RED
+                    + "[" + currentZone.getName() + "] "
+                    + "Warning! This is a PVP zone! Other players can damage or kill you here.");
+        }
+
+        if (perm != null) {
+            String permNotification = perm.getPermNotification();
+            player.sendMessage(ChatColor.RED + "[" + currentZone.getName()
+                    + "] " + permNotification);
+        }
+    }
 }

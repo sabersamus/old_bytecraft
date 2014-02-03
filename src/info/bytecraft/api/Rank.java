@@ -44,16 +44,172 @@ public enum Rank
         return (this != NEWCOMER);
     }
     
+    public boolean canKillAnimals()
+    {
+        return canBuild();
+    }
+    
+    public boolean canVanish()
+    {
+        return (this == ELDER || this == PRINCESS);
+    }
+    
     public boolean canFill()
     {
         return (this == ARCHITECT
                 || this == ADMIN || this == PRINCESS || this == ELDER);
     }
     
+    public boolean canCreateZones()
+    {
+        return (this == ELDER || this == PRINCESS);
+    }
+    
+    public boolean canEditZones()
+    {
+        return canCreateZones();
+    }
+    
+    public boolean canKick()
+    {
+        return (this == ADMIN || this == PRINCESS || this == ELDER || this == PROTECTOR);
+    }
+    
+    public boolean canBan()
+    {
+        return canKick();
+    }
+    
+    public boolean canMentor()
+    {
+        return (this == ADMIN || this == MENTOR || this == ELDER || this == PRINCESS);
+    }
+    
+    public boolean canFly()
+    {
+        return (this == ADMIN || this == ELDER || this == PRINCESS);
+    }
+    
+    public boolean canBless()
+    {
+        return (this == PROTECTOR || this == ADMIN || this == ELDER || this == PRINCESS || this == MENTOR);
+    }
+    
+    public boolean canSeeChestLogs()
+    {
+        return (this == ADMIN || this == ELDER || this == PRINCESS);
+    }
+    
+    public boolean canSpawnMobs()
+    {
+        return (this == ADMIN || this == ELDER || this == PRINCESS);
+    }
+    
+    public boolean canSwitchGamemodes()
+    {
+        return canFill();
+    }
+    
+    public boolean canSpawnItems()
+    {
+        return canFill();
+    }
+    
+    public boolean canSpawnItemsForPlayers()
+    {
+        return (this == ADMIN || this == ELDER || this == PRINCESS);
+    }
+    
+    public boolean canViewInventories()
+    {
+        return (this == ADMIN || this == ELDER || this == PRINCESS);
+    }
+    
+    public boolean canUseGod()
+    {
+        return (this == ADMIN || this == ELDER || this == PRINCESS);
+    }
+    
+    public boolean canSmite()
+    {
+        return canUseGod();
+    }
+    
+    public boolean canSummon()
+    {
+        return (this == ADMIN || this == ELDER || this == PRINCESS);
+    }
+    
+    public boolean canTeleport()
+    {
+        return (this != Rank.NEWCOMER);
+    }
+    
+    public boolean canTeleportToPosition()
+    {
+        return (this == ADMIN || this == ELDER || this == PRINCESS);
+    }
+    
+    public boolean canCreateWarps()
+    {
+        return (this == ELDER || this == PRINCESS);
+    }
+    
+    public boolean canSeePlayerInfo()
+    {
+        return (this == ADMIN || this == PRINCESS || this == ELDER);
+    }
+
+    public boolean canOverrideBless()
+    {
+        return (this == ADMIN || this == PRINCESS || this == ELDER);
+    }
+    
+    public boolean isImmortal()
+    {
+        return (this == ADMIN || this == PRINCESS || this == ELDER);
+    }
+    
+    public boolean canGoToPlayersHomes()
+    {
+        return (this == ADMIN || isElder());
+    }
+    
+    public boolean canMute()
+    {
+        return (this == ADMIN || this == PROTECTOR || isElder());
+    }
+    
+    public boolean canWarn()
+    {
+        return (this == ADMIN || this == PROTECTOR || isElder());
+    }
+    
+    public boolean canTeleportSilently()
+    {
+        return (this == ADMIN || isElder());
+    }
+    
+    public boolean canOverrideTeleportBlock()
+    {
+        return (this == ADMIN || isElder());
+    }
+    
+    private boolean isElder()
+    {
+        return (this == ELDER || this == PRINCESS);
+    }
+    
+    public boolean canRide()
+    {
+        return isElder();
+    }
     
     @Override
     public String toString()
     {
-        return name().toLowerCase().replace("_", " ");
+        return name().toLowerCase();
     }
+
+
 }
