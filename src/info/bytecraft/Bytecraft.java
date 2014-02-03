@@ -2,6 +2,7 @@ package info.bytecraft;
 
 import info.bytecraft.api.*;
 import info.bytecraft.zones.Zone;
+import info.bytecraft.zones.Zone.Permission;
 import info.bytecraft.api.BytecraftPlayer.Flag;
 import info.bytecraft.api.event.CallEventListener;
 import info.bytecraft.api.math.Point;
@@ -40,6 +41,8 @@ public class Bytecraft extends JavaPlugin
     
     private LookupService lookup = null;
     
+    private List<Zone> zones;
+    
     private final SimpleDateFormat format = new SimpleDateFormat(
             "MM/dd/YY hh:mm a");
     
@@ -51,6 +54,8 @@ public class Bytecraft extends JavaPlugin
         FileConfiguration config = getConfig();
         contextFactory = new DBContextFactory(config, this);
         
+        zones = new ArrayList<>();
+        
         try{
             lookup = new LookupService(new File(folder, "GeoIPCity.dat"), 
                     LookupService.GEOIP_MEMORY_CACHE);
@@ -61,8 +66,12 @@ public class Bytecraft extends JavaPlugin
         try(IContext ctx = createContext())
         {
             IMessageDAO dao = ctx.getMessageDAO();
+            IZoneDAO zDao = ctx.getZoneDAO();
             this.deathMessages = dao.loadDeathMessages();
             this.quitMessages = dao.loadQuitMessages();
+            
+            zones = zDao.loadZones();
+                        
         }catch(DAOException e){
             throw new RuntimeException(e);
         }
@@ -103,6 +112,8 @@ public class Bytecraft extends JavaPlugin
         getCommand("message").setExecutor(new MessageCommand(this, "message"));
         getCommand("pos").setExecutor(new PositionCommand(this));
         getCommand("reply").setExecutor(new MessageCommand(this, "reply"));
+        getCommand("ride").setExecutor(new RideCommand(this, "ride"));
+        getCommand("rideme").setExecutor(new RideCommand(this, "rideme"));
         getCommand("say").setExecutor(new SayCommand(this, "say"));
         getCommand("summon").setExecutor(new SummonCommand(this));
         getCommand("smite").setExecutor(new SmiteCommand(this));
@@ -111,6 +122,7 @@ public class Bytecraft extends JavaPlugin
         getCommand("survival").setExecutor(new GameModeCommand(this, "survival"));
         getCommand("testfill").setExecutor(new FillCommand(this, "testfill"));
         getCommand("time").setExecutor(new TimeCommand(this));
+        getCommand("town").setExecutor(new TownCommand(this));
         getCommand("tpblock").setExecutor(new TeleportBlockCommand(this));
         getCommand("teleport").setExecutor(new TeleportCommand(this));
         getCommand("tppos").setExecutor(new TeleportPosCommand(this));
@@ -292,6 +304,29 @@ public class Bytecraft extends JavaPlugin
             logs.insertLogin(player, "login");
             
             players.put(player.getName(), player);
+            
+            Location loc = player.getLocation();
+            
+            if(loc != null){
+               Zone zone = getZoneAt(loc.getWorld(), new Point(loc.getBlockX(), loc.getBlockZ()));
+               if(zone != null){
+                   player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] "
+                           + zone.getEnterMessage());
+
+                   if (zone.hasFlag(Zone.Flag.PVP)) {
+                       player.sendMessage(ChatColor.RED
+                               + "[" + zone.getName() + "] "
+                               + "Warning! This is a PVP zone! Other players can damage or kill you here.");
+                   }
+                   Permission perm  = zone.getUser(player);
+                   if (perm != null) {
+                       String permNotification = perm.getPermNotification();
+                       player.sendMessage(ChatColor.RED + "[" + zone.getName()
+                               + "] " + permNotification);
+                   }
+               }
+            }
+            
             return player;
         }catch(DAOException e){
             throw new RuntimeException(e);
@@ -348,35 +383,43 @@ public class Bytecraft extends JavaPlugin
     
     public List<Zone> getZones(String world)
     {
-        try(IContext ctx = createContext()){
-            return ctx.getZoneDAO().getZones(world);
-        } catch (DAOException e) {
-            throw new RuntimeException(e);
+        List<Zone> zones = Lists.newArrayList();
+        for(Zone zone: this.zones){
+            if(zone.getWorld().equalsIgnoreCase(world)){
+                zones.add(zone);
+            }
         }
+        return zones;
     }
     
     public Zone getZoneAt(World world, Point p)
     {
-        try(IContext ctx = createContext()){
-            List<Zone> zones = ctx.getZoneDAO().getZones(world.getName());
-            for(Zone zone: zones){
-                if(zone.contains(p)){
-                    return zone;
-                }
+        for(Zone zone: getZones(world.getName())){
+            if(zone.contains(p)){
+                return zone;
             }
-        } catch (DAOException e) {
-            throw new RuntimeException(e);
         }
         return null;
     }
     
     public Zone getZone(String name)
     {
-        try(IContext ctx = createContext()){
-            return ctx.getZoneDAO().getZone(name);
-        }catch(DAOException e){
-            throw new RuntimeException(e);
+        for(Zone zone: zones){
+            if(zone.getName().equalsIgnoreCase(name)){
+                return zone;
+            }
         }
+        return null;
+    }
+    
+    public void addZone(Zone zone)
+    {
+        this.zones.add(zone);
+    }
+    
+    public void deleteZone(Zone zone)
+    {
+        this.zones.remove(zone);
     }
     
     // ========================================================
