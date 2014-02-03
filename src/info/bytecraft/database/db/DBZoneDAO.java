@@ -4,11 +4,13 @@ import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.api.math.Rectangle;
 import info.bytecraft.database.DAOException;
 import info.bytecraft.database.IZoneDAO;
+import info.bytecraft.zones.Lot;
 import info.bytecraft.zones.Zone;
 import info.bytecraft.zones.Zone.Flag;
 import info.bytecraft.zones.Zone.Permission;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -47,6 +49,7 @@ public class DBZoneDAO implements IZoneDAO
                     zone.setWorld(rs.getString("zone_world"));
                     zone.setRectangle(getRect(zone));
                     zone.setPermissions(getPermissions(zone));
+                    zone.setLots(getLots(zone));
                     zones.add(zone);
                 }
             }
@@ -125,6 +128,7 @@ public class DBZoneDAO implements IZoneDAO
                 zone.setWorld(rs.getString("zone_world"));
                 zone.setRectangle(getRect(zone));
                 zone.setPermissions(getPermissions(zone));
+                zone.setLots(getLots(zone));
             }
         }catch(SQLException e){
             throw new DAOException(sql, e);
@@ -301,5 +305,206 @@ public class DBZoneDAO implements IZoneDAO
             throw new DAOException(sql, e);
         }
         return true;
+    }
+
+    @Override
+    public List<Lot> getLots(String world) throws DAOException
+    {
+        String sql = "SELECT zone_lot.* FROM zone_lot " +
+            "INNER JOIN zone USING (zone_name) WHERE zone_world = ?";
+
+        List<Lot> lots = new ArrayList<Lot>();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, world);
+            stmt.execute();
+
+            try (ResultSet rs = stmt.getResultSet()) {
+                while (rs.next()) {
+                    Lot lot = new Lot();
+                    lot.setId(rs.getInt("lot_id"));
+                    lot.setName(rs.getString("lot_name"));
+                    lot.setZoneName(rs.getString("zone_name"));
+
+                    int x1 = rs.getInt("lot_x1");
+                    int z1 = rs.getInt("lot_z1");
+                    int x2 = rs.getInt("lot_x2");
+                    int z2 = rs.getInt("lot_z2");
+                    
+                    lot.setRect(new Rectangle(x1, z1, x2, z2));
+
+                    lots.add(lot);
+                }
+            }
+        } catch (SQLException e) {
+            throw new DAOException(sql, e);
+        }
+
+        for (Lot lot : lots) {
+            lot.setOwner(getLotOwners(lot.getId()));
+        }
+
+        return lots;
+    }
+    
+    public Map<String, Lot> getLots(Zone zone) throws DAOException
+    {
+        Map<String, Lot> lots = Maps.newHashMap();
+        String sql = "SELECT * FROM zone_lot WHERE zone_name = ?";
+        try(PreparedStatement stm = conn.prepareStatement(sql)){
+            stm.setString(1, zone.getName());
+            stm.execute();
+            
+            try (ResultSet rs = stm.getResultSet()) {
+                while (rs.next()) {
+                    Lot lot = new Lot();
+                    lot.setId(rs.getInt("lot_id"));
+                    lot.setName(rs.getString("lot_name"));
+                    lot.setZoneName(rs.getString("zone_name"));
+
+                    int x1 = rs.getInt("lot_x1");
+                    int z1 = rs.getInt("lot_z1");
+                    int x2 = rs.getInt("lot_x2");
+                    int z2 = rs.getInt("lot_z2");
+                    
+                    lot.setRect(new Rectangle(x1, z1, x2, z2));
+
+                    lots.put(lot.getName(), lot);
+                }
+            }
+        } catch (SQLException e) {
+            throw new DAOException(sql, e);
+        }
+
+        for (Lot lot : lots.values()) {
+            lot.setOwner(getLotOwners(lot.getId()));
+        }
+        return lots;
+    }
+
+    @Override
+    public List<String> getLotOwners(int lotId) throws DAOException
+    {
+        String sql = "SELECT * FROM zone_lotuser " +
+            "WHERE lot_id = ?";
+
+        List<String> owners = new ArrayList<>();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, lotId);
+            stmt.execute();
+
+            try (ResultSet rs = stmt.getResultSet()) {
+                while (rs.next()) {
+                    owners.add(rs.getString("player_name"));
+                }
+            }
+        } catch (SQLException e) {
+            throw new DAOException(sql, e);
+        }
+
+        return owners;
+    }
+
+    @Override
+    public void addLot(Lot lot) throws DAOException
+    {
+        String sql = "INSERT INTO zone_lot (zone_name, lot_name, lot_x1, " +
+                "lot_z1, lot_x2, lot_z2) VALUES (?,?,?,?,?,?)";
+
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setString(1, lot.getZoneName());
+                stmt.setString(2, lot.getName());
+
+                Rectangle rect = lot.getRect();
+                stmt.setInt(3, rect.getLeft());
+                stmt.setInt(4, rect.getTop());
+                stmt.setInt(5, rect.getRight());
+                stmt.setInt(6, rect.getBottom());
+
+                stmt.execute();
+
+                stmt.execute("SELECT LAST_INSERT_ID()");
+
+                try (ResultSet rs = stmt.getResultSet()) {
+                    if (rs.next()) {
+                        lot.setId(rs.getInt(1));
+                    }
+                }
+            } catch (SQLException e) {
+                throw new DAOException(sql, e);
+            }
+    }
+
+    @Override
+    public void deleteLot(int lotId) throws DAOException
+    {
+        String sql = "DELETE FROM zone_lot WHERE lot_id = ?";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, lotId);
+            stmt.execute();
+        } catch (SQLException e) {
+            throw new DAOException(sql, e);
+        }
+    }
+
+    @Override
+    public void addLotUser(int lotId, String name) throws DAOException
+    {
+        String sql = "INSERT INTO zone_lotuser (lot_id, player_name) ";
+        sql += "VALUES (?,?)";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, lotId);
+            stmt.setString(2, name);
+            stmt.execute();
+        } catch (SQLException e) {
+            throw new DAOException(sql, e);
+        }
+    }
+
+    @Override
+    public void deleteLotUsers(int lotId) throws DAOException
+    {
+        String sql = "DELETE FROM zone_lotuser WHERE lot_id = ?";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, lotId);
+            stmt.execute();
+        } catch (SQLException e) {
+            throw new DAOException(sql, e);
+        }
+    }
+
+    @Override
+    public void deleteLotUser(int lotId, String name) throws DAOException
+    {
+        String sql = "DELETE FROM zone_lotuser WHERE lot_id = ? AND player_name = ?";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, lotId);
+            stmt.setString(2, name);
+            stmt.execute();
+        } catch (SQLException e) {
+            throw new DAOException(sql, e);
+        }
+    }
+
+    @Override
+    public boolean lotExists(String zone, String name) throws DAOException
+    {
+        String sql = "SELECT * FROM zone_lot WHERE zone_name = ? AND lot_name = ?";
+        try(PreparedStatement stm = conn.prepareStatement(sql)){
+            stm.setString(1, zone);
+            stm.setString(2, name);
+            stm.execute();
+            
+            try(ResultSet rs = stm.getResultSet()){
+                return rs.next();
+            }
+        }catch(SQLException e){
+            throw new RuntimeException(sql, e);
+        }
     }
 }

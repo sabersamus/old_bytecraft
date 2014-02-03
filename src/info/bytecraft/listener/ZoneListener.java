@@ -5,13 +5,19 @@ import java.util.List;
 import java.util.Set;
 
 import info.bytecraft.Bytecraft;
+import info.bytecraft.api.BooleanStringReturn;
 import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.event.PlayerChangeZoneEvent;
+import info.bytecraft.api.math.Point;
+import info.bytecraft.zones.Lot;
 import info.bytecraft.zones.Zone;
 import info.bytecraft.zones.Zone.Flag;
 import info.bytecraft.zones.Zone.Permission;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 
@@ -21,7 +27,6 @@ import org.bukkit.event.*;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.util.Vector;
 
@@ -34,54 +39,30 @@ public class ZoneListener implements Listener
     {
         plugin = instance;
     }
-
+    
     @EventHandler
-    public void onMove(PlayerMoveEvent event)
+    public void onMoveZone(PlayerChangeZoneEvent event)
     {
-        BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
-        Location to = event.getTo();
-        Location from = event.getFrom();
-        List<Zone> zones = plugin.getZones(to.getWorld().getName());
-        if(zones.isEmpty())return;
-        for(Zone zone: zones){
-            if(zone.contains(to) && !zone.contains(from)){
-                Permission p = zone.getUser(player);
-                if(zone.hasFlag(Flag.WHITELIST)){
-                    if((p == null || p == Permission.BANNED)){//whitelisted and doesnt have an account, or is banned
-                        if(!player.isAdmin()){//doesnt affect admins
-                            movePlayerBack(player, from, to);
-                            player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] You are not allowed in " + zone.getName());
-                            return;
-                        }else{
-                            player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] " + zone.getEnterMessage());
-                            this.permissionsMessage(zone, player);
-                            player.setCurrentZone(zone);
-                            return;
-                        }
-                    }else{
-                        player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] " + zone.getEnterMessage());
-                        this.permissionsMessage(zone, player);
-                        player.setCurrentZone(zone);
-                        return;
-                    }
-                }else{
-                    if((p != null && p == Permission.BANNED) && !player.isAdmin()){
-                        movePlayerBack(player, from, to);
-                        player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] You are not allowed in " + zone.getName());
-                        return;
-                    }else{
-                        player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] " + zone.getEnterMessage());
-                        this.permissionsMessage(zone, player);
-                        player.setCurrentZone(zone);
-                        return;
-                    }
-                }
-            }else if(zone.contains(from) && !zone.contains(to)){
-                player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] " + zone.getExitMessage());
-                player.setCurrentZone(null);
-                return;
-            }
+        BytecraftPlayer player = event.getPlayer();
+        if(event.getOldZone() != null){
+            player.sendMessage(ChatColor.RED + "[" + event.getOldZone().getName() + "] " + event.getOldZone().getExitMessage());
         }
+        
+        if(event.getNewZone() == null){
+            player.setCurrentZone(null);
+            return;
+        }
+        
+        BooleanStringReturn returnValue = player.canBeHere(event.getTo());
+        
+        if (!returnValue.getBoolean()) {
+            player.sendMessage(returnValue.getString());
+            movePlayerBack(player, event.getFrom(), event.getTo());
+            return;
+        }
+        
+        player.setCurrentZone(event.getNewZone());
+        welcomeMessage(player.getCurrentZone(), player, event.getNewZone().getUser(player));
     }
 
     @EventHandler
@@ -91,6 +72,17 @@ public class ZoneListener implements Listener
         if(player.getCurrentZone() != null){
             Zone zone = player.getCurrentZone();
             if(!zone.hasFlag(Flag.BUILD)){
+                
+                Lot lot = zone.findLot(event.getBlock().getLocation());
+                if(lot != null){
+                    if(!lot.isOwner(player) && !player.isAdmin()){
+                        event.setCancelled(true);
+                        player.setFireTicks(20 * 2);
+                        player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] You are not allowed to build in " + lot.getName());
+                        return;
+                    }
+                }
+                
                 Permission p = zone.getUser(player);
                 if(p == null){
                     if(!player.isAdmin()){
@@ -111,6 +103,16 @@ public class ZoneListener implements Listener
                         }
                     }
                 }
+            }else{
+                Lot lot = zone.findLot(event.getBlock().getLocation());
+                if(lot != null){
+                    if(!lot.isOwner(player) && !player.isAdmin()){
+                        event.setCancelled(true);
+                        player.setFireTicks(20 * 2);
+                        player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] You are not allowed to build in " + lot.getName());
+                        return;
+                    }
+                }
             }
         }
     }
@@ -122,6 +124,17 @@ public class ZoneListener implements Listener
         if(player.getCurrentZone() != null){
             Zone zone = player.getCurrentZone();
             if(!zone.hasFlag(Flag.BUILD)){
+                Lot lot = zone.findLot(event.getBlock().getLocation());
+                
+                if(lot != null){
+                    if(!lot.isOwner(player) && !player.isAdmin()){
+                        event.setCancelled(true);
+                        player.setFireTicks(20 * 2);
+                        player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] You are not allowed to build in " + lot.getName());
+                        return;
+                    }
+                }
+                
                 Permission p = zone.getUser(player);
                 if(p == null){
                     if(!player.isAdmin()){
@@ -139,6 +152,14 @@ public class ZoneListener implements Listener
                             return;
                         }
                     }
+                }
+            }else{
+                Lot lot = zone.findLot(event.getBlock().getLocation());
+                if(!lot.isOwner(player) && !player.isAdmin()){
+                    event.setCancelled(true);
+                    player.setFireTicks(20 * 2);
+                    player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] You are not allowed to build in " + lot.getName());
+                    return;
                 }
             }
         }
@@ -181,7 +202,6 @@ public class ZoneListener implements Listener
                 if(!zone.hasFlag(Flag.HOSTILE)){
                     if(types.contains(ent.getType())){
                         event.setCancelled(true);
-                        ent = null;
                         return;
                     }
                 }
@@ -198,42 +218,36 @@ public class ZoneListener implements Listener
         List<Zone> zones = plugin.getZones(to.getWorld().getName());
         if(zones.isEmpty())return;
         for(Zone zone: zones){
-            if(zone.contains(to) && !zone.contains(from)){
+            if(zone.contains(from) && !zone.contains(to)){
+                player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] " + zone.getExitMessage());
+                player.setCurrentZone(null);
+            }else if(zone.contains(to) && !zone.contains(from)){
                 Permission p = zone.getUser(player);
                 if(zone.hasFlag(Flag.WHITELIST)){
                     if((p == null || p == Permission.BANNED)){
                         if(!player.isAdmin()){
                             event.setCancelled(true);
                             player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] You are not allowed in " + zone.getName());
-                            return;
                         }else{
                             player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] " + zone.getEnterMessage());
                             this.permissionsMessage(zone, player);
                             player.setCurrentZone(zone);
-                            return;
                         }
                     }else{
                         player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] " + zone.getEnterMessage());
                         this.permissionsMessage(zone, player);
                         player.setCurrentZone(zone);
-                        return;
                     }
                 }else{
                     if((p != null && p == Permission.BANNED) && !player.isAdmin()){
                         event.setCancelled(true);
                         player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] You are not allowed in " + zone.getName());
-                        return;
                     }else{
                         player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] " + zone.getEnterMessage());
                         this.permissionsMessage(zone, player);
                         player.setCurrentZone(zone);
-                        return;
                     }
                 }
-            }else if(zone.contains(from) && !zone.contains(to)){
-                player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] " + zone.getExitMessage());
-                player.setCurrentZone(null);
-                return;
             }
         }
     }
@@ -260,5 +274,25 @@ public class ZoneListener implements Listener
                                        newPosVector.getZ());
 
         player.teleport(newPos);
+    }
+    
+    private void welcomeMessage(Zone currentZone, BytecraftPlayer player,
+            Zone.Permission perm)
+    {
+
+        player.sendMessage(ChatColor.RED + "[" + currentZone.getName() + "] "
+                + currentZone.getEnterMessage());
+
+        if (currentZone.hasFlag(Flag.PVP)) {
+            player.sendMessage(ChatColor.RED
+                    + "[" + currentZone.getName() + "] "
+                    + "Warning! This is a PVP zone! Other players can damage or kill you here.");
+        }
+
+        if (perm != null) {
+            String permNotification = perm.getPermNotification();
+            player.sendMessage(ChatColor.RED + "[" + currentZone.getName()
+                    + "] " + permNotification);
+        }
     }
 }

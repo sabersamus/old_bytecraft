@@ -3,8 +3,8 @@ package info.bytecraft.api.math;
 public class Point
 {
     
-    private int x;
-    private int z;
+    public int x;
+    public int z;
     
     public Point(int x, int z)
     {

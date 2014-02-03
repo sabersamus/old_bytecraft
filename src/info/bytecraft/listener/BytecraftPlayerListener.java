@@ -3,7 +3,6 @@ package info.bytecraft.listener;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
@@ -17,12 +16,14 @@ import info.bytecraft.database.IContext;
 import info.bytecraft.database.ILogDAO;
 import info.bytecraft.zones.Zone;
 import info.bytecraft.api.TargetBlock;
+import info.bytecraft.api.event.PlayerLeaveEvent;
+import info.bytecraft.api.event.PlayerLeaveEvent.Reason;
 
 import org.apache.commons.lang.WordUtils;
-import org.bukkit.Bukkit;
 
 import static org.bukkit.ChatColor.*;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -69,51 +70,10 @@ public class BytecraftPlayerListener implements Listener
         event.setJoinMessage(null);
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
         if(player == null)return;
-        if ((player.getRank() == Rank.ELDER || player.getRank() == Rank.PRINCESS)) {
-            if (player.hasFlag(Flag.INVISIBLE)) {
-                for (BytecraftPlayer other : plugin.getOnlinePlayers()) {
-                    if (other == player) {
-                        continue;
-                    }
-                    if (other.getRank() != Rank.ELDER
-                            && other.getRank() != Rank.PRINCESS) {
-                        other.getDelegate().hidePlayer(player.getDelegate());
-                    }else {
-                        other.sendMessage(player.getDisplayName()
-                                + ChatColor.RED + " has joined invisible");
-                    }
-                }
-            }
-            if (!player.hasFlag(Flag.SILENT_JOIN)) {
-                if (player.getCountry() != null
-                        && !player.hasFlag(Flag.HIDDEN_LOCATION)) {
-                    Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "Welcome "
-                            + player.getDisplayName() + ChatColor.DARK_AQUA
-                            + " from " + player.getCountry());
-                }
-                else {
-                    Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "Welcome "
-                            + player.getDisplayName() + ChatColor.DARK_AQUA
-                            + " to Bytecraft ");
-                }
-            }
-        } else {
-            if(player.getCountry() != null && !player.hasFlag(Flag.HIDDEN_LOCATION)){
-                Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "Welcome "
-                        + player.getDisplayName() + ChatColor.DARK_AQUA
-                        + " from " + player.getCountry());
-            }
-            else {
-                Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "Welcome "
-                        + player.getDisplayName() + ChatColor.DARK_AQUA
-                        + " to Bytecraft ");
-            }
             if (!player.hasPlayedBefore()) {
                 player.teleport(plugin.getWorldSpawn("world"));
             }
 
-        }
-        
         if (player.getRank() == Rank.NEWCOMER) {
             player.sendMessage(ChatColor.AQUA
                     + plugin.getConfig().getString("motd.new"));
@@ -130,40 +90,7 @@ public class BytecraftPlayerListener implements Listener
                     + plugin.getConfig().getString("motd.normal"));
         }
         
-        player.setAllowFlight(player.hasFlag(Flag.NOBLE));
-
-        String aliasList = null;
-        try (IContext ctx = plugin.createContext()) {
-            ILogDAO logDAO = ctx.getLogDAO();
-            Set<String> aliases = logDAO.getAliases(player);
-
-            StringBuilder buffer = new StringBuilder();
-            String delim = "";
-            for (String name : aliases) {
-                buffer.append(delim);
-                buffer.append(name);
-                delim = ", ";
-            }
-
-            aliasList = buffer.toString();
-            if(aliases.size() > 1){
-                for(BytecraftPlayer current: plugin.getOnlinePlayers()){
-                    if(!current.isAdmin()){
-                        continue;
-                    }
-                    
-                    if(player.hasFlag(Flag.INVISIBLE) 
-                            || player.hasFlag(Flag.SILENT_JOIN)
-                            || player.hasFlag(Flag.HIDDEN_LOCATION)){
-                        continue;
-                    }
-                    
-                    current.sendMessage(ChatColor.RED + "This user has also used names: " + aliasList);
-                }
-            }
-        }catch(DAOException e){
-            throw new RuntimeException(e);
-        }
+        player.setAllowFlight(player.hasFlag(Flag.NOBLE) || player.getRank().canFill());
     }
 
     @EventHandler
@@ -180,27 +107,23 @@ public class BytecraftPlayerListener implements Listener
     public void onQuit(PlayerQuitEvent event)
     {
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
-        event.setQuitMessage(null);
-        if(player == null)return;
-        if (player.hasFlag(Flag.SILENT_JOIN)) {
-            event.setQuitMessage(null);
-            plugin.removePlayer(player);
-            return;
-        }
         
-        List<String> quitMessages = plugin.getQuitMessages();
-        String message = "";
-        if(quitMessages.isEmpty()){
-            message = ChatColor.AQUA + "- quit - " + player.getDisplayName() + ChatColor.AQUA + " has left the game!";
-        }else{
-            message = ChatColor.AQUA + "- quit - " + quitMessages.get(new Random().nextInt(quitMessages.size() - 1)).replace("%s", player.getDisplayName() + ChatColor.AQUA)
-                    .replaceAll("(?i)&([a-f0-9])", "\u00A7$1");
-        }
-        plugin.getServer().broadcastMessage(message);
+        List<String> messages = plugin.getQuitMessages();
+        String mess =
+                ChatColor.AQUA
+                        + "- quit - "
+                        + messages
+                                .get(new Random().nextInt(messages.size() - 1))
+                                .replace(
+                                        "%s",
+                                        player.getDisplayName()
+                                                + ChatColor.GRAY)
+                                .replaceAll("(?i)&([a-f0-9])", "\u00A7$1");
+        
+        event.setQuitMessage(mess);
         plugin.removePlayer(player);
-        return;
     }
-
+    
     @EventHandler
     public void onDamage(EntityDamageEvent event)
     {
@@ -239,7 +162,7 @@ public class BytecraftPlayerListener implements Listener
     @EventHandler
     public void onKick(PlayerKickEvent event)
     {
-        
+        event.setLeaveMessage(null);
     }
 
     private HashMap<Item, BytecraftPlayer> droppedItems = Maps.newHashMap();
@@ -368,7 +291,9 @@ public class BytecraftPlayerListener implements Listener
     {
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
         if(player == null)return;
-        if(!player.hasFlag(Flag.NOBLE)){
+        if(player.hasFlag(Flag.NOBLE) || player.getRank().canBuild()){
+            event.setCancelled(false);
+        }else{
             event.setCancelled(true);
         }
         

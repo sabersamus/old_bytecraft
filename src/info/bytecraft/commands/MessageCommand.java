@@ -55,7 +55,13 @@ public class MessageCommand extends AbstractCommand
         target.sendNotification(Notification.MESSAGE, ChatColor.GOLD
                 + "<From> " + player.getDisplayName() + ": "
                 + ChatColor.GREEN + message);
-        if (!target.hasFlag(Flag.INVISIBLE) && (player.getRank() != Rank.ELDER || player.getRank() != Rank.PRINCESS)) {
+        if(target.hasFlag(Flag.INVISIBLE)){
+            if(player.getRank() == Rank.ELDER || player.getRank() == Rank.PRINCESS){
+                player.sendMessage(ChatColor.GOLD + "<To> "
+                        + target.getDisplayName() + ": " + ChatColor.GREEN
+                        + message);
+            }
+        }else{
             player.sendMessage(ChatColor.GOLD + "<To> "
                     + target.getDisplayName() + ": " + ChatColor.GREEN
                     + message);

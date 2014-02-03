@@ -68,6 +68,13 @@ commands:
     kill:
         description: Kill yourself
         usage: /<command>
+    lot:
+        description: Manage a lot
+        usage: |
+            /<command> create <name>
+            /<command> delete <name>
+            /<command> addowner <name>
+            /<command> delowner <name>
     makewarp:
         description: Make a new warp
         usage: /<command> <name>
@@ -96,6 +103,9 @@ commands:
     support:
         description: Send the staff an email for help
         usage: /<command> <message>
+    smite:
+        description: Smite a player!
+        usage: /<command> <player>
     spawn:
         description: Teleport to spawn
         usage: /<command>

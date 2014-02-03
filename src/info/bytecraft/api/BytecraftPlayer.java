@@ -2,6 +2,8 @@ package info.bytecraft.api;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.zones.Zone;
+import info.bytecraft.zones.Zone.Permission;
+import info.bytecraft.api.math.Point;
 import info.bytecraft.api.math.Vector2D;
 import info.bytecraft.database.DAOException;
 import info.bytecraft.database.IContext;
@@ -370,6 +372,50 @@ public class BytecraftPlayer extends PlayerDelegate
         vehicle.teleport(loc);
         vehicle.setPassenger(this.getDelegate());
         return true;
+    }
+    
+    public BooleanStringReturn canBeHere(Location loc)
+    {
+        Zone zone = plugin.getZoneAt(loc.getWorld(), new Point(loc.getBlockX(), loc.getBlockZ()));
+        if (zone == null) { // Wilderness - Can be there
+            return new BooleanStringReturn(true, null);
+        }
+
+        if (isAdmin()) { // Admins can be there
+            return new BooleanStringReturn(true, null);
+        }
+
+        Zone.Permission permission = zone.getUser(this);
+
+        if (!zone.hasFlag(Zone.Flag.WHITELIST)) {
+            // Banned - Can not be there
+            if (permission != null && permission == Permission.BANNED) {
+                return new BooleanStringReturn(false, ChatColor.RED + "[" +
+                        zone.getName() + "] You are banned from " + zone.getName());
+            }
+
+            // If zone has BlockWarned and user is warned
+            if (this.hasFlag(Flag.HARDWARNED)) {
+                return new BooleanStringReturn(false, ChatColor.RED + "[" +
+                        zone.getName() + "] You must not be warned to be here!");
+            }
+
+        } else {
+            // If no permission (Allowed, Maker, Owner, Banned) then stop
+            if (permission == null) {
+                return new BooleanStringReturn(false, ChatColor.RED + "[" +
+                        zone.getName() + "] You are not allowed to enter " +
+                        zone.getName());
+            }
+
+            // If the permission is banned then stop
+            if (permission == Permission.BANNED) {
+                return new BooleanStringReturn(false, ChatColor.RED + "[" +
+                        zone.getName() + "] You are banned from " + zone.getName());
+            }
+        }
+
+        return new BooleanStringReturn(true, null);
     }
     
 }

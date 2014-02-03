@@ -3,6 +3,8 @@ package info.bytecraft;
 import info.bytecraft.api.*;
 import info.bytecraft.zones.Zone;
 import info.bytecraft.api.BytecraftPlayer.Flag;
+import info.bytecraft.api.event.CallEventListener;
+import info.bytecraft.api.math.Point;
 import info.bytecraft.commands.*;
 import info.bytecraft.database.*;
 import info.bytecraft.database.db.DBContextFactory;
@@ -17,6 +19,7 @@ import java.util.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -94,6 +97,7 @@ public class Bytecraft extends JavaPlugin
         getCommand("item").setExecutor(new ItemCommand(this));
         getCommand("kick").setExecutor(new KickCommand(this));
         getCommand("kill").setExecutor(new KillCommand(this));
+        getCommand("lot").setExecutor(new LotCommand(this));
         getCommand("makewarp").setExecutor(new WarpCreateCommand(this));
         getCommand("me").setExecutor(new ActionCommand(this));
         getCommand("message").setExecutor(new MessageCommand(this, "message"));
@@ -101,7 +105,8 @@ public class Bytecraft extends JavaPlugin
         getCommand("reply").setExecutor(new MessageCommand(this, "reply"));
         getCommand("say").setExecutor(new SayCommand(this, "say"));
         getCommand("summon").setExecutor(new SummonCommand(this));
-        getCommand("support").setExecutor(new SupportCommand(this));
+        getCommand("smite").setExecutor(new SmiteCommand(this));
+        //getCommand("support").setExecutor(new SupportCommand(this));
         getCommand("spawn").setExecutor(new SpawnCommand(this));
         getCommand("survival").setExecutor(new GameModeCommand(this, "survival"));
         getCommand("testfill").setExecutor(new FillCommand(this, "testfill"));
@@ -133,7 +138,9 @@ public class Bytecraft extends JavaPlugin
     {
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(new ChatListener(this), this);
+        pm.registerEvents(new CallEventListener(this), this);
         pm.registerEvents(new BytecraftPlayerListener(this), this);
+        pm.registerEvents(new PlayerLookupListener(this), this);
         pm.registerEvents(new BlessListener(this), this);
         //pm.registerEvents(new RareDropListener(this), this);
         pm.registerEvents(new BytecraftBlockListener(this), this);
@@ -346,6 +353,21 @@ public class Bytecraft extends JavaPlugin
         } catch (DAOException e) {
             throw new RuntimeException(e);
         }
+    }
+    
+    public Zone getZoneAt(World world, Point p)
+    {
+        try(IContext ctx = createContext()){
+            List<Zone> zones = ctx.getZoneDAO().getZones(world.getName());
+            for(Zone zone: zones){
+                if(zone.contains(p)){
+                    return zone;
+                }
+            }
+        } catch (DAOException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
     }
     
     public Zone getZone(String name)

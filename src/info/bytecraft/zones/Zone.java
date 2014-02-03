@@ -9,6 +9,8 @@ import java.util.Map;
 
 import org.bukkit.Location;
 
+import com.google.common.collect.Maps;
+
 public class Zone
 {
     public enum Permission {
@@ -131,11 +133,13 @@ public class Zone
     private String enterMessage;
     private String exitMessage;
     private Map<String, Permission> permissions;
+    private Map<String, Lot> lots;
     
     public Zone(String name)
     {
         this.setName(name);
         flags = new HashMap<>();
+        lots = Maps.newHashMap();
     }
 
     public Zone()
@@ -243,13 +247,15 @@ public class Zone
 
     public boolean intersects(Zone other)
     {
-        Point p1 = rect.getPoint1();
-        Point p2 = rect.getPoint2();
+        Point p1 = new Point(rect.getLeft(), rect.getTop());
+        Point p2 = new Point(rect.getRight(), rect.getBottom());
         int zoneWidth = Math.max(p1.getX(), p2.getX()) - Math.min(p1.getX(), p2.getX());
         int zoneHeight = Math.max(p1.getZ(), p2.getZ()) - Math.min(p1.getZ(), p2.getZ());
         
-        Point p3 = other.getRectangle().getPoint1();
-        Point p4 = other.getRectangle().getPoint2();
+        
+        Rectangle zr2 = other.getRectangle();
+        Point p3 = new Point(zr2.getLeft(), zr2.getTop());
+        Point p4 = new Point(zr2.getRight(), zr2.getBottom());
         
         int otherWidth = Math.max(p3.getX(), p4.getX()) - Math.min(p3.getX(), p4.getX());
         int otherHeight = Math.max(p3.getZ(), p4.getZ()) - Math.min(p3.getZ(), p4.getZ());
@@ -262,6 +268,46 @@ public class Zone
     public boolean contains(Location to)
     {
         return this.rect.contains(new Point(to.getBlockX(), to.getBlockZ()));
+    }
+
+    public Map<String, Lot> getLots()
+    {
+        return lots;
+    }
+
+    public void setLots(Map<String, Lot> lots)
+    {
+        this.lots = lots;
+    }
+    
+    public Lot getLot(String name)
+    {
+        return lots.get(name);
+    }
+    
+    public void addLot(Lot lot)
+    {
+        lots.put(lot.getName(), lot);
+    }
+
+    public boolean contains(Point p)
+    {
+        return rect.contains(p);
+    }
+
+    public void deleteLot(Lot lot)
+    {
+        lots.remove(lot.getName());
+    }
+
+    public Lot findLot(Location to)
+    {
+        for(Lot lot: lots.values()){
+            if(lot.getRect().contains(new Point(to.getBlockX(), to.getBlockZ()))){
+                return lot;
+            }
+        }
+        return null;
     }
 
 }
