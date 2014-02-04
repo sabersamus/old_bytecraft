@@ -64,7 +64,7 @@ public class WalletCommand extends AbstractCommand
                                 target.sendMessage(player.getDisplayName()
                                         + ChatColor.AQUA + " gave you "
                                         + formatCurrency(amount));
-                                dbLog.insertTransactionLog(player, target,
+                                dbLog.insertTransactionLog(player.getName(), target,
                                         amount);
                             }
                         }

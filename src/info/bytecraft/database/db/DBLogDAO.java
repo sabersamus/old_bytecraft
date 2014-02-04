@@ -49,13 +49,13 @@ public class DBLogDAO implements ILogDAO
         }
     }
 
-    public void insertTransactionLog(BytecraftPlayer giver,
+    public void insertTransactionLog(String giver,
             BytecraftPlayer reciever, long amount) throws DAOException
     {
         String sql =
                 "INSERT INTO transaction_log (sender_name, reciever_name, amount) VALUES (?, ?, ?)";
         try (PreparedStatement stm = conn.prepareStatement(sql)) {
-            stm.setString(1, giver.getName());
+            stm.setString(1, giver);
             stm.setString(2, reciever.getName());
             stm.setLong(3, amount);
             stm.execute();
