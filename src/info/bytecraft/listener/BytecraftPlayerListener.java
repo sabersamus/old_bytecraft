@@ -14,6 +14,7 @@ import info.bytecraft.database.DAOException;
 import info.bytecraft.database.IBlessDAO;
 import info.bytecraft.database.IContext;
 import info.bytecraft.database.ILogDAO;
+import info.bytecraft.database.IPlayerDAO;
 import info.bytecraft.zones.Zone;
 import info.bytecraft.api.TargetBlock;
 
@@ -231,6 +232,7 @@ public class BytecraftPlayerListener implements Listener
     @EventHandler
     public void onCheck(PlayerInteractEvent event)
     {
+        if(event.isCancelled())return;
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
         if (player.getItemInHand().getType() != Material.PAPER)
             return;
@@ -239,9 +241,12 @@ public class BytecraftPlayerListener implements Listener
         Block block = event.getClickedBlock();
         try (IContext ctx = plugin.createContext()) {
             ILogDAO dao = ctx.getLogDAO();
+            IPlayerDAO pDao = ctx.getPlayerDAO();
             for (PaperLog log : dao.getLogs(block)) {
-                player.sendMessage(ChatColor.GREEN + log.getPlayerName() + " "
-                        + ChatColor.AQUA + log.getAction() + " "
+                BytecraftPlayer other = pDao.getPlayer(log.getPlayerName());
+                ChatColor color = pDao.getRank(other).getColor();
+                player.sendMessage(color + other.getName() + " "
+                        + ChatColor.AQUA + log.getAction() + " " + ChatColor.GOLD
                         + log.getMaterial() + ChatColor.GREEN + " at "
                         + log.getDate());
             }
@@ -313,9 +318,9 @@ public class BytecraftPlayerListener implements Listener
     }
     
     @EventHandler
-    public void onCompass(PlayerAnimationEvent event)
+    public void onCompass(PlayerInteractEvent event)
     {
-        if (event.getAnimationType() != PlayerAnimationType.ARM_SWING) {
+        if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) {
             return;
         }
 
@@ -363,8 +368,8 @@ public class BytecraftPlayerListener implements Listener
                     }
                 }
             }
-        } else {
-            if (player.hasFlag(Flag.NOBLE)) {
+        }
+        else if (player.hasFlag(Flag.NOBLE)) {
 
             Block target = player.getDelegate().getTargetBlock(null, 300);
 
@@ -382,7 +387,6 @@ public class BytecraftPlayerListener implements Listener
                             target.getZ() + 0.5, player.getLocation().getYaw(),
                             player.getLocation().getPitch());
             player.teleport(loc);
-            }
         }
     }
     
