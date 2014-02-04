@@ -8,10 +8,13 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+
+import com.google.common.collect.Lists;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
@@ -92,6 +95,25 @@ public class DBPlayerDAO implements IPlayerDAO
         }
         loadFlags(player);
         return player;
+    }
+    
+    public List<BytecraftPlayer> getRichestPlayers() 
+            throws DAOException
+    {
+        List<BytecraftPlayer> players = Lists.newArrayList();
+        String sql =  "SELECT * FROM player WHERE NOT player_rank IN('newcomer', 'admin', 'princess', 'elder') "
+                + "ORDER BY player_wallet DESC LIMIT 3";
+        try(PreparedStatement stm = conn.prepareStatement(sql)){
+            stm.execute();
+            try(ResultSet rs = stm.getResultSet()){
+                while(rs.next()){
+                    players.add(this.getPlayer(rs.getString("player_name")));
+                }
+            }
+        } catch (SQLException e) {
+            throw new DAOException(sql, e);
+        }
+        return players;
     }
     
     public void createFlags(BytecraftPlayer player) throws DAOException

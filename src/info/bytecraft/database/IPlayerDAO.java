@@ -1,5 +1,7 @@
 package info.bytecraft.database;
 
+import java.util.List;
+
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -13,6 +15,7 @@ public interface IPlayerDAO
     public BytecraftPlayer getPlayer(String name) throws DAOException;
     public BytecraftPlayer getPlayer(String name, Player wrap) throws DAOException;
     public void loadFlags(BytecraftPlayer player) throws DAOException;
+    public List<BytecraftPlayer> getRichestPlayers() throws DAOException;
     public BytecraftPlayer createPlayer(Player wrap) throws DAOException;
     public void updatePermissions(BytecraftPlayer player) throws DAOException;
     public Rank getRank(BytecraftPlayer player) throws DAOException;
