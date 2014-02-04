@@ -149,6 +149,7 @@ public class Bytecraft extends JavaPlugin
     private void registerEvents()
     {
         PluginManager pm = getServer().getPluginManager();
+        pm.registerEvents(new ButtonListener(this), this);
         pm.registerEvents(new ChatListener(this), this);
         pm.registerEvents(new CallEventListener(this), this);
         pm.registerEvents(new BytecraftPlayerListener(this), this);
