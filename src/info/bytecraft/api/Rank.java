@@ -67,7 +67,7 @@ public enum Rank
     
     public boolean canEditZones()
     {
-        return canCreateZones();
+        return (this == ADMIN || this.canCreateZones());
     }
     
     public boolean canKick()
