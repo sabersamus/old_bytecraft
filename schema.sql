@@ -47,6 +47,13 @@ CREATE TABLE IF NOT EXISTS `chest_log` (
 
 -- --------------------------------------------------------
 
+
+CREATE TABLE IF NOT EXISTS `item`(
+  `item_type` varchar(32) NOT NULL,
+  `item_value` int(10) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`item_type`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 --
 -- Table structure for table `fill_log`
 --
