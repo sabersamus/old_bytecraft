@@ -79,7 +79,7 @@ public class LotCommand extends AbstractCommand
 
             if (dao.lotExists(tzone.getName(), name)) {
                 player.sendMessage(RED + "A lot named " + name
-                        + " does already exist.");
+                        + " already exists.");
                 return;
             }
 
@@ -238,7 +238,11 @@ public class LotCommand extends AbstractCommand
         }
         Location loc = player.getLocation();
         Zone zone = plugin.getZoneAt(loc.getWorld(), new Point(loc.getBlockX(), loc.getBlockZ()));
-        String name = args[1];
+        if(zone == null){
+            player.sendMessage(ChatColor.RED + "You are not currently in a zone!");
+            return;
+        }
+        String name = zone.getName() + "." + args[1];
 
         Lot lot = zone.getLot(name);
         if (lot == null) {
