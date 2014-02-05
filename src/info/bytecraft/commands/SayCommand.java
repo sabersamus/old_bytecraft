@@ -44,6 +44,8 @@ public class SayCommand extends AbstractCommand
             }
             other.sendNotification(Notification.SERVER_MESSAGE, null);
         }
+        plugin.getLogger().info(player.getGodColor() + "<GOD> " + ChatColor.LIGHT_PURPLE + argsToMessage(args));
+        plugin.getLogger().info(ChatColor.AQUA + "/say used by " + player.getDisplayName());
         return true;
     }
 
@@ -52,6 +54,7 @@ public class SayCommand extends AbstractCommand
         if(args.length == 0)return true;
         if ("say".equalsIgnoreCase(getCommand())) {
             Bukkit.broadcastMessage(ChatColor.BLUE + "<GOD> " + ChatColor.LIGHT_PURPLE + argsToMessage(args));
+            plugin.getLogger().info(ChatColor.BLUE + "<GOD> " + ChatColor.LIGHT_PURPLE + argsToMessage(args));
         }
         for(BytecraftPlayer other: plugin.getOnlinePlayers()){
             other.sendNotification(Notification.SERVER_MESSAGE, null);
