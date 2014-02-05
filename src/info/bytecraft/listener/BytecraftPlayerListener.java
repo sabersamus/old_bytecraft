@@ -1,5 +1,6 @@
 package info.bytecraft.listener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -14,7 +15,6 @@ import info.bytecraft.database.DAOException;
 import info.bytecraft.database.IBlessDAO;
 import info.bytecraft.database.IContext;
 import info.bytecraft.database.ILogDAO;
-import info.bytecraft.database.IPlayerDAO;
 import info.bytecraft.zones.Zone;
 import info.bytecraft.api.TargetBlock;
 
@@ -23,6 +23,7 @@ import org.apache.commons.lang.WordUtils;
 import static org.bukkit.ChatColor.*;
 
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -37,8 +38,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerAnimationEvent;
-import org.bukkit.event.player.PlayerAnimationType;
+import org.bukkit.event.inventory.InventoryCreativeEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -50,6 +50,7 @@ import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import com.google.common.collect.Maps;
 
@@ -106,6 +107,11 @@ public class BytecraftPlayerListener implements Listener
     public void onQuit(PlayerQuitEvent event)
     {
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
+        
+        if(player == null){
+            event.setQuitMessage(null);
+            return;
+        }
         
         if(player.getRank().canVanish() && player.hasFlag(Flag.INVISIBLE)){
             event.setQuitMessage(null);
@@ -241,11 +247,10 @@ public class BytecraftPlayerListener implements Listener
         Block block = event.getClickedBlock();
         try (IContext ctx = plugin.createContext()) {
             ILogDAO dao = ctx.getLogDAO();
-            IPlayerDAO pDao = ctx.getPlayerDAO();
             for (PaperLog log : dao.getLogs(block)) {
-                BytecraftPlayer other = pDao.getPlayer(log.getPlayerName());
-                ChatColor color = pDao.getRank(other).getColor();
-                player.sendMessage(color + other.getName() + " "
+                BytecraftPlayer other = plugin.getPlayerOffline(log.getPlayerName());
+                String name = other.getNameColor() + other.getName();
+                player.sendMessage(name + " "
                         + ChatColor.AQUA + log.getAction() + " " + ChatColor.GOLD
                         + log.getMaterial() + ChatColor.GREEN + " at "
                         + log.getDate());
@@ -387,6 +392,24 @@ public class BytecraftPlayerListener implements Listener
                             target.getZ() + 0.5, player.getLocation().getYaw(),
                             player.getLocation().getPitch());
             player.teleport(loc);
+        }
+    }
+    
+    @EventHandler
+    public void onCreative(InventoryCreativeEvent event){
+        if(!(event.getInventory().getHolder() instanceof Player))return;
+        Player player = (Player) event.getInventory().getHolder();
+        if (player.getGameMode() == GameMode.CREATIVE) {
+            ItemStack item = event.getCursor();
+                if (item != null) {
+                ItemMeta meta = item.getItemMeta();
+                List<String> lore = new ArrayList<String>();
+                lore.add(ChatColor.YELLOW + "CREATIVE");
+                BytecraftPlayer p = this.plugin.getPlayer(player);
+                lore.add(ChatColor.YELLOW + "by: " + p.getDisplayName());
+                meta.setLore(lore);
+                item.setItemMeta(meta);
+            }
         }
     }
     
