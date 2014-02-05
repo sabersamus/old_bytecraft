@@ -72,12 +72,12 @@ public enum Rank
     
     public boolean canKick()
     {
-        return (this == ADMIN || this == PRINCESS || this == ELDER || this == PROTECTOR);
+        return (this == ADMIN || this == MENTOR || isElder() || this == PROTECTOR);
     }
     
     public boolean canBan()
     {
-        return canKick();
+        return (this == ADMIN || isElder() || this == PROTECTOR);
     }
     
     public boolean canMentor()
@@ -152,7 +152,7 @@ public enum Rank
     
     public boolean canCreateWarps()
     {
-        return (this == ELDER || this == PRINCESS);
+        return (this == ELDER || this == PRINCESS || this == ADMIN);
     }
     
     public boolean canSeePlayerInfo()
@@ -177,7 +177,7 @@ public enum Rank
     
     public boolean canMute()
     {
-        return (this == ADMIN || this == PROTECTOR || isElder());
+        return (this == ADMIN || this == MENTOR || this == PROTECTOR || isElder());
     }
     
     public boolean canWarn()
