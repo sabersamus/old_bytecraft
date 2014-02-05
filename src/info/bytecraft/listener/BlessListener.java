@@ -85,13 +85,12 @@ public class BlessListener implements Listener
                     || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
                 try (IContext ctx = plugin.createContext();) {
                     IBlessDAO dao = ctx.getBlessDAO();
-
                     if (dao.isBlessed(event.getClickedBlock())) {
+                        BytecraftPlayer owner = plugin.getPlayerOffline(dao.getOwner(event.getClickedBlock()));
+                        String name = owner.getNameColor() + owner.getName();
                         if (!player.getName().equalsIgnoreCase(
                                 dao.getOwner(event.getClickedBlock()))) {
-                            player.sendMessage(ChatColor.RED + "Blessed to: "
-                                    + ChatColor.AQUA
-                                    + dao.getOwner(event.getClickedBlock()));
+                            player.sendMessage(ChatColor.RED + "Blessed to: " + name);
                             if (!player.getRank().canOverrideBless()) {
                                 event.setCancelled(true);
                                 return;
