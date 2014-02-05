@@ -74,7 +74,7 @@ public class ButtonListener implements Listener
                 int i = 0;
                 for(BytecraftPlayer rich: players){
                     String name = rich.getName().substring(0, 5);
-                    sign.setLine(i + 1, dao.getRank(rich).getColor() + name + ChatColor.WHITE + ": " + dao.getBalance(rich) / 1000D + "k");
+                    sign.setLine(i + 1, rich.getNameColor() + name);
                     i++;
                 }
                 sign.update(true, false);
