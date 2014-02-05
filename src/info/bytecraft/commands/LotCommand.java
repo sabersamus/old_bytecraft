@@ -242,7 +242,7 @@ public class LotCommand extends AbstractCommand
             player.sendMessage(ChatColor.RED + "You are not currently in a zone!");
             return;
         }
-        String name = zone.getName() + "." + args[1];
+        String name = args[1] + "." + zone.getName();
 
         Lot lot = zone.getLot(name);
         if (lot == null) {
@@ -252,7 +252,7 @@ public class LotCommand extends AbstractCommand
 
         Zone.Permission perm = zone.getUser(player);
         if (perm == Permission.OWNER) {
-            // Zone owners can do this in communist zones
+            // Zone owners can do this
         }
         else if (lot.isOwner(player)) {
             // Lot owners can always do it
@@ -271,6 +271,7 @@ public class LotCommand extends AbstractCommand
             zone.deleteLot(lot);
             dao.deleteLot(lot.getId());
             dao.deleteLotUsers(lot.getId());
+            zone.deleteLot(lot);
             player.sendMessage(GREEN + lot.getName() + " has been deleted.");
         } catch (DAOException e) {
             throw new RuntimeException(e);
