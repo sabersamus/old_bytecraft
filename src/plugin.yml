@@ -85,6 +85,9 @@ commands:
         description: Send a message to another player
         usage: /<command> <player> <message>
         aliases: [m, to, msg]
+    mute:
+        description: Mute a spammer
+        usage: /<command> <player> x [minutes hours days weeks months years]
     pos:
         description: Get your global position
         usage: /<command>
@@ -102,6 +105,9 @@ commands:
     say:
         description: Send a message as god
         usage: /<command> <message>
+    sell:
+        description: Sell your items to the server
+        usage: /<command>
     summon:
         description: Summon a player to your location
         usage: /<command> <player>
