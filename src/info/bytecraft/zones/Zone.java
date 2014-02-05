@@ -117,9 +117,19 @@ public class Zone
         PVP,
         WHITELIST,
         BUILD,
-        HOSTILE,
+        HOSTILES,
         ENTERMSG,
         EXITMSG;
+
+        public static Flag fromString(String string)
+        {
+            for(Flag flag: values()){
+                if(flag.name().equalsIgnoreCase(string)){
+                    return flag;
+                }
+            }
+            return null;
+        }
     }
     
     
@@ -247,6 +257,11 @@ public class Zone
 
     public boolean intersects(Zone other)
     {
+        if(!other.getWorld().equalsIgnoreCase(getWorld())){
+            //zones from other worlds wont intersect
+            return false;
+        }
+        
         Point p1 = new Point(rect.getLeft(), rect.getTop());
         Point p2 = new Point(rect.getRight(), rect.getBottom());
         int zoneWidth = Math.max(p1.getX(), p2.getX()) - Math.min(p1.getX(), p2.getX());
@@ -267,7 +282,8 @@ public class Zone
 
     public boolean contains(Location to)
     {
-        return this.rect.contains(new Point(to.getBlockX(), to.getBlockZ()));
+        return this.rect.contains(new Point(to.getBlockX(), to.getBlockZ())) 
+                && this.getWorld().equalsIgnoreCase(to.getWorld().getName());
     }
 
     public Map<String, Lot> getLots()
