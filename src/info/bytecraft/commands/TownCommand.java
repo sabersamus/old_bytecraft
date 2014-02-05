@@ -56,7 +56,7 @@ public class TownCommand extends AbstractCommand
                         return true;
                     }
                     BytecraftPlayer target = cantidates.get(0);
-                    this.delUser(zone, player, target);
+                    this.delUser(zone, target, player);
                     return true;
                 }
             }
@@ -84,7 +84,7 @@ public class TownCommand extends AbstractCommand
                 }
             }else if("flag".equalsIgnoreCase(args[0])){
                 if((perm != null && perm == Permission.OWNER) || player.getRank().canEditZones()){
-                    Flag flag = Flag.valueOf(args[1].toUpperCase());
+                    Flag flag = Flag.fromString(args[1]);
                     if (flag == null) {
                         player.sendMessage(ChatColor.RED + "Flag not found");
                         return true;
@@ -116,7 +116,7 @@ public class TownCommand extends AbstractCommand
                 + (zone.hasFlag(Flag.BUILD) ? "Everyone (true)"
                         : "Only makers (false)"));
         player.sendMessage(GOLD + "PVP: " + WHITE + zone.hasFlag(Flag.PVP));
-        player.sendMessage(GOLD + "Hostiles: " + WHITE + zone.hasFlag(Flag.HOSTILE));
+        player.sendMessage(GOLD + "Hostiles: " + WHITE + zone.hasFlag(Flag.HOSTILES));
         player.sendMessage(GOLD + "Enter message: " + WHITE + zone.getEnterMessage());
         player.sendMessage(GOLD + "Exit Message: " + WHITE + zone.getExitMessage());
         return true;
@@ -135,6 +135,7 @@ public class TownCommand extends AbstractCommand
                 target.sendMessage(ChatColor.RED + "[" + zone.getName() + "] "
                         + String.format(addNotif, zone.getName()));
             dao.addUser(zone, target.getName(), p);
+            zone.addPermissions(target.getName(), p);
         } catch (DAOException e) {
             throw new RuntimeException(e);
         }
@@ -158,6 +159,7 @@ public class TownCommand extends AbstractCommand
                 String delNotif = p.getDelNotif();
                 target.sendMessage(ChatColor.RED + "[" + zone.getName() + "] "  
                 + String.format(delNotif, zone.getName()));
+                zone.removePermission(target.getName());
             return dao.deleteUser(zone, target.getName());
         } catch (DAOException e) {
             throw new RuntimeException(e);

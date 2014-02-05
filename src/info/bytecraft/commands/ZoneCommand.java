@@ -72,7 +72,7 @@ public class ZoneCommand extends AbstractCommand
                         + (zone.hasFlag(Flag.BUILD) ? "Everyone (true)"
                                 : "Only makers (false)"));
                 player.sendMessage(GOLD + "PVP: " + WHITE + zone.hasFlag(Flag.PVP));
-                player.sendMessage(GOLD + "Hostiles: " + WHITE + zone.hasFlag(Flag.HOSTILE));
+                player.sendMessage(GOLD + "Hostiles: " + WHITE + zone.hasFlag(Flag.HOSTILES));
                 player.sendMessage(GOLD + "Enter message: " + WHITE + zone.getEnterMessage());
                 player.sendMessage(GOLD + "Exit Message: " + WHITE + zone.getExitMessage());
                 return true;
@@ -254,6 +254,7 @@ public class ZoneCommand extends AbstractCommand
                 target.sendMessage(ChatColor.RED + "[" + zone.getName() + "] "
                         + String.format(addNotif, zone.getName()));
             dao.addUser(zone, target.getName(), p);
+            zone.addPermissions(target.getName(), p);
         } catch (DAOException e) {
             throw new RuntimeException(e);
         }
@@ -277,6 +278,7 @@ public class ZoneCommand extends AbstractCommand
                 String delNotif = p.getDelNotif();
                 target.sendMessage(ChatColor.RED + "[" + zone.getName() + "] "  
                 + String.format(delNotif, zone.getName()));
+                zone.removePermission(target.getName());
             return dao.deleteUser(zone, target.getName());
         } catch (DAOException e) {
             throw new RuntimeException(e);
