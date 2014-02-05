@@ -1,7 +1,9 @@
 package info.bytecraft.database.db;
 
 import java.sql.*;
+import java.util.List;
 
+import org.bukkit.ChatColor;
 import org.bukkit.inventory.ItemStack;
 
 import info.bytecraft.database.DAOException;
@@ -17,21 +19,34 @@ public class DBItemDAO implements IItemDAO
     }
 
     @Override
-    public long getValue(ItemStack stack) throws DAOException
+    public int getValue(ItemStack stack) throws DAOException
     {
-        String sql = "SELECT * FROM item WHERE item_type = ?";
+        
+        if(stack.hasItemMeta()){
+            List<String> lore = stack.getItemMeta().getLore();
+            if(!lore.isEmpty()){
+                for(String string: lore){
+                    if(ChatColor.stripColor(string).equalsIgnoreCase("spawned")){
+                        return 0;
+                    }
+                }
+            }
+        }
+        
+        String sql = "SELECT * FROM item WHERE item_type = ? AND item_data = ?";
         try(PreparedStatement stm = conn.prepareStatement(sql)){
             stm.setString(1, stack.getType().name().toLowerCase());
+            stm.setInt(2, stack.getData().getData());
             stm.execute();
             try(ResultSet rs = stm.getResultSet()){
-                if(rs.next()){
-                    return rs.getLong("item_value");
+                if(!rs.next()){
+                    return 0;
                 }
+                return rs.getInt("item_value");
             }
         }catch(SQLException e){
             throw new DAOException(sql, e);
         }
-        return 0;
     }
 
 }

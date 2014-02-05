@@ -4,5 +4,5 @@ import org.bukkit.inventory.ItemStack;
 
 public interface IItemDAO
 {
-    public long getValue(ItemStack stack) throws DAOException;
+    public int getValue(ItemStack mat) throws DAOException;
 }
