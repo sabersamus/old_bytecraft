@@ -70,6 +70,10 @@ public class BanCommand extends AbstractCommand
                 i = 3;
             }
             
+            if(i <= 0 ){
+                i = 3;
+            }
+            
             ReportTime time = ReportTime.byString(args[2]);
             if(time == null){
                 time = ReportTime.DAYS;
@@ -137,6 +141,10 @@ public class BanCommand extends AbstractCommand
             try{
                 i = Integer.parseInt(args[1]);
             }catch(NumberFormatException e){
+                i = 3;
+            }
+            
+            if(i <= 0){
                 i = 3;
             }
             
