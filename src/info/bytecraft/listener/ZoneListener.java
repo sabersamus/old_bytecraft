@@ -86,51 +86,12 @@ public class ZoneListener implements Listener
     {
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
         Block block = event.getBlock();
-        Zone zone = plugin.getZoneAt(block.getWorld(), new Point(block.getX(), block.getZ()));
-        if(zone != null){
-            if(!zone.hasFlag(Flag.BUILD)){
-                
-                Lot lot = zone.findLot(event.getBlock().getLocation());
-                if(lot != null){
-                    if(!lot.isOwner(player) && !player.getRank().canEditZones()){
-                        event.setCancelled(true);
-                        player.setFireTicks(20 * 2);
-                        player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] You are not allowed to build in " + lot.getName());
-                        return;
-                    }
-                }
-                
-                Permission p = zone.getUser(player);
-                if(p == null){
-                    if(!player.getRank().canEditZones()){
-                        event.setBuild(false);
-                        event.setCancelled(true);
-                        player.setFireTicks(20 * 2);
-                        player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] You are not allowed to build in " + zone.getName());
-                        return;
-                    }
-                }else{
-                    if((p != Permission.MAKER && p != Permission.OWNER)){
-                        if(!player.getRank().canEditZones()){
-                            event.setBuild(false);
-                            event.setCancelled(true);
-                            player.setFireTicks(20 * 2);
-                            player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] You are not allowed to build in " + zone.getName());
-                            return;
-                        }
-                    }
-                }
-            }else{
-                Lot lot = zone.findLot(event.getBlock().getLocation());
-                if(lot != null){
-                    if(!lot.isOwner(player) && !player.getRank().canEditZones()){
-                        event.setCancelled(true);
-                        player.setFireTicks(20 * 2);
-                        player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] You are not allowed to build in " + lot.getName());
-                        return;
-                    }
-                }
-            }
+        
+        boolean bool = player.hasBlockPermission(block.getLocation(), true);
+        if(!bool){
+            player.setFireTicks(20 * 2);
+            event.setBuild(false);
+            event.setCancelled(true);
         }
     }
 
@@ -139,48 +100,11 @@ public class ZoneListener implements Listener
     {
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
         Block block = event.getBlock();
-        Zone zone = plugin.getZoneAt(block.getWorld(), new Point(block.getX(), block.getZ()));
-        if(zone != null){
-            if(!zone.hasFlag(Flag.BUILD)){
-                Lot lot = zone.findLot(event.getBlock().getLocation());
-                
-                if(lot != null){
-                    if(!lot.isOwner(player) && !player.getRank().canEditZones()){
-                        event.setCancelled(true);
-                        player.setFireTicks(20 * 2);
-                        player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] You are not allowed to build in " + lot.getName());
-                        return;
-                    }
-                }
-                
-                Permission p = zone.getUser(player);
-                if(p == null){
-                    if(!player.getRank().canEditZones()){
-                        event.setCancelled(true);
-                        player.setFireTicks(20 * 2);
-                        player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] You are not allowed to build in " + zone.getName());
-                        return;
-                    }
-                }else{
-                    if((p != Permission.MAKER && p != Permission.OWNER)){
-                        if(!player.getRank().canEditZones()){
-                            event.setCancelled(true);
-                            player.setFireTicks(20 * 2);
-                            player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] You are not allowed to build in " + zone.getName());
-                            return;
-                        }
-                    }
-                }
-            }else{
-                Lot lot = zone.findLot(event.getBlock().getLocation());
-                if(lot == null)return;
-                if(!lot.isOwner(player) && !player.getRank().canEditZones()){
-                    event.setCancelled(true);
-                    player.setFireTicks(20 * 2);
-                    player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] You are not allowed to build in " + lot.getName());
-                    return;
-                }
-            }
+        
+        boolean bool = player.hasBlockPermission(block.getLocation(), true);
+        if(!bool){
+            player.setFireTicks(20 * 2);
+            event.setCancelled(true);
         }
     }
 
@@ -214,11 +138,20 @@ public class ZoneListener implements Listener
     public void onSpawn(CreatureSpawnEvent event)
     {
         Entity ent = event.getEntity();
+        
+        if(ent.getLocation().getBlock().getLightLevel() < 5 )
+        {
+            if(types.contains(ent.getType())){
+                event.setCancelled(true);
+                return;
+            }
+        }
+        
         List<Zone> zones = plugin.getZones(ent.getWorld().getName());
         if(zones.isEmpty())return;
         for(Zone zone: zones){
             if(zone.contains(ent.getLocation())){
-                if(!zone.hasFlag(Flag.HOSTILE)){
+                if(!zone.hasFlag(Flag.HOSTILES)){
                     if(types.contains(ent.getType())){
                         event.setCancelled(true);
                         return;
