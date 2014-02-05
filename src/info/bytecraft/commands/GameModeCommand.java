@@ -24,15 +24,7 @@ public class GameModeCommand extends AbstractCommand
                     player.setGameMode(GameMode.CREATIVE);
                 }
             }else if(args.length == 1){
-                GameMode gm = GameMode.SURVIVAL;
-                try{
-                    gm = GameMode.getByValue(Integer.parseInt(args[0]));
-                }catch(NumberFormatException e){
-                    gm = GameMode.valueOf(args[0].toUpperCase());
-                }
-                if(gm != null && gm != GameMode.ADVENTURE){
-                    player.setGameMode(gm);
-                }
+                player.setGameMode(byName(args[0]));
             }
         }else if("creative".equalsIgnoreCase(getCommand())){
             player.setGameMode(GameMode.CREATIVE);
@@ -40,5 +32,18 @@ public class GameModeCommand extends AbstractCommand
             player.setGameMode(GameMode.SURVIVAL);
         }
         return true;
+    }
+    
+    private GameMode byName(String args)
+    {
+        switch(args.toLowerCase())
+        {
+        case "survival":
+            return GameMode.SURVIVAL;
+        case "creative":
+            return GameMode.CREATIVE;
+        default:
+            return GameMode.SURVIVAL;
+        }
     }
 }
