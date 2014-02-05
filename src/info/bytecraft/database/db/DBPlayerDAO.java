@@ -388,6 +388,7 @@ public class DBPlayerDAO implements IPlayerDAO
 
     public void updatePlayTime(BytecraftPlayer player) throws DAOException
     {
+        if(player.getRank() == Rank.NEWCOMER)return;
         String sql =
                 "UPDATE player SET player_playtime = ? WHERE player_name = ?";
         int playTime = player.getPlayTime() + player.getOnlineTime();
