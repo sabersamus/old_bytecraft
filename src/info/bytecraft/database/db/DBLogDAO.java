@@ -34,8 +34,7 @@ public class DBLogDAO implements ILogDAO
         this.conn = conn;
     }
 
-    public void insertChatMessage(BytecraftPlayer player, String channel,
-            String message) throws DAOException
+    public void insertChatMessage(BytecraftPlayer player, String channel, String message) throws DAOException
     {
         String sql =
                 "INSERT INTO player_chatlog (player_name, chatlog_channel, chatlog_message) VALUES (?, ?, ?)";
@@ -45,6 +44,21 @@ public class DBLogDAO implements ILogDAO
             stm.setString(3, message);
             stm.execute();
         } catch (SQLException e) {
+            throw new DAOException(sql, e);
+        }
+    }
+    
+    @Override
+    public void insertPrivateMessage(BytecraftPlayer player, BytecraftPlayer recipient, String message)
+    throws DAOException
+    {
+        String sql = "INSERT INTO player_messages (player_name, recipient_name, message) VALUES (?, ?, ?)";
+        try(PreparedStatement stm = conn.prepareStatement(sql)){
+            stm.setString(1, player.getName());
+            stm.setString(2, recipient.getName());
+            stm.setString(3, message);
+            stm.execute();
+        }catch(SQLException e){
             throw new DAOException(sql, e);
         }
     }
@@ -197,4 +211,16 @@ public class DBLogDAO implements ILogDAO
         return aliases;
     }
 
+    @Override
+    public void insertSellLog(BytecraftPlayer player, int value) throws DAOException
+    {
+        String sql = "INSERT INTO sell_log (player_name, sell_value) VALUES (?, ?)";
+        try(PreparedStatement stm = conn.prepareStatement(sql)){
+            stm.setString(1, player.getName());
+            stm.setInt(2, value);
+            stm.execute();
+        }catch(SQLException e){
+            throw new DAOException(sql, e);
+        }
+    }
 }
