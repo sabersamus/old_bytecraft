@@ -8,6 +8,7 @@ import info.bytecraft.database.IBlessDAO;
 import info.bytecraft.database.IContext;
 import info.bytecraft.database.IHomeDAO;
 import info.bytecraft.database.IInventoryDAO;
+import info.bytecraft.database.IItemDAO;
 import info.bytecraft.database.ILogDAO;
 import info.bytecraft.database.IMessageDAO;
 import info.bytecraft.database.IPlayerDAO;
@@ -88,6 +89,12 @@ public class DBContext implements IContext
     public IInventoryDAO getInventoryDAO()
     {
         return new DBInventoryDAO(conn);
+    }
+    
+    @Override
+    public IItemDAO getItemDAO()
+    {
+        return new DBItemDAO(conn);
     }
 
 }
