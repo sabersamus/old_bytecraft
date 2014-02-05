@@ -63,6 +63,10 @@ public class WarnCommand extends AbstractCommand
                 } catch (NumberFormatException e) {
                     i = 7;
                 }
+                
+                if(i <= 0){
+                    i = 7;
+                }
 
                 ReportTime time = ReportTime.byString(args[2]);
                 if (time == null) {
@@ -115,6 +119,7 @@ public class WarnCommand extends AbstractCommand
                         + target.getDisplayName() + RED + " for " +  i + " "
                         + time.name().toLowerCase());
                 target.sendMessage(RED + "You have been warned for " + i + " " + time.name().toLowerCase());
+                target.setFlag(Flag.SOFTWARNED, true);
                 return true;
             }
             else if ("hardwarn".equalsIgnoreCase(command)) {
@@ -136,6 +141,10 @@ public class WarnCommand extends AbstractCommand
                     i = 7;
                 }
 
+                if(i <= 0){
+                    i = 7;
+                }
+                
                 ReportTime time = ReportTime.byString(args[2]);
                 if (time == null) {
                     time = ReportTime.DAYS;
