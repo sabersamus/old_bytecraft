@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -35,6 +36,7 @@ public class Bytecraft extends JavaPlugin
 {
     private HashMap<String, BytecraftPlayer> players;
     private static IContextFactory contextFactory;
+    public static Logger LOGGER;
     
     private List<String> deathMessages;
     private List<String> quitMessages;
@@ -52,6 +54,7 @@ public class Bytecraft extends JavaPlugin
         reloadConfig();
         
         FileConfiguration config = getConfig();
+        LOGGER = getLogger();
         contextFactory = new DBContextFactory(config, this);
         
         zones = new ArrayList<>();
@@ -110,11 +113,13 @@ public class Bytecraft extends JavaPlugin
         getCommand("makewarp").setExecutor(new WarpCreateCommand(this));
         getCommand("me").setExecutor(new ActionCommand(this));
         getCommand("message").setExecutor(new MessageCommand(this, "message"));
+        getCommand("mute").setExecutor(new MuteCommand(this));
         getCommand("pos").setExecutor(new PositionCommand(this));
         getCommand("reply").setExecutor(new MessageCommand(this, "reply"));
         getCommand("ride").setExecutor(new RideCommand(this, "ride"));
         getCommand("rideme").setExecutor(new RideCommand(this, "rideme"));
         getCommand("say").setExecutor(new SayCommand(this, "say"));
+        getCommand("sell").setExecutor(new SellCommand(this));
         getCommand("summon").setExecutor(new SummonCommand(this));
         getCommand("smite").setExecutor(new SmiteCommand(this));
         //getCommand("support").setExecutor(new SupportCommand(this));
@@ -162,6 +167,7 @@ public class Bytecraft extends JavaPlugin
         pm.registerEvents(new InventoryListener(this), this);
         pm.registerEvents(new PlayerPromotionListener(this), this);
         pm.registerEvents(new SelectListener(this), this);
+        pm.registerEvents(new SignColorListener(), this);
         pm.registerEvents(new ZoneListener(this), this);
     }
     

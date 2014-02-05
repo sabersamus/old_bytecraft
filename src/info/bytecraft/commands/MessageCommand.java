@@ -10,6 +10,8 @@ import info.bytecraft.api.Notification;
 import info.bytecraft.api.Rank;
 import info.bytecraft.api.BytecraftPlayer.Flag;
 import info.bytecraft.commands.AbstractCommand;
+import info.bytecraft.database.DAOException;
+import info.bytecraft.database.IContext;
 
 public class MessageCommand extends AbstractCommand
 {
@@ -45,6 +47,8 @@ public class MessageCommand extends AbstractCommand
                 }
                 BytecraftPlayer target = cantidates.get(0);
                 sendMessage(player, target, argsToMessage(args, 1));
+                plugin.getLogger().info("[Message] " + player.getName() + " -> " + 
+                target.getName() + " : " + argsToMessage(args, 1));
             }
         }
         return true;
@@ -67,6 +71,13 @@ public class MessageCommand extends AbstractCommand
                     + message);
         }
         target.setLastMessager(player);
+        
+        try(IContext ctx = plugin.createContext()){
+            ctx.getLogDAO().insertPrivateMessage(player, target, message);
+        }catch(DAOException e){
+            throw new RuntimeException(e);
+        }
+        
     }
     
     private void replyToLastMessage(BytecraftPlayer player, String message)

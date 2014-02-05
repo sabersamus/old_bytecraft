@@ -54,6 +54,13 @@ CREATE TABLE IF NOT EXISTS `item`(
   PRIMARY KEY (`item_type`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS `sell_log` (
+  `sell_id` int(10) NOT NULL AUTO_INCREMENT,
+  `player_name` varchar(32) NOT NULL,
+  `sell_value` int(10) NOT NULL,
+   PRIMARY KEY (`sell_id`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
+
 --
 -- Table structure for table `fill_log`
 --
