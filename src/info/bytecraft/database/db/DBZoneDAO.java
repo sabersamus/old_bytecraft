@@ -43,7 +43,7 @@ public class DBZoneDAO implements IZoneDAO
                     zone.setExitMessage(rs.getString("zone_exitmsg"));
                     zone.setFlag(Flag.PVP, false);
                     zone.setFlag(Flag.BUILD, Boolean.parseBoolean(rs.getString("zone_build")));
-                    zone.setFlag(Flag.HOSTILE, Boolean.parseBoolean(rs.getString("zone_hostile")));
+                    zone.setFlag(Flag.HOSTILES, Boolean.parseBoolean(rs.getString("zone_hostile")));
                     zone.setFlag(Flag.WHITELIST, Boolean.parseBoolean(rs.getString("zone_whitelist")));
                     zone.setWorld(rs.getString("zone_world"));
                     zone.setRectangle(getRect(zone));
@@ -76,7 +76,7 @@ public class DBZoneDAO implements IZoneDAO
                     zone.setExitMessage(rs.getString("zone_exitmsg"));
                     zone.setFlag(Flag.PVP, false);
                     zone.setFlag(Flag.BUILD, Boolean.parseBoolean(rs.getString("zone_build")));
-                    zone.setFlag(Flag.HOSTILE, Boolean.parseBoolean(rs.getString("zone_hostile")));
+                    zone.setFlag(Flag.HOSTILES, Boolean.parseBoolean(rs.getString("zone_hostile")));
                     zone.setFlag(Flag.WHITELIST, Boolean.parseBoolean(rs.getString("zone_whitelist")));
                     zone.setWorld(rs.getString("zone_world"));
                     zone.setRectangle(getRect(zone));
@@ -124,7 +124,7 @@ public class DBZoneDAO implements IZoneDAO
                         zone.setExitMessage(rs.getString("zone_exitmsg"));
                         zone.setFlag(Flag.PVP, false);
                         zone.setFlag(Flag.BUILD, Boolean.parseBoolean(rs.getString("zone_build")));
-                        zone.setFlag(Flag.HOSTILE, Boolean.parseBoolean(rs.getString("zone_hostile")));
+                        zone.setFlag(Flag.HOSTILES, Boolean.parseBoolean(rs.getString("zone_hostile")));
                         zone.setFlag(Flag.WHITELIST, Boolean.parseBoolean(rs.getString("zone_whitelist")));
                         zone.setWorld(rs.getString("zone_world"));
                         zone.setRectangle(getRect(zone));
@@ -155,7 +155,7 @@ public class DBZoneDAO implements IZoneDAO
                 zone.setExitMessage(rs.getString("zone_exitmsg"));
                 zone.setFlag(Flag.PVP, false);
                 zone.setFlag(Flag.BUILD, Boolean.parseBoolean(rs.getString("zone_build")));
-                zone.setFlag(Flag.HOSTILE, Boolean.parseBoolean(rs.getString("zone_hostile")));
+                zone.setFlag(Flag.HOSTILES, Boolean.parseBoolean(rs.getString("zone_hostile")));
                 zone.setFlag(Flag.WHITELIST, Boolean.parseBoolean(rs.getString("zone_whitelist")));
                 zone.setWorld(rs.getString("zone_world"));
                 zone.setRectangle(getRect(zone));
@@ -265,7 +265,7 @@ public class DBZoneDAO implements IZoneDAO
             break;
         case WHITELIST: sql = "UPDATE zone SET zone_whitelist = ? WHERE zone_name = ?";
             break;
-        case HOSTILE: sql = "UPDATE zone SET zone_hostile = ? WHERE zone_name = ?";
+        case HOSTILES: sql = "UPDATE zone SET zone_hostile = ? WHERE zone_name = ?";
             break;
         case BUILD: sql = "UPDATE zone SET zone_build = ? WHERE zone_name = ?";
             break;
