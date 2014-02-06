@@ -50,6 +50,10 @@ public class FillCommand extends AbstractCommand
             player.sendMessage(getInvalidPermsMessage());
             return true;
         }
+        
+        if(args.length == 0){
+            return true;
+        }
 
         Server server = plugin.getServer();
         BukkitScheduler scheduler = server.getScheduler();
@@ -80,9 +84,14 @@ public class FillCommand extends AbstractCommand
                 return true;
             }
 
-            double theta =
-                    args.length > 1 ? Double.parseDouble(args[1]) * Math.PI
-                            / 180.0 : 0.0;
+            double theta = 0.0;
+            try{
+                theta =
+                        args.length > 1 ? Double.parseDouble(args[1]) * Math.PI
+                                / 180.0 : 0.0;
+            }catch(NumberFormatException e){
+                theta = 0.0;
+            }
             player.sendMessage(DARK_AQUA + "Rotating " + theta + " radians.");
 
             World world = player.getWorld();
