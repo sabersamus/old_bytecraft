@@ -88,6 +88,9 @@ commands:
     mute:
         description: Mute a spammer
         usage: /<command> <player> x [minutes hours days weeks months years]
+    nuke:
+        description: Nuke mobs
+        usage: /<command> [distance]
     pos:
         description: Get your global position
         usage: /<command>
