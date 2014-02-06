@@ -34,9 +34,13 @@ public class DBItemDAO implements IItemDAO
         }
         
         String sql = "SELECT * FROM item WHERE item_type = ? AND item_data = ?";
+        int data = stack.getData().getData();
+        if(stack.getDurability() < stack.getType().getMaxDurability()){
+            data = 0;
+        }
         try(PreparedStatement stm = conn.prepareStatement(sql)){
             stm.setString(1, stack.getType().name().toLowerCase());
-            stm.setInt(2, stack.getData().getData());
+            stm.setInt(2, data);
             stm.execute();
             try(ResultSet rs = stm.getResultSet()){
                 if(!rs.next()){
