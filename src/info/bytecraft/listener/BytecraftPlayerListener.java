@@ -1,6 +1,5 @@
 package info.bytecraft.listener;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -17,13 +16,13 @@ import info.bytecraft.database.IContext;
 import info.bytecraft.database.ILogDAO;
 import info.bytecraft.zones.Zone;
 import info.bytecraft.api.TargetBlock;
+import info.bytecraft.api.math.Point;
 
 import org.apache.commons.lang.WordUtils;
 
 import static org.bukkit.ChatColor.*;
 
 import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -38,7 +37,6 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.inventory.InventoryCreativeEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -50,7 +48,6 @@ import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import com.google.common.collect.Maps;
 
@@ -156,16 +153,25 @@ public class BytecraftPlayerListener implements Listener
     public void onPvp(EntityDamageByEntityEvent event)
     {
         if (event.getDamager() instanceof Player) {
-            BytecraftPlayer player =
-                    plugin.getPlayer((Player) event.getDamager());
+            BytecraftPlayer player = plugin.getPlayer((Player) event.getDamager());
             if (event.getEntity() instanceof Player) {
-                if (player.getCurrentZone() == null
-                        || !player.getCurrentZone().hasFlag(Zone.Flag.PVP)) {
+                BytecraftPlayer victim = plugin.getPlayer((Player)event.getEntity());
+                Location loc = victim.getLocation();
+                Zone zone = plugin.getZoneAt(loc.getWorld(), new Point(loc.getBlockX(), loc.getBlockZ()));
+                if (zone == null || !zone.hasFlag(Zone.Flag.PVP)) {
                     event.setCancelled(true);
                     event.setDamage(0);
-                    ((Player) event.getDamager()).sendMessage(ChatColor.RED
+                    player.sendMessage(ChatColor.RED
                             + "You are not in a pvp zone.");
                     return;
+                }else{
+                   if(player.getRank() == Rank.NEWCOMER || victim.getRank() == Rank.NEWCOMER){
+                       event.setCancelled(true);
+                       event.setDamage(0);
+                       player.sendMessage(ChatColor.RED
+                               + "Newcomers can't use pvp!");
+                       return;
+                   }
                 }
             }else{
                 event.setCancelled(player.getRank() == Rank.NEWCOMER);
@@ -392,24 +398,6 @@ public class BytecraftPlayerListener implements Listener
                             target.getZ() + 0.5, player.getLocation().getYaw(),
                             player.getLocation().getPitch());
             player.teleport(loc);
-        }
-    }
-    
-    @EventHandler
-    public void onCreative(InventoryCreativeEvent event){
-        if(!(event.getInventory().getHolder() instanceof Player))return;
-        Player player = (Player) event.getInventory().getHolder();
-        if (player.getGameMode() == GameMode.CREATIVE) {
-            ItemStack item = event.getCursor();
-                if (item != null) {
-                ItemMeta meta = item.getItemMeta();
-                List<String> lore = new ArrayList<String>();
-                lore.add(ChatColor.YELLOW + "CREATIVE");
-                BytecraftPlayer p = this.plugin.getPlayer(player);
-                lore.add(ChatColor.YELLOW + "by: " + p.getDisplayName());
-                meta.setLore(lore);
-                item.setItemMeta(meta);
-            }
         }
     }
     
