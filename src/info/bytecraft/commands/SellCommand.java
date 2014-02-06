@@ -56,7 +56,7 @@ public class SellCommand extends AbstractCommand implements Listener
         player.setChatState(ChatState.SELL);
         
         player.sendMessage(BLUE + "[Sell]" + GREEN + " Welcome to the Federal Reserve " +
-                " of Bytecraft!");
+                "of Bytecraft!");
         player.sendMessage(BLUE + "[Sell]" + GREEN + " What do you want to sell?");
         
         Inventory inv = server.createInventory(null, InventoryType.CHEST);
