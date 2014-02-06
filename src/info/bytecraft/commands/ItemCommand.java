@@ -3,6 +3,7 @@ package info.bytecraft.commands;
 import static org.bukkit.ChatColor.DARK_AQUA;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -21,11 +22,13 @@ public class ItemCommand extends AbstractCommand
 {
 
     private static Set<Material> disallowedItems = new HashSet<Material>();
+    private Set<Material> noLore;
 
     public ItemCommand(Bytecraft instance)
     {
         super(instance, "item");
         disallowedItems.add(Material.BEDROCK);
+        noLore = EnumSet.of(Material.BOOK, Material.BOOK_AND_QUILL);//may add more later
     }
 
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
@@ -71,12 +74,14 @@ public class ItemCommand extends AbstractCommand
         }
 
         ItemStack item = new ItemStack(materialId, amount, (byte) data);
-        ItemMeta meta = item.getItemMeta();
-        List<String> lore = new ArrayList<String>();
-        lore.add(ChatColor.YELLOW + "SPAWNED");
-        lore.add(ChatColor.YELLOW + "By " + player.getDisplayName());
-        meta.setLore(lore);
-        item.setItemMeta(meta);
+        if(!noLore.contains(item.getType())){
+            ItemMeta meta = item.getItemMeta();
+            List<String> lore = new ArrayList<String>();
+            lore.add(ChatColor.YELLOW + "SPAWNED");
+            lore.add(ChatColor.YELLOW + "By " + player.getDisplayName());
+            meta.setLore(lore);
+            item.setItemMeta(meta);
+        }
         if (item.getType() == Material.MONSTER_EGG || item.getType() == Material.NAME_TAG) {
             return true;
         }
