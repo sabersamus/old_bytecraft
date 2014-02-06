@@ -18,7 +18,10 @@ public class RideCommand extends AbstractCommand
     
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
-        if(!player.getRank().canRide())return true;
+        if(!player.getRank().canRide()){
+            player.sendMessage(getInvalidPermsMessage());
+            return true;
+        }
         
         if("rideme".equalsIgnoreCase(command)){
             if(args.length == 0){

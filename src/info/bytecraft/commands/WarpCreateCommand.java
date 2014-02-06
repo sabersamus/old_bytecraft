@@ -19,8 +19,10 @@ public class WarpCreateCommand extends AbstractCommand
 
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
-        if (!player.getRank().canCreateWarps())
+        if (!player.getRank().canCreateWarps()) {
+            player.sendMessage(getInvalidPermsMessage());
             return true;
+        }
         if (args.length != 1)
             return true;
 

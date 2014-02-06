@@ -16,7 +16,10 @@ public class ChestLogCommand extends AbstractCommand
     
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
-        if(!player.getRank().canSeeChestLogs())return true;
+        if(!player.getRank().canSeeChestLogs()){
+            player.sendMessage(getInvalidPermsMessage());
+            return true;
+        }
         
         if(args.length != 1)return true;
         

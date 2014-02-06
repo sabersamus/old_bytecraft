@@ -26,6 +26,7 @@ public class BanCommand extends AbstractCommand
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
         if(!player.getRank().canBan()){
+            player.sendMessage(getInvalidPermsMessage());
             return true;
         }
         if(args.length < 1)return true;

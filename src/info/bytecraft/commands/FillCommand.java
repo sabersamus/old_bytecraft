@@ -47,6 +47,7 @@ public class FillCommand extends AbstractCommand
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
         if (!player.getRank().canFill()) {
+            player.sendMessage(getInvalidPermsMessage());
             return true;
         }
 

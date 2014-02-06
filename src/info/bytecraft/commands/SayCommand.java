@@ -30,7 +30,10 @@ public class SayCommand extends AbstractCommand
 
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
-        if(!player.getRank().canUseGod())return true;
+        if(!player.getRank().canUseGod()){
+            player.sendMessage(getInvalidPermsMessage());
+            return true;
+        }
         if(args.length == 0)return true;
         if ("say".equalsIgnoreCase(getCommand())) {
             Bukkit.broadcastMessage(player.getGodColor() + "<GOD> " + ChatColor.LIGHT_PURPLE + argsToMessage(args));

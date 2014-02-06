@@ -3,7 +3,7 @@ author: Sabersamus
 main: info.bytecraft.Bytecraft
 description: The main plugin for Bytecraft
 website: http://www.bytecraft.info
-version: 1.0
+version: 1.2.01
 commands:
     ban:
         description: Ban a player from the server

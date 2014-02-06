@@ -3,6 +3,7 @@ package info.bytecraft.commands;
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -47,5 +48,10 @@ public abstract class AbstractCommand implements CommandExecutor
     public String getCommand()
     {
         return command;
+    }
+    
+    protected String getInvalidPermsMessage()
+    {
+        return ChatColor.RED + "I'm sorry, you don't have permission to use this command.";
     }
 }

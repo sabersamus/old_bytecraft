@@ -17,7 +17,10 @@ public class BlessCommand extends AbstractCommand
 
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
-        if (!player.getRank().canBless())return true;
+        if (!player.getRank().canBless()){
+            player.sendMessage(getInvalidPermsMessage());
+            return true;
+        }
         if (args.length != 1)return true;
         
         List<BytecraftPlayer> cantidates = plugin.matchPlayer(args[0]);

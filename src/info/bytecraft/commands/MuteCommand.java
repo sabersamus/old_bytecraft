@@ -24,8 +24,10 @@ public class MuteCommand extends AbstractCommand
 
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
-        if (!player.getRank().canMute())
+        if (!player.getRank().canMute()){
+            player.sendMessage(getInvalidPermsMessage());
             return true;
+        }
         
         if(args.length == 0)return true;
         

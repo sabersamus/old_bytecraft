@@ -82,7 +82,9 @@ public class CreateMobCommand extends AbstractCommand
                     + mobType.getName());
 
             return true;
+        }else{
+            player.sendMessage(getInvalidPermsMessage());
+            return true;
         }
-        return true;
     }
 }

@@ -15,7 +15,10 @@ public class GameModeCommand extends AbstractCommand
     
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
-        if(!player.getRank().canFill())return true;
+        if(!player.getRank().canFill()){
+            player.sendMessage(getInvalidPermsMessage());
+            return true;
+        }
         if("gamemode".equalsIgnoreCase(getCommand())){
             if(args.length == 0){
                 if(player.getGameMode() == GameMode.CREATIVE){

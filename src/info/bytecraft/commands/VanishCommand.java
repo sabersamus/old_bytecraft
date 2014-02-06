@@ -20,7 +20,7 @@ public class VanishCommand extends AbstractCommand
 
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
-        if (player.getRank() == Rank.ELDER || player.getRank() == Rank.PRINCESS) {
+        if (player.getRank().canVanish()) {
             if (args.length == 0) {
                 vanish(player, args);
             }
@@ -34,6 +34,9 @@ public class VanishCommand extends AbstractCommand
                     silentJoin(player);
                 }
             }
+        }else{
+            player.sendMessage(getInvalidPermsMessage());
+            return true;
         }
         return true;
     }

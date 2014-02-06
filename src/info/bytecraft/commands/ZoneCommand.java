@@ -37,6 +37,9 @@ public class ZoneCommand extends AbstractCommand
                             return true;
                         }
                     }
+                }else{
+                    player.sendMessage(getInvalidPermsMessage());
+                    return true;
                 }
             }
             else if ("delete".equalsIgnoreCase(args[0])) {
@@ -50,6 +53,9 @@ public class ZoneCommand extends AbstractCommand
                         player.sendMessage(ChatColor.RED + "Deleted zone "
                                 + args[1]);
                     }
+                }else{
+                    player.sendMessage(getInvalidPermsMessage());
+                    return true;
                 }
             }else if("info".equalsIgnoreCase(args[0])){
                 if(!zoneExists(args[1])){

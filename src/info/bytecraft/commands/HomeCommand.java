@@ -21,8 +21,10 @@ public class HomeCommand extends AbstractCommand
 
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
-        if (!player.hasFlag(Flag.NOBLE))
+        if (!player.hasFlag(Flag.NOBLE)){
+            player.sendMessage(getInvalidPermsMessage());
             return true;
+        }
 
         if (args.length == 0) {
             if (goHome(player))
@@ -40,7 +42,11 @@ public class HomeCommand extends AbstractCommand
             }
         }
         else if (args.length == 2) {
-            if ("to".equalsIgnoreCase(args[0]) && player.getRank().canGoToPlayersHomes()) {
+            if(!player.getRank().canGoToPlayersHomes()){
+                player.sendMessage(getInvalidPermsMessage());
+                return true;
+            }
+            if ("to".equalsIgnoreCase(args[0])) {
                 if (homeTo(player, args[1])) {
                     return true;
                 } else {
@@ -92,11 +98,10 @@ public class HomeCommand extends AbstractCommand
     {
         try (IContext ctx = plugin.createContext()) {
             IHomeDAO dao = ctx.getHomeDAO();
-            if (dao.getHome(toName) == null)
-                return false;
+            if (dao.getHome(toName) == null) return false;
             player.sendMessage(ChatColor.AQUA + "Initiating teleport to "
                     + toName + "'s home!");
-            final Location loc = dao.getHome(player);
+            final Location loc = dao.getHome(toName);
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin,
                     new Runnable() {
 

@@ -14,7 +14,10 @@ public class TimeCommand extends AbstractCommand
 
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
-        if(!player.hasFlag(Flag.NOBLE))return true;
+        if(!player.hasFlag(Flag.NOBLE)){
+            player.sendMessage(getInvalidPermsMessage());
+            return true;
+        }
         if(args.length != 1)return true;
         String input = args[0];
         if(input.equalsIgnoreCase("day")){

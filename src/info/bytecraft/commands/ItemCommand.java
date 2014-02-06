@@ -31,7 +31,10 @@ public class ItemCommand extends AbstractCommand
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
         if(args.length == 0)return false;
-        if(!player.getRank().canFill())return true;
+        if(!player.getRank().canFill()){
+            player.sendMessage(getInvalidPermsMessage());
+            return true;
+        }
 
         String param = args[0].toUpperCase();
 
@@ -75,7 +78,7 @@ public class ItemCommand extends AbstractCommand
         meta.setLore(lore);
         item.setItemMeta(meta);
         if (item.getType() == Material.MONSTER_EGG || item.getType() == Material.NAME_TAG) {
-            return false;
+            return true;
         }
 
         PlayerInventory inv = player.getInventory();

@@ -8,7 +8,6 @@ import org.bukkit.Server;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.api.Notification;
 import info.bytecraft.api.PlayerReport;
 import info.bytecraft.database.DAOException;
 import info.bytecraft.database.IContext;
@@ -25,7 +24,7 @@ public class KickCommand extends AbstractCommand
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
         if (!player.getRank().canKick()) {
-            player.sendNotification(Notification.COMMAND_FAIL, null);
+            player.sendMessage(getInvalidPermsMessage());
             return true;
         }
 

@@ -26,8 +26,10 @@ public class GiveCommand extends AbstractCommand
     {
         if (args.length <= 1)
             return true;
-        if (!player.getRank().canSpawnItemsForPlayers())
+        if (!player.getRank().canSpawnItemsForPlayers()){
+            player.sendMessage(getInvalidPermsMessage());
             return true;
+        }
         
         String param = args[1].toUpperCase();
         List<BytecraftPlayer> cantidates = plugin.matchPlayer(args[0]);

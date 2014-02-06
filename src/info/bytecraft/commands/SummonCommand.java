@@ -17,8 +17,10 @@ public class SummonCommand extends AbstractCommand
 
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
-        if (!player.getRank().canSummon())
+        if (!player.getRank().canSummon()){
+            player.sendMessage(getInvalidPermsMessage());
             return true;
+        }
         if (args.length != 1)
             return true;
         List<BytecraftPlayer> cantidates = plugin.matchPlayer(args[0]);

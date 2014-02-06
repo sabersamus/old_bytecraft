@@ -17,6 +17,7 @@ import info.bytecraft.database.IPlayerDAO;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Server;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -25,6 +26,7 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.PluginManager;
 
 public class SellCommand extends AbstractCommand implements Listener
@@ -89,12 +91,30 @@ public class SellCommand extends AbstractCommand implements Listener
                 Material mat = stack.getType();
                 int amount = stack.getAmount();
                 int value = dao.getValue(stack);
+                int enchValue = 0;
                 
-                player.sendMessage(BLUE + "[Sell] " + GREEN + mat.toString() +
-                        ": " + amount + " * " + value + " = " + GOLD + (amount*value) +
-                        GREEN  +" bytes");
+                ItemMeta meta = stack.getItemMeta();
+                if(meta.hasEnchants()){
+                    Map<Enchantment, Integer> enchants = meta.getEnchants();
+                    for(Enchantment ench: enchants.keySet()){
+                        enchValue += dao.getEnchantValue(ench.getId(), meta.getEnchantLevel(ench));
+                    }
+                }
                 
-                bid+= value * amount;
+                if(enchValue != 0){
+                    player.sendMessage(BLUE + "[Sell] " + GREEN
+                            + mat.toString() + YELLOW + " [Enchanted]" + GREEN + ": " + GOLD
+                            + amount + GREEN + " * " + GOLD + value + GREEN
+                            + " + " + GOLD + enchValue + GREEN + " = " + GOLD
+                            + ((amount * value) + enchValue) + " bytes");
+                }else{
+                    player.sendMessage(BLUE + "[Sell] " + GREEN + mat.toString()
+                            + ": " + GOLD + amount + GREEN + " * "
+                            + GOLD + value + GREEN + " = " + GOLD
+                            + (amount * value) + " bytes");
+                }
+                //[Sell] name [Enchantedt=x] : i * j = k bytes
+                bid += (value * amount) + enchValue;
             }
             
         }catch(DAOException e){
@@ -159,8 +179,17 @@ public class SellCommand extends AbstractCommand implements Listener
 
                     int amount = stack.getAmount();
                     int value = itemDAO.getValue(stack);
+                    int enchValue = 0;
+                    
+                    ItemMeta meta = stack.getItemMeta();
+                    if(meta.hasEnchants()){
+                        Map<Enchantment, Integer> enchants = meta.getEnchants();
+                        for(Enchantment ench: enchants.keySet()){
+                            enchValue += itemDAO.getEnchantValue(ench.getId(), meta.getEnchantLevel(ench));
+                        }
+                    }
 
-                    bid += amount * value;
+                    bid += ((amount * value) + enchValue);
                 }
 
                 IPlayerDAO pDao = ctx.getPlayerDAO();
