@@ -114,6 +114,7 @@ public class Bytecraft extends JavaPlugin
         getCommand("me").setExecutor(new ActionCommand(this));
         getCommand("message").setExecutor(new MessageCommand(this, "message"));
         getCommand("mute").setExecutor(new MuteCommand(this));
+        getCommand("nuke").setExecutor(new NukeCommand(this));
         getCommand("pos").setExecutor(new PositionCommand(this));
         getCommand("reply").setExecutor(new MessageCommand(this, "reply"));
         getCommand("ride").setExecutor(new RideCommand(this, "ride"));
@@ -155,6 +156,7 @@ public class Bytecraft extends JavaPlugin
     {
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(new ButtonListener(this), this);
+        pm.registerEvents(new BookShelfListener(this), this);
         pm.registerEvents(new ChatListener(this), this);
         pm.registerEvents(new CallEventListener(this), this);
         pm.registerEvents(new BytecraftPlayerListener(this), this);

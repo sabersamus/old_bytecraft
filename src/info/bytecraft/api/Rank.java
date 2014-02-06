@@ -49,6 +49,11 @@ public enum Rank
         return canBuild();
     }
     
+    public boolean canNuke()
+    {
+        return (this == ADMIN || isElder());
+    }
+    
     public boolean canVanish()
     {
         return (this == ELDER || this == PRINCESS);
@@ -209,6 +214,11 @@ public enum Rank
     public String toString()
     {
         return name().toLowerCase();
+    }
+
+    public boolean canEditBooks()
+    {
+        return (this == ADMIN || isElder());
     }
 
 
