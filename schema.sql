@@ -61,6 +61,14 @@ CREATE TABLE IF NOT EXISTS `sell_log` (
    PRIMARY KEY (`sell_id`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
 
+CREATE TABLE IF NOT EXISTS `enchantment_value` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `enchant_id` int(10) NOT NULL,
+  `enchant_level` int(10) NOT NULL,
+  `enchant_value` int(10) NOT NULL,
+  PRIMARY KEY(`id`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
+
 --
 -- Table structure for table `fill_log`
 --
