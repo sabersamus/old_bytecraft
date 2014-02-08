@@ -3,8 +3,11 @@ author: Sabersamus
 main: info.bytecraft.Bytecraft
 description: The main plugin for Bytecraft
 website: http://www.bytecraft.info
-version: 1.2.01
+version: 1.2.1
 commands:
+    back:
+        description: Go back to where you died... for a cost
+        usage: /<command>
     ban:
         description: Ban a player from the server
         usage: /<command> <player> [amount] [minutes|hours|days|weeks|months]

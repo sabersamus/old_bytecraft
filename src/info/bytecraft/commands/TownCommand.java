@@ -3,8 +3,7 @@ package info.bytecraft.commands;
 import static org.bukkit.ChatColor.GOLD;
 import static org.bukkit.ChatColor.WHITE;
 
-import java.util.List;
-
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 
@@ -51,11 +50,13 @@ public class TownCommand extends AbstractCommand
             if ("deluser".equalsIgnoreCase(args[0])) {
                 if ((perm != null && perm == Permission.OWNER) || player.getRank().canEditZones()) {
                     
-                    List<BytecraftPlayer> cantidates = plugin.matchPlayer(args[1]);
-                    if(cantidates.size() != 1){
+                    BytecraftPlayer target = plugin.getPlayerOffline(args[1]);
+                    
+                    if(target == null){
+                        player.sendMessage(ChatColor.RED + "Player not found " + args[1]);
                         return true;
                     }
-                    BytecraftPlayer target = cantidates.get(0);
+                    
                     this.delUser(zone, target, player);
                     return true;
                 }
@@ -66,12 +67,12 @@ public class TownCommand extends AbstractCommand
             if("adduser".equalsIgnoreCase(args[0])){
                 if((perm != null && perm == Permission.OWNER) || player.getRank().canEditZones()){
                     
-                    List<BytecraftPlayer> cantidates = plugin.matchPlayer(args[1]);
-                    if(cantidates.size() != 1){
+                    BytecraftPlayer target = plugin.getPlayerOffline(args[1]);
+                    
+                    if(target == null){
+                        player.sendMessage(ChatColor.RED + "Player not found " + args[1]);
                         return true;
                     }
-                    
-                    BytecraftPlayer target = cantidates.get(0);
                     
                     Permission otherPerm = Permission.fromString(args[2]);
                     if(otherPerm != null){
@@ -94,6 +95,25 @@ public class TownCommand extends AbstractCommand
                     player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] Changed " + flag.name().toLowerCase() + " to " + value);
                 }
             }
+        }else{
+            if (args[0].equalsIgnoreCase("entermsg")
+                    || args[0].equalsIgnoreCase("exitmsg")) {
+                Permission p = zone.getUser(player);
+                if ((p != null && p == Permission.OWNER) || player.getRank().canEditZones()) {
+                    Flag flag =
+                            args[0].equalsIgnoreCase("entermsg") ? Flag.ENTERMSG
+                                    : Flag.EXITMSG;
+
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 1; i < args.length; i++) {
+                        sb.append(args[i] + " ");
+                    }
+
+                    this.changeSetting(zone, flag, sb.toString());
+                    player.sendMessage(ChatColor.RED + "[" + zone.getName()
+                            + "] Changed " + flag.name().toLowerCase() + " to " + sb.toString());
+                }
+            }
         }
         
         return true;
@@ -106,7 +126,7 @@ public class TownCommand extends AbstractCommand
         player.sendMessage(GOLD + "ID: " + WHITE + zone.getId());
         player.sendMessage((GOLD + "Rect: " + WHITE + "("+ 
         rect.getLeft() + ", " + + rect.getTop() + ") (" 
-                + rect.getRight()+ ", " + + rect.getBottom() + ")").replace(",", ChatColor.GOLD + ","));
+                + rect.getRight()+ ", " + + rect.getBottom() + ")").replace(",", ChatColor.GOLD + "," + ChatColor.WHITE));
         player.sendMessage(GOLD
                 + "Enter: " + WHITE
                 + (!zone.hasFlag(Flag.WHITELIST) ? "Everyone (true)"
@@ -129,11 +149,16 @@ public class TownCommand extends AbstractCommand
             String addConfirm = p.getAddedConfirm();
             player.sendMessage(ChatColor.RED
                     + "[" + zone.getName() + "] "
-                    + String.format(addConfirm, target.getDisplayName() + ChatColor.RED, zone.getName()));
+                    + String.format(addConfirm, (target.getNameColor() + target.getName()) + ChatColor.RED, zone.getName()));
 
+            BytecraftPlayer target2 = plugin.getPlayer(target.getName());
+            
+            if(target2 != null){
                 String addNotif = p.getAddedNotif();
-                target.sendMessage(ChatColor.RED + "[" + zone.getName() + "] "
+                target2.sendMessage(ChatColor.RED + "[" + zone.getName() + "] "
                         + String.format(addNotif, zone.getName()));
+            }
+            
             dao.addUser(zone, target.getName(), p);
             zone.addPermissions(target.getName(), p);
         } catch (DAOException e) {
@@ -148,18 +173,23 @@ public class TownCommand extends AbstractCommand
             Permission p = zone.getUser(target);
             if (p == null) {
                 deleter.sendMessage(ChatColor.RED + "[" + zone.getName() + "] "
-                        + target.getDisplayName() + ChatColor.RED
+                        + (target.getNameColor() + target.getName()) + ChatColor.RED
                         + " does not have any permissions in " + zone.getName());
-                return false;
+                return true;
             }
             String delConfirm = p.getDelConfirm();
             deleter.sendMessage(ChatColor.RED + "[" + zone.getName() + "] "
-                    + String.format(delConfirm, target.getDisplayName() + ChatColor.RED, zone.getName()));
+                    + String.format(delConfirm, (target.getNameColor() + target.getName()) + ChatColor.RED, zone.getName()));
             
+            BytecraftPlayer target2 = plugin.getPlayer(target.getName());
+            
+            if(target2 != null){
                 String delNotif = p.getDelNotif();
-                target.sendMessage(ChatColor.RED + "[" + zone.getName() + "] "  
+                target2.sendMessage(ChatColor.RED + "[" + zone.getName() + "] "  
                 + String.format(delNotif, zone.getName()));
-                zone.removePermission(target.getName());
+            }
+            
+            zone.removePermission(target.getName());
             return dao.deleteUser(zone, target.getName());
         } catch (DAOException e) {
             throw new RuntimeException(e);
@@ -174,6 +204,24 @@ public class TownCommand extends AbstractCommand
             IZoneDAO dao = ctx.getZoneDAO();
             dao.updateFlag(zone, flag, String.valueOf(value));
         }catch(DAOException e){
+            throw new RuntimeException(e);
+        }
+    }
+    
+    private void changeSetting(Zone zone, Flag flag, String value)
+    {
+        if(flag == Flag.ENTERMSG){
+            zone.setEnterMessage(value);
+        }else if(flag == Flag.EXITMSG){
+            zone.setExitMessage(value);
+        }else{
+            zone.setFlag(flag, Boolean.valueOf(value));
+        }
+        
+        try (IContext ctx = plugin.createContext()) {
+            IZoneDAO dao = ctx.getZoneDAO();
+            dao.updateFlag(zone, flag, value);
+        } catch (DAOException e) {
             throw new RuntimeException(e);
         }
     }

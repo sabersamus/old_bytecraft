@@ -91,6 +91,7 @@ public class Bytecraft extends JavaPlugin
 
         registerEvents();
 
+        getCommand("back").setExecutor(new BackCommand(this));
         getCommand("ban").setExecutor(new BanCommand(this));
         getCommand("bless").setExecutor(new BlessCommand(this));
         getCommand("clear").setExecutor(new ClearCommand(this));
@@ -155,18 +156,16 @@ public class Bytecraft extends JavaPlugin
     private void registerEvents()
     {
         PluginManager pm = getServer().getPluginManager();
-        pm.registerEvents(new ButtonListener(this), this);
-        pm.registerEvents(new BookShelfListener(this), this);
-        pm.registerEvents(new ChatListener(this), this);
-        pm.registerEvents(new CallEventListener(this), this);
-        pm.registerEvents(new BytecraftPlayerListener(this), this);
-        pm.registerEvents(new PlayerLookupListener(this), this);
         pm.registerEvents(new BlessListener(this), this);
-        //pm.registerEvents(new RareDropListener(this), this);
+        pm.registerEvents(new BookShelfListener(this), this);
+        pm.registerEvents(new ButtonListener(this), this);
+        pm.registerEvents(new BytecraftPlayerListener(this), this);
         pm.registerEvents(new BytecraftBlockListener(this), this);
-        //pm.registerEvents(new DamageListener(this), this);
+        pm.registerEvents(new CallEventListener(this), this);
+        pm.registerEvents(new ChatListener(this), this);
         pm.registerEvents(new FillListener(this), this);
         pm.registerEvents(new InventoryListener(this), this);
+        pm.registerEvents(new PlayerLookupListener(this), this);
         pm.registerEvents(new PlayerPromotionListener(this), this);
         pm.registerEvents(new SelectListener(this), this);
         pm.registerEvents(new SignColorListener(), this);
@@ -185,11 +184,13 @@ public class Bytecraft extends JavaPlugin
             dao.loadFlags(player);
             player.setRank(dao.getRank(player));
             ChatColor color = player.getRank().getColor();
+            
             if(player.hasFlag(Flag.NOBLE)){
                 if(player.getRank() == Rank.MEMBER || player.getRank() == Rank.SETTLER){
                     color = ChatColor.GOLD;
                 }
             }
+            
             String name = color + player.getName();
             player.setDisplayName(name + ChatColor.WHITE);
             if(name.length() > 16){

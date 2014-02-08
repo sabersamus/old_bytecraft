@@ -42,6 +42,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.player.PlayerLoginEvent.Result;
 import org.bukkit.event.player.PlayerPickupItemEvent;
@@ -131,6 +132,23 @@ public class BytecraftPlayerListener implements Listener
         
         event.setQuitMessage(mess);
         plugin.removePlayer(player);
+    }
+    
+    @EventHandler
+    public void onFly(PlayerMoveEvent event)
+    {
+        BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
+        if(player.isFlying()){
+            if(player.isSprinting()){
+                if(player.getRank().canFlyFast()){
+                    player.setFlySpeed(1.0F);
+                }else{
+                    player.setFlySpeed(0.2F);
+                }
+            }else{
+                player.setFlySpeed(0.2F);
+            }
+        }
     }
     
     @EventHandler

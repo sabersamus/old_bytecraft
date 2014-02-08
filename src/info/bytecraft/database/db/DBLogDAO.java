@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -161,6 +162,7 @@ public class DBLogDAO implements ILogDAO
                     logs.add(log);
                 }
             }
+            Collections.reverse(logs);
             return logs;
         } catch (SQLException e) {
             throw new DAOException(sql, e);

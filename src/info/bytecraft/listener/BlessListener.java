@@ -39,8 +39,6 @@ public class BlessListener implements Listener
         allowedBlocks.add(Material.WOODEN_DOOR);
         allowedBlocks.add(Material.LEVER);
         allowedBlocks.add(Material.STONE_BUTTON);
-        allowedBlocks.add(Material.STONE_PLATE);
-        allowedBlocks.add(Material.WOOD_PLATE);
         allowedBlocks.add(Material.WORKBENCH);
         allowedBlocks.add(Material.BOOKSHELF);
         allowedBlocks.add(Material.SIGN_POST);
@@ -93,13 +91,13 @@ public class BlessListener implements Listener
         else {
             if (event.getAction() == Action.LEFT_CLICK_BLOCK
                     || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-                try (IContext ctx = plugin.createContext();) {
+                try (IContext ctx = plugin.createContext()) {
                     IBlessDAO dao = ctx.getBlessDAO();
                     if (dao.isBlessed(event.getClickedBlock())) {
                         BytecraftPlayer owner = plugin.getPlayerOffline(dao.getOwner(event.getClickedBlock()));
                         String name = owner.getNameColor() + owner.getName();
                         if (!player.getName().equalsIgnoreCase(
-                                dao.getOwner(event.getClickedBlock()))) {
+                                owner.getName())) {
                             player.sendMessage(ChatColor.RED + "Blessed to: " + name);
                             if (!player.getRank().canOverrideBless()) {
                                 event.setCancelled(true);
@@ -117,6 +115,8 @@ public class BlessListener implements Listener
             }
         }
     }
+    
+    
     
     @EventHandler
     public void onBreak(BlockBreakEvent event)

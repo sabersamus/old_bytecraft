@@ -221,5 +221,15 @@ public enum Rank
         return (this == ADMIN || isElder());
     }
 
+    public boolean canUseColoredChat()
+    {
+        return (isElder());
+    }
+
+    public boolean canFlyFast()
+    {
+        return (this.isElder());
+    }
+
 
 }

@@ -28,7 +28,7 @@ public class ItemCommand extends AbstractCommand
     {
         super(instance, "item");
         disallowedItems.add(Material.BEDROCK);
-        noLore = EnumSet.of(Material.BOOK, Material.BOOK_AND_QUILL);//may add more later
+        noLore = EnumSet.of(Material.BOOK, Material.BOOK_AND_QUILL, Material.ENCHANTED_BOOK);//may add more later
     }
 
     public boolean handlePlayer(BytecraftPlayer player, String[] args)

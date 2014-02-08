@@ -16,13 +16,13 @@ public class SignColorListener implements Listener
     public void onSignChange(SignChangeEvent e)
     {
         for (int i = 0; i < 4; i++) {
-            String[] splitLine = (e.getLine(i) + " ").split("#");
+            String[] splitLine = (e.getLine(i) + " ").split("&");
             String newLine = splitLine[0];
             for (int j = 1; j < splitLine.length; j++) {
                 if (splitLine[j].length() == 0
                         || CHARS.indexOf(splitLine[j].charAt(0)) == -1) {
 
-                    newLine += "#";
+                    newLine += "&";
                 }
                 else {
                     newLine += "\u00A7";

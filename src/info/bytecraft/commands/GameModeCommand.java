@@ -1,5 +1,8 @@
 package info.bytecraft.commands;
 
+import java.util.List;
+
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 
 import info.bytecraft.Bytecraft;
@@ -28,6 +31,17 @@ public class GameModeCommand extends AbstractCommand
                 }
             }else if(args.length == 1){
                 player.setGameMode(byName(args[0]));
+            }else if(args.length == 2){
+                List<BytecraftPlayer> targets = plugin.matchPlayer(args[1]);
+                if(targets.size() != 1){
+                    return true;
+                }
+                
+                BytecraftPlayer target = targets.get(0);
+                GameMode gm = byName(args[0]);  
+                player.sendMessage(ChatColor.RED + "Switching "  + target.getDisplayName() + ChatColor.RED + " to " + gm.name());
+                target.setGameMode(gm);
+                return true;
             }
         }else if("creative".equalsIgnoreCase(getCommand())){
             player.setGameMode(GameMode.CREATIVE);

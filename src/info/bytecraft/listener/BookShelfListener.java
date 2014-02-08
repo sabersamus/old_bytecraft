@@ -20,6 +20,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -50,7 +51,7 @@ public class BookShelfListener implements Listener
         materials = EnumSet.of(Material.BOOK, Material.BOOK_AND_QUILL, Material.WRITTEN_BOOK);
     }
     
-    @EventHandler
+    @EventHandler(priority=EventPriority.HIGH)
     public void onOpen(PlayerInteractEvent event)
     {
         if(event.isCancelled() || event.getPlayer().getItemInHand().getType() == Material.BONE){
@@ -76,6 +77,7 @@ public class BookShelfListener implements Listener
             //invIds.put(player, id);
             locations.put(inv, loc);
             inventories.put(loc, inv.getContents());
+            event.setCancelled(true);
         }catch(DAOException e){
             throw new RuntimeException(e);
         }
@@ -152,6 +154,17 @@ public class BookShelfListener implements Listener
             locations.remove(inv);
         }catch(DAOException e){
             throw new RuntimeException(e);
+        }
+    }
+    
+    @EventHandler
+    public void onSignBook(PlayerEditBookEvent event)
+    {
+        BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
+        if(event.isSigning()){
+            BookMeta meta = event.getNewBookMeta();
+            meta.setAuthor(player.getNameColor() + player.getName());
+            event.setNewBookMeta(meta);
         }
     }
 }

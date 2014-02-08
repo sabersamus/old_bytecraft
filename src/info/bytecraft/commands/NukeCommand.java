@@ -1,8 +1,10 @@
 package info.bytecraft.commands;
 
 import static org.bukkit.ChatColor.*;
+
 import org.bukkit.Location;
 import org.bukkit.entity.Animals;
+import org.bukkit.entity.Bat;
 import org.bukkit.entity.EnderDragon;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Monster;
@@ -58,6 +60,9 @@ public class NukeCommand extends AbstractCommand
             else if (ent instanceof EnderDragon) {
                 EnderDragon dragon = (EnderDragon) ent;
                 dragon.setHealth(0);
+            }else if(ent instanceof Bat){
+                Bat bat = (Bat)ent;
+                bat.setHealth(0);
             }
             i++;
         }

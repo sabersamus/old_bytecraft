@@ -27,7 +27,7 @@ public class ButtonListener implements Listener
         this.plugin = plugin;
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled=true)
     public void onClick(PlayerInteractEvent event)
     {
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());

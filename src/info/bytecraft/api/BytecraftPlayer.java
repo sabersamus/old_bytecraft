@@ -218,6 +218,14 @@ public class BytecraftPlayer extends PlayerDelegate
         return 20 * 5L;
     }
     
+    public int getBackCost()
+    {
+        if(getRank().isImmortal())return 0;
+        if(hasFlag(Flag.LORD))return 500;
+        if(hasFlag(Flag.NOBLE))return 700;
+        return 1000;
+    }
+    
     public void sendNotification(Notification notif, String message)
     {
         if(message != null && !message.equalsIgnoreCase("")){

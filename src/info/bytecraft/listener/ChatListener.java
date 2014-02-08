@@ -79,6 +79,10 @@ public class ChatListener implements Listener
                 nameColor = ChatColor.GRAY;
             }
             
+            if(player.getRank().canUseColoredChat()){
+                message = ChatColor.translateAlternateColorCodes('&', message);
+            }
+            
             String coloredMessage = "<" + nameColor + player.getName() + ChatColor.WHITE + "> " + color + message;
             
             if (player.getRank() == Rank.SETTLER || player.getRank() == Rank.MEMBER) {
