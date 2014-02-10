@@ -241,5 +241,10 @@ public enum Rank
         return isElder();
     }
 
+    public boolean canKeepItems()
+    {
+        return (this == ADMIN || this == ARCHITECT || isElder());
+    }
+
 
 }
