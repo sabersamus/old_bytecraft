@@ -5,6 +5,7 @@ import info.bytecraft.api.math.Point;
 import info.bytecraft.api.math.Rectangle;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Location;
@@ -114,6 +115,7 @@ public class Zone
     }
     
     public static enum Flag{
+        CREATIVE,
         PVP,
         WHITELIST,
         BUILD,
@@ -138,6 +140,10 @@ public class Zone
     private final Map<Flag, Boolean> flags;
     
     private Rectangle rect;
+    
+    @SuppressWarnings("unused")
+    private List<Rectangle> rects;//for future use
+    
     private String world;
     
     private String enterMessage;

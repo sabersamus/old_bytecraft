@@ -14,6 +14,7 @@ import info.bytecraft.zones.Zone.Flag;
 import info.bytecraft.zones.Zone.Permission;
 
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -25,6 +26,8 @@ import org.bukkit.event.*;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.player.PlayerBucketEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.util.Vector;
@@ -60,7 +63,19 @@ public class ZoneListener implements Listener
     {
         BytecraftPlayer player = event.getPlayer();
         if(event.getOldZone() != null){
-            player.sendMessage(ChatColor.RED + "[" + event.getOldZone().getName() + "] " + event.getOldZone().getExitMessage());
+           
+            Zone zone = event.getOldZone();
+            
+            if(zone.hasFlag(Flag.CREATIVE)){
+                if(!player.getRank().canKeepItems()){
+                    player.getInventory().clear();
+                    player.updateInventory();
+                    player.setGameMode(GameMode.SURVIVAL);
+                }
+                player.sendMessage(ChatColor.RED + "[" + event.getOldZone().getName()
+                        + "] " + event.getOldZone().getExitMessage());
+            }
+            
         }
         
         if(event.getNewZone() == null){
@@ -76,8 +91,16 @@ public class ZoneListener implements Listener
             return;
         }
         
-        player.setCurrentZone(event.getNewZone());
-        welcomeMessage(player.getCurrentZone(), player, event.getNewZone().getUser(player));
+        Zone zone = event.getNewZone();
+        
+        player.setCurrentZone(zone);//Keeping this here as there is currently one reference to it
+        welcomeMessage(zone, player, zone.getUser(player));
+        
+        if(zone.hasFlag(Flag.CREATIVE)){
+            player.setGameMode(GameMode.CREATIVE);
+            player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] This is a creative zone. "
+                    + "You will lose all of your inventory when you leave");
+        }
     }
 
     @EventHandler
@@ -99,6 +122,35 @@ public class ZoneListener implements Listener
     {
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
         Block block = event.getBlock();
+        
+        boolean bool = player.hasBlockPermission(block.getLocation(), true);
+        if(!bool){
+            player.setFireTicks(20 * 2);
+            event.setCancelled(true);
+        }
+    }
+    
+    @EventHandler
+    public void onDrop(PlayerDropItemEvent event)
+    {
+        BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
+        Location loc = player.getLocation();
+        Point p = new Point(loc.getBlockX(), loc.getBlockZ());
+        
+        Zone zone = plugin.getZoneAt(loc.getWorld(), p);
+        if(zone == null)return;
+        
+        if(zone.hasFlag(Flag.CREATIVE)){
+            event.setCancelled(true);
+            player.sendMessage(ChatColor.RED + "You can't drop items in a creative zone.");
+        }
+    }
+    
+    @EventHandler
+    public void onEmpty(PlayerBucketEvent event)
+    {
+        BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
+        Block block = event.getBlockClicked();
         
         boolean bool = player.hasBlockPermission(block.getLocation(), true);
         if(!bool){
