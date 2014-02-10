@@ -28,4 +28,6 @@ public interface IPlayerDAO
     public long getPromotedTime(BytecraftPlayer player) throws DAOException;
     public int getPlayTime(BytecraftPlayer player) throws DAOException;
     public void updatePlayTime(BytecraftPlayer player) throws DAOException;
+    public boolean isBanned(BytecraftPlayer player) throws DAOException;
+    void ban(BytecraftPlayer player) throws DAOException;
 }

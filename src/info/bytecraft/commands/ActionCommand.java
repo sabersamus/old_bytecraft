@@ -5,6 +5,7 @@ import org.bukkit.ChatColor;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.BytecraftPlayer.Flag;
 
 public class ActionCommand extends AbstractCommand
 {
@@ -17,7 +18,11 @@ public class ActionCommand extends AbstractCommand
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
         if(args.length != 0){
-            Bukkit.broadcastMessage("* " + player.getDisplayName() + ChatColor.WHITE + " " + messageFromString(args));
+            if(!player.hasFlag(Flag.MUTE)){
+                Bukkit.broadcastMessage("* " + player.getDisplayName() + ChatColor.WHITE + " " + messageFromString(args));
+            }else{
+                player.sendMessage(ChatColor.RED + "You are currently muted.");
+            }
         }
         return true;
     }

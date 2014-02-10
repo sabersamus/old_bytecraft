@@ -31,7 +31,8 @@ public class BytecraftPlayer extends PlayerDelegate
         INVISIBLE,
         NOBLE,
         LORD,
-        TPBLOCK, 
+        TPBLOCK,
+        CAN_FLY,
         CHEST_LOG;
     }
     
@@ -190,7 +191,7 @@ public class BytecraftPlayer extends PlayerDelegate
     //Rank time outs
     public int getMaxTeleportDistance()
     {
-        if(getRank().isImmortal())return Integer.MAX_VALUE;
+        if(getRank().isImmortal() || getRank() == Rank.PROTECTOR)return Integer.MAX_VALUE;
         if(hasFlag(Flag.LORD))return 15000;
         if(hasFlag(Flag.NOBLE))return 10000;
         
@@ -224,6 +225,38 @@ public class BytecraftPlayer extends PlayerDelegate
         if(hasFlag(Flag.LORD))return 500;
         if(hasFlag(Flag.NOBLE))return 700;
         return 1000;
+    }
+    
+    public int getToolCost()
+    {
+        if(getRank().isImmortal())return 0;
+        if(hasFlag(Flag.LORD))return 500;
+        if(hasFlag(Flag.NOBLE))return 700;
+        return 1000;
+    }
+    
+    /**
+     * Gets the amount of time <b>in minutes</b> that a player must wait
+     * before getting a rare drop after receiving one.
+     * @return
+     */
+    public int getRareDropTimeout()
+    {
+        if(getRank().isImmortal())return 0;//admins dont have to wait
+        if(hasFlag(Flag.LORD))return 2;
+        if(hasFlag(Flag.NOBLE))return 3;
+        return 5;
+    }
+    
+    /**
+     * Get's the increase of chance in percentage that a player will receive a rare drop.
+     */
+    public int getRareDropIncrease()
+    {
+        if(getRank().isImmortal())return 7;
+        if(hasFlag(Flag.LORD))return 5;
+        if(hasFlag(Flag.NOBLE))return 3;
+        return 0;
     }
     
     public void sendNotification(Notification notif, String message)

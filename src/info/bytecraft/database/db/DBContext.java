@@ -10,6 +10,7 @@ import info.bytecraft.database.IHomeDAO;
 import info.bytecraft.database.IInventoryDAO;
 import info.bytecraft.database.IItemDAO;
 import info.bytecraft.database.ILogDAO;
+import info.bytecraft.database.ILoreDAO;
 import info.bytecraft.database.IMessageDAO;
 import info.bytecraft.database.IPlayerDAO;
 import info.bytecraft.database.IReportDAO;
@@ -53,6 +54,12 @@ public class DBContext implements IContext
     public ILogDAO getLogDAO()
     {
         return new DBLogDAO(conn);
+    }
+    
+    @Override
+    public ILoreDAO getLoreDAO()
+    {
+        return new DBLoreDAO(conn);
     }
     
     @Override

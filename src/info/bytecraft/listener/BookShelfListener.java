@@ -1,10 +1,7 @@
 package info.bytecraft.listener;
 
-import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
@@ -14,7 +11,6 @@ import info.bytecraft.database.IInventoryDAO;
 import info.bytecraft.database.IInventoryDAO.ChangeType;
 import info.bytecraft.database.IInventoryDAO.InventoryType;
 
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -37,18 +33,14 @@ public class BookShelfListener implements Listener
     private Bytecraft plugin;
     private Map<BytecraftPlayer, Inventory> openInventories;
     private Map<Location, ItemStack[]> inventories;
-    //private Map<BytecraftPlayer, Integer> invIds;
     private Map<Inventory, Location> locations;
-    private Set<Material> materials;
     
     public BookShelfListener(Bytecraft plugin)
     {
         this.plugin = plugin;
         openInventories = new HashMap<>();
-        //invIds = new HashMap<>();
         locations = new HashMap<>();
         inventories = new HashMap<>();
-        materials = EnumSet.of(Material.BOOK, Material.BOOK_AND_QUILL, Material.WRITTEN_BOOK);
     }
     
     @EventHandler(priority=EventPriority.HIGH)
@@ -100,23 +92,9 @@ public class BookShelfListener implements Listener
                 "y=" + loc.getBlockY() + " " +
                 "z=" + loc.getBlockZ());
         ItemStack[] stacks = inv.getContents();
-        for(ItemStack stack: stacks){
-            if(stack == null){
-                continue;
-            }
-            
-            if(materials.contains(stack.getType())){
-                continue;
-            }
-            
-            inv.remove(stack);
-            player.getInventory().addItem(stack);
-            player.updateInventory();
-            player.sendMessage(ChatColor.RED + "You cant store a " + stack.getType().name().toLowerCase() + " in a bookshelf!");
-        }
         
         ItemStack[] oldContents = inventories.get(loc);
-        ItemStack[] currentContents = inv.getContents();
+        ItemStack[] currentContents = stacks;
 
         assert oldContents.length == currentContents.length;
 

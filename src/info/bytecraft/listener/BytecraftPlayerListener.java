@@ -23,6 +23,7 @@ import org.apache.commons.lang.WordUtils;
 import static org.bukkit.ChatColor.*;
 
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -89,6 +90,10 @@ public class BytecraftPlayerListener implements Listener
         
         player.setAllowFlight(player.hasFlag(Flag.NOBLE) || player.getRank().canFill());
         
+        if(player.getGameMode() != GameMode.SURVIVAL){
+            player.setGameMode(GameMode.SURVIVAL);
+        }
+        
     }
 
     @EventHandler
@@ -141,7 +146,7 @@ public class BytecraftPlayerListener implements Listener
         if(player.isFlying()){
             if(player.isSprinting()){
                 if(player.getRank().canFlyFast()){
-                    player.setFlySpeed(1.0F);
+                    player.setFlySpeed(0.4F);
                 }else{
                     player.setFlySpeed(0.2F);
                 }
@@ -334,8 +339,12 @@ public class BytecraftPlayerListener implements Listener
     {
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
         if(player == null)return;
-        if(player.hasFlag(Flag.NOBLE) || player.getRank().canBuild()){
-            event.setCancelled(false);
+        if(player.hasFlag(Flag.NOBLE) || player.getRank().canFill()){
+            if(player.hasFlag(Flag.CAN_FLY)){
+                event.setCancelled(false);
+            }else{
+                event.setCancelled(true);
+            }
         }else{
             event.setCancelled(true);
         }

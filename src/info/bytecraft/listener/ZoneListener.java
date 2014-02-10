@@ -9,7 +9,6 @@ import info.bytecraft.api.BooleanStringReturn;
 import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.api.event.PlayerChangeZoneEvent;
 import info.bytecraft.api.math.Point;
-import info.bytecraft.zones.Lot;
 import info.bytecraft.zones.Zone;
 import info.bytecraft.zones.Zone.Flag;
 import info.bytecraft.zones.Zone.Permission;
@@ -138,19 +137,10 @@ public class ZoneListener implements Listener
     public void onSpawn(CreatureSpawnEvent event)
     {
         Entity ent = event.getEntity();
-        
-        if(ent.getLocation().getBlock().getLightLevel() < 5 )
-        {
-            if(types.contains(ent.getType())){
-                event.setCancelled(true);
-                return;
-            }
-        }
-        
         List<Zone> zones = plugin.getZones(ent.getWorld().getName());
         if(zones.isEmpty())return;
         for(Zone zone: zones){
-            if(zone.contains(ent.getLocation())){
+            if(zone.contains(ent.getLocation()) && zone.getWorld().equalsIgnoreCase(ent.getWorld().getName())){
                 if(!zone.hasFlag(Flag.HOSTILES)){
                     if(types.contains(ent.getType())){
                         event.setCancelled(true);

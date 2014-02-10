@@ -88,7 +88,7 @@ public class ChatListener implements Listener
             if (player.getRank() == Rank.SETTLER || player.getRank() == Rank.MEMBER) {
                     if (player.hasFlag(Flag.LORD)) {
                         coloredMessage =  "<" + ChatColor.GREEN + "[Lord]" +
-                                nameColor + player.getName() + "> " + color + message;
+                                nameColor + player.getName()  + ChatColor.WHITE + "> " + color + message;
                 }
             }
             

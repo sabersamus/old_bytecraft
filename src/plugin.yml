@@ -3,17 +3,20 @@ author: Sabersamus
 main: info.bytecraft.Bytecraft
 description: The main plugin for Bytecraft
 website: http://www.bytecraft.info
-version: 1.2.1
+version: 1.2.2.02
 commands:
     back:
         description: Go back to where you died... for a cost
         usage: /<command>
     ban:
         description: Ban a player from the server
-        usage: /<command> <player> [amount] [minutes|hours|days|weeks|months]
+        usage: /<command> <player>
     bless:
         description: Bless a block for a player
         usage: /<command> <player>
+    brush:
+        description: Create a brush
+        usage: /brush <material> <radius>
     channel:
         description: Change your chat channel
         usage: /<command> <channel>
@@ -55,6 +58,9 @@ commands:
     hardwarn:
         description: Hard warn a player, taking their build powers
         usage: /<command> <player> [amount] [minutes|hours|days|weeks|months]
+    head:
+        description: Spawn a player's head
+        usage: /<command> <player>
     home:
         description: Manage your home
         usage: /<command> [save]
@@ -136,6 +142,9 @@ commands:
     time:
         description: Change your personal time
         usage: /<command> [day|night|normal]
+    tool: 
+        description: Use different tools
+        usage: /<command> [workbench, wb]
     town:
         description: Manage your current zone
         usage: |

@@ -2,7 +2,9 @@ package info.bytecraft.commands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.World;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
@@ -79,6 +81,12 @@ public class HomeCommand extends AbstractCommand
 
             player.sendMessage(ChatColor.AQUA + "Initiating teleport to home!");
             final Location loc = dao.getHome(player);
+            
+            World world = loc.getWorld();
+            Chunk chunk = world.getChunkAt(loc);
+            
+            world.loadChunk(chunk);
+            
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin,
                     new Runnable() {
 
@@ -102,6 +110,12 @@ public class HomeCommand extends AbstractCommand
             player.sendMessage(ChatColor.AQUA + "Initiating teleport to "
                     + toName + "'s home!");
             final Location loc = dao.getHome(toName);
+            
+            World world = loc.getWorld();
+            Chunk chunk = world.getChunkAt(loc);
+            
+            world.loadChunk(chunk);
+            
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin,
                     new Runnable() {
 

@@ -1,19 +1,24 @@
 -- phpMyAdmin SQL Dump
--- version 4.0.4
+-- version 3.3.7deb5build0.10.10.1
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Jan 21, 2014 at 09:53 PM
--- Server version: 5.6.12-log
--- PHP Version: 5.4.12
+-- Generation Time: Feb 09, 2014 at 09:11 PM
+-- Server version: 5.1.49
+-- PHP Version: 5.3.3-1ubuntu9.5
 
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET time_zone = "+00:00";
+SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
 
 --
 -- Database: `mcs28`
 --
-CREATE DATABASE IF NOT EXISTS `mcs28` DEFAULT CHARACTER SET utf8 COLLATE utf8_bin;
+CREATE DATABASE `mcs28` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
 USE `mcs28`;
 
 -- --------------------------------------------------------
@@ -30,44 +35,50 @@ CREATE TABLE IF NOT EXISTS `bless` (
   `z` int(255) NOT NULL,
   `world` varchar(32) NOT NULL DEFAULT 'world',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
-
-CREATE TABLE IF NOT EXISTS `chest_log` (
-  `id` int(255) NOT NULL AUTO_INCREMENT,
-  `player_name` varchar(32) NOT NULL,
-  `x` int (255) NOT NULL,
-  `y` int (255) NOT NULL,
-  `z` int (255) NOT NULL,
-  `world` varchar(32) NOT NULL DEFAULT 'world',
-  `action` enum('open','take','deposit'),
-  `log_timestamp` int(10) unsigned NOT NULL,
-  UNIQUE KEY `id` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=76 ;
 
 -- --------------------------------------------------------
 
+--
+-- Table structure for table `book`
+--
 
-CREATE TABLE IF NOT EXISTS `item`(
-  `item_type` varchar(32) NOT NULL,
-  `item_value` int(10) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`item_type`)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8;
+CREATE TABLE IF NOT EXISTS `book` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `name` varchar(32) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
-CREATE TABLE IF NOT EXISTS `sell_log` (
-  `sell_id` int(10) NOT NULL AUTO_INCREMENT,
-  `player_name` varchar(32) NOT NULL,
-  `sell_value` int(10) NOT NULL,
-   PRIMARY KEY (`sell_id`)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `book_pages`
+--
+
+CREATE TABLE IF NOT EXISTS `book_pages` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `book_name` varchar(32) NOT NULL,
+  `page_index` int(5) NOT NULL,
+  `page_text` varchar(250) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `enchantment_value`
+--
 
 CREATE TABLE IF NOT EXISTS `enchantment_value` (
   `id` int(10) NOT NULL AUTO_INCREMENT,
   `enchant_id` int(10) NOT NULL,
   `enchant_level` int(10) NOT NULL,
   `enchant_value` int(10) NOT NULL,
-  PRIMARY KEY(`id`)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `echant_id` (`enchant_id`,`enchant_level`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=13 ;
+
+-- --------------------------------------------------------
 
 --
 -- Table structure for table `fill_log`
@@ -80,18 +91,157 @@ CREATE TABLE IF NOT EXISTS `fill_log` (
   `size` int(255) NOT NULL,
   `material` varchar(32) NOT NULL,
   UNIQUE KEY `id` (`fill_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1707 ;
+
+-- --------------------------------------------------------
 
 --
--- Table structure for table 'messages'
+-- Table structure for table `inventory`
 --
 
-CREATE TABLE IF NOT EXISTS messages (
-  id int(10) NOT NULL AUTO_INCREMENT,
-  message varchar(100) NOT NULL,
+CREATE TABLE IF NOT EXISTS `inventory` (
+  `inventory_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `player_name` varchar(32) NOT NULL,
+  `inventory_checksum` int(11) DEFAULT NULL,
+  `inventory_x` int(11) DEFAULT NULL,
+  `inventory_y` int(11) DEFAULT NULL,
+  `inventory_z` int(11) DEFAULT NULL,
+  `inventory_world` varchar(32) DEFAULT NULL,
+  `inventory_type` enum('block','player','player_armor') DEFAULT NULL,
+  PRIMARY KEY (`inventory_id`),
+  KEY `idx_coords` (`inventory_x`,`inventory_y`,`inventory_z`,`inventory_world`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=362 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `inventory_accesslog`
+--
+
+CREATE TABLE IF NOT EXISTS `inventory_accesslog` (
+  `accesslog_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `inventory_id` int(10) unsigned DEFAULT NULL,
+  `player_name` varchar(32) NOT NULL,
+  `accesslog_timestamp` int(10) unsigned DEFAULT NULL,
+  PRIMARY KEY (`accesslog_id`),
+  KEY `idx_inventory` (`inventory_id`,`accesslog_timestamp`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5197 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `inventory_changelog`
+--
+
+CREATE TABLE IF NOT EXISTS `inventory_changelog` (
+  `changelog_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `inventory_id` int(10) unsigned DEFAULT NULL,
+  `player_name` varchar(32) NOT NULL,
+  `changelog_timestamp` int(10) unsigned DEFAULT NULL,
+  `changelog_slot` int(10) unsigned DEFAULT NULL,
+  `changelog_material` int(10) unsigned DEFAULT NULL,
+  `changelog_data` int(11) DEFAULT NULL,
+  `changelog_meta` text,
+  `changelog_amount` int(10) unsigned DEFAULT NULL,
+  `changelog_type` enum('add','remove') DEFAULT NULL,
+  PRIMARY KEY (`changelog_id`),
+  KEY `idx_inventory` (`inventory_id`,`changelog_timestamp`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=7495 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `inventory_item`
+--
+
+CREATE TABLE IF NOT EXISTS `inventory_item` (
+  `item_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `inventory_id` int(10) unsigned DEFAULT NULL,
+  `item_slot` int(10) unsigned DEFAULT NULL,
+  `item_material` int(10) unsigned DEFAULT NULL,
+  `item_data` int(11) DEFAULT NULL,
+  `item_meta` text CHARACTER SET utf8,
+  `item_count` int(10) unsigned DEFAULT NULL,
+  PRIMARY KEY (`item_id`),
+  KEY `inventory_idx` (`inventory_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_swedish_ci AUTO_INCREMENT=89425 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `item`
+--
+
+CREATE TABLE IF NOT EXISTS `item` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `item_type` varchar(32) NOT NULL,
+  `item_data` int(10) NOT NULL DEFAULT '0',
+  `item_value` int(10) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `item_type` (`item_type`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=33 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `lore_armor`
+--
+
+CREATE TABLE IF NOT EXISTS `lore_armor` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `name` varchar(32) NOT NULL,
+  `type` varchar(32) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=19 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `lore_book`
+--
+
+CREATE TABLE IF NOT EXISTS `lore_book` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `lore` varchar(250) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `lore_god`
+--
+
+CREATE TABLE IF NOT EXISTS `lore_god` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `name` varchar(32) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=9 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `lore_sword`
+--
+
+CREATE TABLE IF NOT EXISTS `lore_sword` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `name` varchar(32) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=25 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `messages`
+--
+
+CREATE TABLE IF NOT EXISTS `messages` (
+  `id` int(10) NOT NULL AUTO_INCREMENT,
+  `message` varchar(100) NOT NULL,
   `type` enum('death','quit') NOT NULL,
-  PRIMARY KEY (id)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=13 ;
 
 -- --------------------------------------------------------
 
@@ -110,7 +260,7 @@ CREATE TABLE IF NOT EXISTS `paper_log` (
   `action` enum('broke','placed') NOT NULL,
   `paper_time` int(10) unsigned DEFAULT NULL,
   UNIQUE KEY `id` (`paper_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=239517 ;
 
 -- --------------------------------------------------------
 
@@ -122,24 +272,16 @@ CREATE TABLE IF NOT EXISTS `player` (
   `player_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `player_name` varchar(46) DEFAULT NULL,
   `player_created` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `banned` enum('true','false') NOT NULL DEFAULT 'false',
   `player_wallet` bigint(20) DEFAULT '1000',
-  `player_rank` enum('newcomer','settler', 'child','member','mentor','protector'
-  ,'architect','admin', 'princess','elder') NOT NULL DEFAULT 'newcomer',
+  `player_rank` enum('newcomer','settler','child','member','mentor','protector','architect','admin','princess','elder') NOT NULL DEFAULT 'newcomer',
   `player_promoted` int(10) unsigned DEFAULT NULL,
   `player_playtime` int(10) unsigned DEFAULT '0',
   UNIQUE KEY `uid` (`player_id`),
   KEY `player` (`player_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=124 ;
 
 -- --------------------------------------------------------
-
-CREATE TABLE IF NOT EXISTS `player_login` (
-  `login_id` int(32) NOT NULL AUTO_INCREMENT,
-  `player_name` varchar(32) COLLATE utf8_bin NOT NULL,
-  `login_timestamp` int(10) unsigned NOT NULL,
-  `action` enum('login', 'logout') NOT NULL,
-  PRIMARY KEY (`login_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
 --
 -- Table structure for table `player_chatlog`
@@ -152,7 +294,7 @@ CREATE TABLE IF NOT EXISTS `player_chatlog` (
   `chatlog_channel` varchar(64) COLLATE utf8_bin DEFAULT NULL,
   `chatlog_message` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   PRIMARY KEY (`chatlog_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_bin AUTO_INCREMENT=27255 ;
 
 -- --------------------------------------------------------
 
@@ -171,7 +313,39 @@ CREATE TABLE IF NOT EXISTS `player_home` (
   `home_world` varchar(32) DEFAULT NULL,
   PRIMARY KEY (`home_id`),
   KEY `player_name` (`player_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=9 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `player_login`
+--
+
+CREATE TABLE IF NOT EXISTS `player_login` (
+  `login_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `player_name` varchar(32) CHARACTER SET utf8 NOT NULL,
+  `login_timestamp` int(10) unsigned NOT NULL,
+  `action` enum('login','logout') CHARACTER SET utf8 DEFAULT NULL,
+  `login_ip` varchar(15) CHARACTER SET utf8 DEFAULT NULL,
+  PRIMARY KEY (`login_id`),
+  KEY `ip_idx` (`login_ip`),
+  KEY `player_idx` (`player_name`,`login_timestamp`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_swedish_ci AUTO_INCREMENT=2634 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `player_messages`
+--
+
+CREATE TABLE IF NOT EXISTS `player_messages` (
+  `message_id` int(10) NOT NULL AUTO_INCREMENT,
+  `player_name` varchar(32) NOT NULL,
+  `recipient_name` varchar(32) NOT NULL,
+  `message` varchar(100) NOT NULL,
+  `message_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`message_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1068 ;
 
 -- --------------------------------------------------------
 
@@ -179,20 +353,19 @@ CREATE TABLE IF NOT EXISTS `player_home` (
 -- Table structure for table `player_property`
 --
 
-DROP TABLE IF EXISTS `player_property`;
-
 CREATE TABLE IF NOT EXISTS `player_property` (
   `player_id` int(10) NOT NULL,
   `player_name` varchar(255) NOT NULL,
-  `invisible` enum('true','false') COLLATE utf8_bin NOT NULL DEFAULT 'false',
-  `tpblock` enum('true','false') COLLATE utf8_bin NOT NULL DEFAULT 'false',
-  `hidden_location` enum('true', 'false') COLLATE utf8_bin NOT NULL DEFAULT 'false',
-  `silent_join` enum('true', 'false') COLLATE utf8_bin NOT NULL DEFAULT 'false',
-  `noble` enum('true', 'false') COLLATE utf8_bin NOT NULL DEFAULT 'false',
-  `lord` enum('true', 'false') COLLATE utf8_bin NOT NULL DEFAULT 'false',
-  `god_color` enum('red','aqua','gold','yellow','dark_aqua','pink','purple','green','dark_green','dark_red','gray') COLLATE utf8_bin NOT NULL DEFAULT 'red',
-  PRIMARY KEY `id` (`player_id`),
-  UNIQUE KEY (`player_name`)
+  `invisible` enum('true','false') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'false',
+  `tpblock` enum('true','false') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'false',
+  `hidden_location` enum('true','false') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'false',
+  `silent_join` enum('true','false') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'false',
+  `can_fly` enum('true','false') NOT NULL DEFAULT 'true',
+  `noble` enum('true','false') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'false',
+  `lord` enum('true','false') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'false',
+  `god_color` enum('red','aqua','gold','yellow','dark_aqua','pink','purple','green','dark_green','dark_red','gray','dark_blue') CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT 'red',
+  PRIMARY KEY (`player_id`),
+  UNIQUE KEY `player_name` (`player_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -212,7 +385,20 @@ CREATE TABLE IF NOT EXISTS `player_report` (
   PRIMARY KEY (`report_id`),
   KEY `idx_subject` (`subject_name`,`report_timestamp`),
   KEY `idx_issuer` (`issuer_name`,`report_timestamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=40 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `sell_log`
+--
+
+CREATE TABLE IF NOT EXISTS `sell_log` (
+  `sell_id` int(10) NOT NULL AUTO_INCREMENT,
+  `player_name` varchar(32) NOT NULL,
+  `sell_value` int(10) NOT NULL,
+  PRIMARY KEY (`sell_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=137 ;
 
 -- --------------------------------------------------------
 
@@ -226,7 +412,7 @@ CREATE TABLE IF NOT EXISTS `transaction_log` (
   `reciever_name` varchar(32) NOT NULL,
   `amount` bigint(20) NOT NULL,
   UNIQUE KEY `id` (`transaction_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=180 ;
 
 -- --------------------------------------------------------
 
@@ -244,9 +430,9 @@ CREATE TABLE IF NOT EXISTS `warps` (
   `yaw` float NOT NULL,
   `world` varchar(16) CHARACTER SET latin1 NOT NULL,
   PRIMARY KEY (`warp_id`),
-  UNIQUE KEY `name.unique` (`name`),
+  UNIQUE KEY `name` (`name`),
   KEY `name-index` (`name`,`x`,`y`,`z`,`pitch`,`yaw`,`world`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=12 ;
 
 -- --------------------------------------------------------
 
@@ -264,9 +450,8 @@ CREATE TABLE IF NOT EXISTS `zone` (
   `zone_hostile` enum('true','false') DEFAULT 'true',
   `zone_entermsg` varchar(250) NOT NULL,
   `zone_exitmsg` varchar(250) NOT NULL,
-  PRIMARY KEY (`zone_id`),
-  UNIQUE KEY `name` (`zone_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+  PRIMARY KEY (`zone_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=12 ;
 
 -- --------------------------------------------------------
 
@@ -276,15 +461,14 @@ CREATE TABLE IF NOT EXISTS `zone` (
 
 CREATE TABLE IF NOT EXISTS `zone_lot` (
   `lot_id` int(10) NOT NULL AUTO_INCREMENT,
-  `zone_id` int(10) NOT NULL,
+  `zone_name` varchar(32) NOT NULL,
   `lot_name` varchar(50) NOT NULL,
   `lot_x1` int(10) NOT NULL,
-  `lot_y1` int(10) NOT NULL,
+  `lot_z1` int(10) NOT NULL,
   `lot_x2` int(10) NOT NULL,
-  `lot_y2` int(10) NOT NULL,
-  `special` int(11) DEFAULT NULL,
+  `lot_z2` int(10) NOT NULL,
   PRIMARY KEY (`lot_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=10 ;
 
 -- --------------------------------------------------------
 
@@ -294,8 +478,8 @@ CREATE TABLE IF NOT EXISTS `zone_lot` (
 
 CREATE TABLE IF NOT EXISTS `zone_lotuser` (
   `lot_id` int(10) NOT NULL DEFAULT '0',
-  `user_id` int(10) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`lot_id`,`user_id`)
+  `player_name` varchar(32) NOT NULL,
+  PRIMARY KEY (`lot_id`,`player_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -313,7 +497,7 @@ CREATE TABLE IF NOT EXISTS `zone_rect` (
   `rect_z2` int(10) DEFAULT NULL,
   PRIMARY KEY (`rect_id`),
   KEY `zone_name` (`zone_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=20 ;
 
 -- --------------------------------------------------------
 
@@ -327,63 +511,3 @@ CREATE TABLE IF NOT EXISTS `zone_user` (
   `player_perm` enum('owner','maker','allowed','banned') NOT NULL DEFAULT 'allowed',
   PRIMARY KEY (`zone_name`,`player_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS `inventory` (
-  `inventory_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `player_name` varchar(32) NOT NULL,
-  `inventory_checksum` int(11) DEFAULT NULL,
-  `inventory_x` int(11) DEFAULT NULL,
-  `inventory_y` int(11) DEFAULT NULL,
-  `inventory_z` int(11) DEFAULT NULL,
-  `inventory_world` varchar(32) COLLATE utf8_general_ci DEFAULT NULL,
-  `inventory_type` enum('block','player','player_armor') COLLATE utf8_general_ci DEFAULT NULL,
-  PRIMARY KEY (`inventory_id`),
-  KEY `idx_coords` (`inventory_x`,`inventory_y`,`inventory_z`,`inventory_world`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
-
-DROP TABLE IF EXISTS `inventory_accesslog`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE IF NOT EXISTS`inventory_accesslog` (
-  `accesslog_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `inventory_id` int(10) unsigned DEFAULT NULL,
-  `player_name` varchar(32) NOT NULL,
-  `accesslog_timestamp` int(10) unsigned DEFAULT NULL,
-  PRIMARY KEY (`accesslog_id`),
-  KEY `idx_inventory` (`inventory_id`,`accesslog_timestamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
-DROP TABLE IF EXISTS `inventory_changelog`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE IF NOT EXISTS`inventory_changelog` (
-  `changelog_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `inventory_id` int(10) unsigned DEFAULT NULL,
-  `player_name` varchar(32) NOT NULL,
-  `changelog_timestamp` int(10) unsigned DEFAULT NULL,
-  `changelog_slot` int(10) unsigned DEFAULT NULL,
-  `changelog_material` int(10) unsigned DEFAULT NULL,
-  `changelog_data` int(11) DEFAULT NULL,
-  `changelog_meta` text,
-  `changelog_amount` int(10) unsigned DEFAULT NULL,
-  `changelog_type` enum('add','remove') DEFAULT NULL,
-  PRIMARY KEY (`changelog_id`),
-  KEY `idx_inventory` (`inventory_id`,`changelog_timestamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-DROP TABLE IF EXISTS `inventory_item`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE IF NOT EXISTS`inventory_item` (
-  `item_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `inventory_id` int(10) unsigned DEFAULT NULL,
-  `item_slot` int(10) unsigned DEFAULT NULL,
-  `item_material` int(10) unsigned DEFAULT NULL,
-  `item_data` int(11) DEFAULT NULL,
-  `item_meta` text CHARACTER SET utf8,
-  `item_count` int(10) unsigned DEFAULT NULL,
-  PRIMARY KEY (`item_id`),
-  KEY `inventory_idx` (`inventory_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_swedish_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;

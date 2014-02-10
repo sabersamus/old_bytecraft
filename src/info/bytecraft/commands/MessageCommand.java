@@ -56,17 +56,17 @@ public class MessageCommand extends AbstractCommand
     
     private void sendMessage(BytecraftPlayer player, BytecraftPlayer target, String message)
     {
-        target.sendNotification(Notification.MESSAGE, ChatColor.GOLD
-                + "<From> " + player.getDisplayName() + ": "
+        target.sendNotification(Notification.MESSAGE, ChatColor.GREEN
+                + "<msg> " + player.getDisplayName() + ": "
                 + ChatColor.GREEN + message);
         if(target.hasFlag(Flag.INVISIBLE)){
             if(player.getRank() == Rank.ELDER || player.getRank() == Rank.PRINCESS){
-                player.sendMessage(ChatColor.GOLD + "<To> "
+                player.sendMessage(ChatColor.GREEN + "<To> "
                         + target.getDisplayName() + ": " + ChatColor.GREEN
                         + message);
             }
         }else{
-            player.sendMessage(ChatColor.GOLD + "<To> "
+            player.sendMessage(ChatColor.GREEN + "<To> "
                     + target.getDisplayName() + ": " + ChatColor.GREEN
                     + message);
         }

@@ -5,7 +5,9 @@ import java.util.Map;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -72,6 +74,12 @@ public class BackCommand extends AbstractCommand implements Listener
             if(dao.take(player, cost)){
                 Location loc = deathLocation.get(player);
                 player.sendMessage(ChatColor.AQUA + "Returning to where you died...");
+                
+                World world = loc.getWorld();
+                Chunk chunk = world.getChunkAt(loc);
+                
+                world.loadChunk(chunk);
+                
                 Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new BackTask(player, loc), 2 * 20L);
                 return true;
             }else{

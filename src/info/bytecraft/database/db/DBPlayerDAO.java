@@ -50,6 +50,7 @@ public class DBPlayerDAO implements IPlayerDAO
                     put("dark_green", ChatColor.DARK_GREEN);
                     put("dark_red", ChatColor.DARK_RED);
                     put("gray", ChatColor.GRAY);
+                    put("dark_blue", ChatColor.DARK_BLUE);
                 }
             };
 
@@ -119,8 +120,8 @@ public class DBPlayerDAO implements IPlayerDAO
     public void createFlags(BytecraftPlayer player) throws DAOException
     {
         String sql = "INSERT INTO player_property (player_id, player_name, invisible, tpblock, "
-                + "hidden_location, silent_join, noble, lord, god_color)"
-                + "VALUES (? ,?, ?, ?, ?, ?, ?, ? ,?)";
+                + "hidden_location, silent_join, can_fly, noble, lord, god_color)"
+                + "VALUES (? ,?, ?, ?, ?, ?, ?, ?, ? ,?)";
         try(PreparedStatement stm = conn.prepareStatement(sql)){
             stm.setInt(1, player.getId());
             stm.setString(2, player.getName());
@@ -130,7 +131,8 @@ public class DBPlayerDAO implements IPlayerDAO
             stm.setString(6, "false");
             stm.setString(7, "false");
             stm.setString(8, "false");
-            stm.setString(9, "red");
+            stm.setString(9, "false");
+            stm.setString(10, "red");
             stm.execute();
         } catch (SQLException e) {
             throw new DAOException(sql, e);
@@ -153,11 +155,13 @@ public class DBPlayerDAO implements IPlayerDAO
                     boolean lord = Boolean.valueOf(rs.getString("lord"));
                     boolean hiddenLoc = Boolean.valueOf(rs.getString("hidden_location"));
                     boolean silentJoin = Boolean.valueOf(rs.getString("silent_join"));
+                    boolean canFly = Boolean.valueOf(rs.getString("can_fly"));
                     
                     player.setFlag(Flag.TPBLOCK, tpb);
                     player.setFlag(Flag.INVISIBLE, invisible);
                     player.setFlag(Flag.NOBLE, noble);
                     player.setFlag(Flag.LORD, lord);
+                    player.setFlag(Flag.CAN_FLY, canFly);
                     player.setFlag(Flag.HIDDEN_LOCATION, hiddenLoc);
                     player.setFlag(Flag.SILENT_JOIN, silentJoin);
 
@@ -397,6 +401,38 @@ public class DBPlayerDAO implements IPlayerDAO
             stm.setString(2, player.getName());
             stm.execute();
         } catch (SQLException e) {
+            throw new DAOException(sql, e);
+        }
+    }
+
+    @Override
+    public boolean isBanned(BytecraftPlayer player) throws DAOException
+    {
+        String sql = "SELECT * FROM player WHERE player_name = ?";
+        try(PreparedStatement stm = conn.prepareStatement(sql)){
+            stm.setString(1, player.getName());
+            stm.execute();
+            
+            try(ResultSet rs = stm.getResultSet()){
+                if(!rs.next()){
+                    return false;
+                }
+                return Boolean.valueOf(rs.getString("banned"));
+            }
+            
+        }catch(SQLException e){
+            throw new DAOException(sql, e);
+        }
+    }
+    
+    @Override
+    public void ban(BytecraftPlayer player) throws DAOException
+    {
+        String sql = "UPDATE player SET banned = true WHERE player_name = ?";
+        try(PreparedStatement stm = conn.prepareStatement(sql)){
+            stm.setString(1, player.getName());
+            stm.execute();
+        }catch(SQLException e){
             throw new DAOException(sql, e);
         }
     }

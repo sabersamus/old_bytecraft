@@ -87,7 +87,7 @@ public enum Rank
     
     public boolean canMentor()
     {
-        return (this == ADMIN || this == MENTOR || this == ELDER || this == PRINCESS);
+        return (this == ADMIN || this == MENTOR || this == ELDER || this == PRINCESS || this == PROTECTOR);
     }
     
     public boolean canFly()
@@ -229,6 +229,16 @@ public enum Rank
     public boolean canFlyFast()
     {
         return (this.isElder());
+    }
+
+    public boolean canSpawnHeads()
+    {
+        return (this == ADMIN || isElder());
+    }
+
+    public boolean canChangeName()
+    {
+        return isElder();
     }
 
 

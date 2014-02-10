@@ -99,7 +99,7 @@ public class PlayerLookupListener implements Listener
 
             aliasList = buffer.toString();
 
-            if (aliases.size() > 1) {
+            if (aliasList != null && aliases.size() > 1) {
 
                 for (BytecraftPlayer current : plugin.getOnlinePlayers()) {
                     if (!current.getRank().canSeePlayerInfo()) {
@@ -109,6 +109,7 @@ public class PlayerLookupListener implements Listener
                             player.hasFlag(Flag.HIDDEN_LOCATION)){
                         continue;
                     }
+                    
                     current.sendMessage(ChatColor.YELLOW
                             + "This player have also used names: " + aliasList);
                 }
