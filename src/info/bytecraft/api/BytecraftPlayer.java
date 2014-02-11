@@ -60,7 +60,6 @@ public class BytecraftPlayer extends PlayerDelegate
     private String host;
     private String city;
     private String country;
-    private Zone currZone = null;
     
     private Set<Flag> flags;
     
@@ -177,17 +176,6 @@ public class BytecraftPlayer extends PlayerDelegate
     public void setCountry(String v) { this.country = v; }
     public String getCountry() { return country; }
 
-    //Zones
-    /**
-     * @deprecated use {@link Bytecraft#getZoneAt(org.bukkit.World, Point)} 
-     */
-    @Deprecated
-    public Zone getCurrentZone()
-    { return currZone; }
-    
-    @Deprecated
-    public void setCurrentZone(Zone zone) { this.currZone = zone; }
-    
     //Rank time outs
     public int getMaxTeleportDistance()
     {
