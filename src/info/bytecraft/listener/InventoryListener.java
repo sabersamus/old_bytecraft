@@ -2,6 +2,7 @@ package info.bytecraft.listener;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.Rank;
 import info.bytecraft.api.BytecraftPlayer.Flag;
 import info.bytecraft.api.InventoryAccess;
 import info.bytecraft.database.DAOException;
@@ -197,29 +198,21 @@ public class InventoryListener implements Listener
 
         openInventories.remove(loc);
 
-        /*Player player = (Player) event.getPlayer();
-        if (player.getGameMode() == GameMode.CREATIVE) {
-            for (ItemStack item : player.getInventory().getContents()) {
-                if (item != null) {
-                    ItemMeta meta = item.getItemMeta();
-                    List<String> lore = new ArrayList<String>();
-                    lore.add(Created.CREATIVE.toColorString());
-                    BytecraftPlayer p = this.plugin.getPlayer(player);
-                    lore.add(ChatColor.WHITE + "by: " + p.getChatName());
-                    lore.add(ChatColor.WHITE + "Value: " + ChatColor.MAGIC
-                            + "0000" + ChatColor.RESET + ChatColor.WHITE
-                            + " Treg");
-                    meta.setLore(lore);
-                    item.setItemMeta(meta);
-                }
+    }
+    
+    @EventHandler
+    public void onOpen(InventoryOpenEvent event)
+    {
+        if(!(event.getPlayer() instanceof Player))return;
+        if(event.isCancelled())return;
+        BytecraftPlayer player = plugin.getPlayer((Player)event.getPlayer());
+        if(event.getInventory().getHolder() != player.getDelegate()){
+            if(player.getRank() == Rank.NEWCOMER){
+                event.setCancelled(true);
+                player.sendMessage(ChatColor.RED + "You can't open chests until you become a settler!");
+                return;
             }
-        }*/
+        }
     }
 
-    /*@EventHandler
-    public void onInventoryCreative(InventoryCreativeEvent event)
-    {
-        Bytecraft.LOGGER.info("InventoryCreative");
-        Bytecraft.LOGGER.info(event.getInventory().getHolder().toString());
-    }*/
 }

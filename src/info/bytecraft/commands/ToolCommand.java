@@ -32,7 +32,7 @@ public class ToolCommand extends AbstractCommand
     
     private void workBench(BytecraftPlayer player)
     {
-        int cost = player.getToolCost();
+        int cost = player.getRank().getToolCost();
         
         try(IContext ctx = plugin.createContext()){
             IPlayerDAO dao = ctx.getPlayerDAO();

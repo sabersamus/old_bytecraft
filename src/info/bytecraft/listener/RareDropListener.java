@@ -188,7 +188,7 @@ public class RareDropListener implements Listener
          * Noble = chance + 5
          * everyone else = chance + 0 
          */
-        chance += player.getRareDropIncrease();
+        chance += player.getRank().getRareDropIncrease();
         
         if(i <= chance){//if x <= y, ex: i is 1 and chance is 3, drop
             //do drop
@@ -235,10 +235,10 @@ public class RareDropListener implements Listener
             player.updateInventory();
             player.sendMessage(ChatColor.GOLD + "Congratulations, you've received an item from the rare drop table!");
             player.sendMessage(ChatColor.GOLD + "You must now wait " + ChatColor.RED +
-                    player.getRareDropTimeout() + ChatColor.GOLD + " minutes before receiving another!");
+                    player.getRank().getRareDropTimeout() + ChatColor.GOLD + " minutes before receiving another!");
             players.add(player);
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, 
-                    new DropDelayTask(player), player.getRareDropTimeout() * 20 * 60L);
+                    new DropDelayTask(player), player.getRank().getRareDropTimeout() * 20 * 60L);
             return;
         }
         
@@ -283,9 +283,9 @@ public class RareDropListener implements Listener
         player.updateInventory();
         player.sendMessage(ChatColor.GOLD + "Congratulations, you've received an item from the rare drop table!");
         player.sendMessage(ChatColor.GOLD + "You must now wait " + ChatColor.RED +
-                player.getRareDropTimeout() + ChatColor.GOLD + " minutes before receiving another!");
+                player.getRank().getRareDropTimeout() + ChatColor.GOLD + " minutes before receiving another!");
         players.add(player);
-        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new DropDelayTask(player), player.getRareDropTimeout() * 20 * 60L);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new DropDelayTask(player), player.getRank().getRareDropTimeout() * 20 * 60L);
     }
     
     @EventHandler

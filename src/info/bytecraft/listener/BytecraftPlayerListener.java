@@ -1,5 +1,6 @@
 package info.bytecraft.listener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -26,8 +27,11 @@ import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.SkullType;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Skull;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -38,7 +42,9 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
@@ -50,6 +56,7 @@ import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import com.google.common.collect.Maps;
 
@@ -88,9 +95,9 @@ public class BytecraftPlayerListener implements Listener
                     + plugin.getConfig().getString("motd.normal"));
         }
         
-        player.setAllowFlight(player.hasFlag(Flag.NOBLE) || player.getRank().canFill());
+        player.setAllowFlight(player.getRank().canFly());
         
-        if(player.getGameMode() != GameMode.SURVIVAL){
+        if(player.getGameMode() != GameMode.SURVIVAL && !player.getRank().canFill()){
             player.setGameMode(GameMode.SURVIVAL);
         }
         
@@ -339,7 +346,7 @@ public class BytecraftPlayerListener implements Listener
     {
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
         if(player == null)return;
-        if(player.hasFlag(Flag.NOBLE) || player.getRank().canFill()){
+        if(player.getRank().canFly()){
             if(player.hasFlag(Flag.CAN_FLY)){
                 event.setCancelled(false);
             }else{
@@ -370,7 +377,7 @@ public class BytecraftPlayerListener implements Listener
 
         World world = player.getWorld();
 
-        if (player.hasFlag(Flag.LORD)) {
+        if (player.getRank() == Rank.NOBLE) {
 
             float pitch = event.getPlayer().getLocation().getPitch();
             float yaw = event.getPlayer().getLocation().getYaw();
@@ -407,7 +414,7 @@ public class BytecraftPlayerListener implements Listener
                 }
             }
         }
-        else if (player.hasFlag(Flag.NOBLE)) {
+        else if (player.getRank().ordinal() >= Rank.LORD.ordinal()) {//this is very bad practice
 
             Block target = player.getDelegate().getTargetBlock(null, 300);
 
@@ -425,6 +432,72 @@ public class BytecraftPlayerListener implements Listener
                             target.getZ() + 0.5, player.getLocation().getYaw(),
                             player.getLocation().getPitch());
             player.teleport(loc);
+        }
+    }
+    
+    @EventHandler
+    public void onChange(PlayerGameModeChangeEvent event)
+    {
+        if(event.getNewGameMode() == GameMode.SURVIVAL){
+            BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
+            if(player.getRank().canFly()){
+                if(player.hasFlag(Flag.CAN_FLY)){
+                    player.setAllowFlight(true);
+                }else{
+                    player.setAllowFlight(false);
+                }
+            }else{
+                player.setAllowFlight(false);
+            }
+            
+            if(player.hasFlag(Flag.SOFTWARNED) || player.hasFlag(Flag.HARDWARNED)){
+                player.setAllowFlight(false);
+            }
+            
+        }
+    }
+    
+    @EventHandler
+    public void onClose(InventoryCloseEvent event)
+    {
+        Player player = (Player) event.getPlayer();
+        if (player.getGameMode() == GameMode.CREATIVE) {
+            for (ItemStack item : player.getInventory().getContents()) {
+                if (item != null) {
+                    ItemMeta meta = item.getItemMeta();
+                    List<String> lore = new ArrayList<String>();
+                    lore.add(ChatColor.YELLOW + "Creative");
+                    BytecraftPlayer p = this.plugin.getPlayer(player);
+                    lore.add(ChatColor.YELLOW + "by: " + p.getDisplayName());
+                    meta.setLore(lore);
+                    item.setItemMeta(meta);
+                }
+            }
+        }
+    }
+    
+    @EventHandler
+    public void onPlayerClick(PlayerInteractEvent event)
+    {
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) {
+            return;
+        }
+        Player player = event.getPlayer();
+        BlockState block = event.getClickedBlock().getState();
+        if (block instanceof Skull) {
+            Skull skull = (Skull) block;
+            if (!skull.getSkullType().equals(SkullType.PLAYER)) {
+                return;
+            }
+            String owner = skull.getOwner();
+            BytecraftPlayer skullowner = plugin.getPlayerOffline(owner);
+            if (skullowner != null){
+                ChatColor C = skullowner.getNameColor();
+                player.sendMessage(ChatColor.AQUA + "This is " + C + owner + "'s " + ChatColor.AQUA + "head!");
+            }else{
+                player.sendMessage(ChatColor.AQUA + "This is " + ChatColor.WHITE + owner + ChatColor.AQUA + "'s head!");
+
+            }
         }
     }
     

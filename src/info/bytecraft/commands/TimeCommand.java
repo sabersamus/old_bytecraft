@@ -2,7 +2,6 @@ package info.bytecraft.commands;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.api.BytecraftPlayer.Flag;
 
 public class TimeCommand extends AbstractCommand
 {
@@ -14,7 +13,7 @@ public class TimeCommand extends AbstractCommand
 
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
-        if(!player.hasFlag(Flag.NOBLE)){
+        if(!player.getRank().canChangeTime()){
             player.sendMessage(getInvalidPermsMessage());
             return true;
         }

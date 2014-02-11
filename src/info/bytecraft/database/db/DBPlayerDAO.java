@@ -120,8 +120,8 @@ public class DBPlayerDAO implements IPlayerDAO
     public void createFlags(BytecraftPlayer player) throws DAOException
     {
         String sql = "INSERT INTO player_property (player_id, player_name, invisible, tpblock, "
-                + "hidden_location, silent_join, can_fly, noble, lord, god_color)"
-                + "VALUES (? ,?, ?, ?, ?, ?, ?, ?, ? ,?)";
+                + "hidden_location, silent_join, can_fly, god_color)"
+                + "VALUES (? ,?, ?, ?, ?, ?, ?, ?)";
         try(PreparedStatement stm = conn.prepareStatement(sql)){
             stm.setInt(1, player.getId());
             stm.setString(2, player.getName());
@@ -130,9 +130,7 @@ public class DBPlayerDAO implements IPlayerDAO
             stm.setString(5, "false");
             stm.setString(6, "false");
             stm.setString(7, "false");
-            stm.setString(8, "false");
-            stm.setString(9, "false");
-            stm.setString(10, "red");
+            stm.setString(8, "red");
             stm.execute();
         } catch (SQLException e) {
             throw new DAOException(sql, e);
@@ -151,16 +149,12 @@ public class DBPlayerDAO implements IPlayerDAO
                 if(rs.next()){
                     boolean tpb = Boolean.valueOf(rs.getString("tpblock"));
                     boolean invisible = Boolean.valueOf(rs.getString("invisible"));
-                    boolean noble = Boolean.valueOf(rs.getString("noble"));
-                    boolean lord = Boolean.valueOf(rs.getString("lord"));
                     boolean hiddenLoc = Boolean.valueOf(rs.getString("hidden_location"));
                     boolean silentJoin = Boolean.valueOf(rs.getString("silent_join"));
                     boolean canFly = Boolean.valueOf(rs.getString("can_fly"));
                     
                     player.setFlag(Flag.TPBLOCK, tpb);
                     player.setFlag(Flag.INVISIBLE, invisible);
-                    player.setFlag(Flag.NOBLE, noble);
-                    player.setFlag(Flag.LORD, lord);
                     player.setFlag(Flag.CAN_FLY, canFly);
                     player.setFlag(Flag.HIDDEN_LOCATION, hiddenLoc);
                     player.setFlag(Flag.SILENT_JOIN, silentJoin);

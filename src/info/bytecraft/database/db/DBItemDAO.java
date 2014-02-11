@@ -1,10 +1,8 @@
 package info.bytecraft.database.db;
 
 import java.sql.*;
-import java.util.List;
 
 import org.bukkit.ChatColor;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -27,7 +25,8 @@ public class DBItemDAO implements IItemDAO
         ItemMeta meta = stack.getItemMeta();
         if (meta.hasLore()) {
             for (String string : meta.getLore()) {
-                if (ChatColor.stripColor(string).equalsIgnoreCase("spawned")) {
+                if (ChatColor.stripColor(string).equalsIgnoreCase("spawned") ||
+                        ChatColor.stripColor(string).equalsIgnoreCase("creative")) {
                     return 0;
                 }
             }

@@ -12,6 +12,7 @@ import org.bukkit.util.Vector;
 /**
  * @author toi Thanks to Raphfrk for optimization of this class.
  */
+@SuppressWarnings("deprecation")
 public class TargetBlock
 {
 

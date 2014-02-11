@@ -48,7 +48,7 @@ public class BackCommand extends AbstractCommand implements Listener
         {
             player.teleport(loc);
             deathLocation.remove(player);
-            player.sendMessage(ChatColor.GOLD + "" + player.getBackCost() + 
+            player.sendMessage(ChatColor.GOLD + "" + player.getRank().getBackCost() + 
                     ChatColor.AQUA + " bytes has been taken from you wallet");
         }
         
@@ -67,7 +67,7 @@ public class BackCommand extends AbstractCommand implements Listener
             return true;
         }
         
-        int cost = player.getBackCost();
+        int cost = player.getRank().getBackCost();
         
         try(IContext ctx = plugin.createContext()){
             IPlayerDAO dao = ctx.getPlayerDAO();
@@ -100,7 +100,7 @@ public class BackCommand extends AbstractCommand implements Listener
         Location loc = player.getLocation();
         this.deathLocation.put(player, loc);
         
-        int cost = player.getBackCost();
+        int cost = player.getRank().getBackCost();
         
         player.sendMessage(ChatColor.YELLOW + 
                 "You can use \"/back\" to get back to where you died! Cost: " 

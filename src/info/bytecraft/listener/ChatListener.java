@@ -72,10 +72,7 @@ public class ChatListener implements Listener
             }
             
             ChatColor nameColor = player.getRank().getColor();
-            if((player.hasFlag(Flag.LORD) || player.hasFlag(Flag.NOBLE))
-                    && (player.getRank() == Rank.SETTLER || player.getRank() == Rank.MEMBER)){
-                nameColor = ChatColor.GOLD;
-            }else if(player.hasFlag(Flag.HARDWARNED) || player.hasFlag(Flag.SOFTWARNED)){
+            if(player.hasFlag(Flag.HARDWARNED) || player.hasFlag(Flag.SOFTWARNED)){
                 nameColor = ChatColor.GRAY;
             }
             
@@ -86,7 +83,7 @@ public class ChatListener implements Listener
             String coloredMessage = "<" + nameColor + player.getName() + ChatColor.WHITE + "> " + color + message;
             
             if (player.getRank() == Rank.SETTLER || player.getRank() == Rank.MEMBER) {
-                    if (player.hasFlag(Flag.LORD)) {
+                    if (player.getRank() == Rank.LORD) {
                         coloredMessage =  "<" + ChatColor.GREEN + "[Lord]" +
                                 nameColor + player.getName()  + ChatColor.WHITE + "> " + color + message;
                 }

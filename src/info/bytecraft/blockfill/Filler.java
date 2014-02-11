@@ -7,6 +7,7 @@ import org.bukkit.material.MaterialData;
 
 import info.bytecraft.api.BytecraftPlayer;
 
+@SuppressWarnings("deprecation")
 public class Filler extends AbstractFiller
 {
     private History history;

@@ -26,10 +26,10 @@ import org.bukkit.event.*;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.player.PlayerBucketEvent;
+import org.bukkit.event.player.PlayerBucketEmptyEvent;
+import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.util.Vector;
 
 public class ZoneListener implements Listener
@@ -54,7 +54,6 @@ public class ZoneListener implements Listener
         
         if(zone == null)return;
         
-        player.setCurrentZone(zone);
         this.welcomeMessage(zone, player, zone.getUser(player));
     }
     
@@ -70,16 +69,14 @@ public class ZoneListener implements Listener
                 if(!player.getRank().canKeepItems()){
                     player.getInventory().clear();
                     player.updateInventory();
-                    player.setGameMode(GameMode.SURVIVAL);
                 }
-                player.sendMessage(ChatColor.RED + "[" + event.getOldZone().getName()
-                        + "] " + event.getOldZone().getExitMessage());
+                player.setGameMode(GameMode.SURVIVAL);
             }
-            
+            player.sendMessage(ChatColor.RED + "[" + event.getOldZone().getName()
+                    + "] " + event.getOldZone().getExitMessage());
         }
         
         if(event.getNewZone() == null){
-            player.setCurrentZone(null);
             return;
         }
         
@@ -93,7 +90,6 @@ public class ZoneListener implements Listener
         
         Zone zone = event.getNewZone();
         
-        player.setCurrentZone(zone);//Keeping this here as there is currently one reference to it
         welcomeMessage(zone, player, zone.getUser(player));
         
         if(zone.hasFlag(Flag.CREATIVE)){
@@ -147,7 +143,7 @@ public class ZoneListener implements Listener
     }
     
     @EventHandler
-    public void onEmpty(PlayerBucketEvent event)
+    public void onEmpty(PlayerBucketEmptyEvent event)
     {
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
         Block block = event.getBlockClicked();
@@ -158,7 +154,20 @@ public class ZoneListener implements Listener
             event.setCancelled(true);
         }
     }
-
+    
+    @EventHandler
+    public void onFill(PlayerBucketFillEvent event)
+    {
+        BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
+        Block block = event.getBlockClicked();
+        
+        boolean bool = player.hasBlockPermission(block.getLocation(), true);
+        if(!bool){
+            player.setFireTicks(20 * 2);
+            event.setCancelled(true);
+        }
+    }
+    
     public void permissionsMessage(Zone zone, BytecraftPlayer player)
     {
         String prefix = ChatColor.RED + "[" + zone.getName() + "] ";
@@ -197,49 +206,6 @@ public class ZoneListener implements Listener
                     if(types.contains(ent.getType())){
                         event.setCancelled(true);
                         return;
-                    }
-                }
-            }
-        }
-    }
-
-    @EventHandler
-    public void onTeleport(PlayerTeleportEvent event)
-    {
-        Location to = event.getTo();
-        Location from = event.getFrom();
-        BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
-        List<Zone> zones = plugin.getZones(to.getWorld().getName());
-        if(zones.isEmpty())return;
-        for(Zone zone: zones){
-            if(zone.contains(from) && !zone.contains(to)){
-                player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] " + zone.getExitMessage());
-                player.setCurrentZone(null);
-            }else if(zone.contains(to) && !zone.contains(from)){
-                Permission p = zone.getUser(player);
-                if(zone.hasFlag(Flag.WHITELIST)){
-                    if((p == null || p == Permission.BANNED)){
-                        if(!player.getRank().canEditZones()){
-                            event.setCancelled(true);
-                            player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] You are not allowed in " + zone.getName());
-                        }else{
-                            player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] " + zone.getEnterMessage());
-                            this.permissionsMessage(zone, player);
-                            player.setCurrentZone(zone);
-                        }
-                    }else{
-                        player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] " + zone.getEnterMessage());
-                        this.permissionsMessage(zone, player);
-                        player.setCurrentZone(zone);
-                    }
-                }else{
-                    if((p != null && p == Permission.BANNED) && !player.getRank().canEditZones()){
-                        event.setCancelled(true);
-                        player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] You are not allowed in " + zone.getName());
-                    }else{
-                        player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] " + zone.getEnterMessage());
-                        this.permissionsMessage(zone, player);
-                        player.setCurrentZone(zone);
                     }
                 }
             }

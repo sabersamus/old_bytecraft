@@ -10,6 +10,7 @@ import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 
 public class CallEventListener implements Listener
 {   
@@ -72,5 +73,42 @@ public class CallEventListener implements Listener
         PlayerMoveBlockEvent customEvent = new PlayerMoveBlockEvent(event.getFrom(), event.getTo(), player);
         Bukkit.getPluginManager().callEvent(customEvent);
     }
+ 
     
+    @EventHandler
+    public void TeleporZone(PlayerTeleportEvent event)
+    {
+        BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
+        
+        Location to = event.getTo();
+        Location from = event.getFrom();
+        
+        Zone newZone = plugin.getZoneAt(to.getWorld(), new Point(to.getBlockX(), to.getBlockZ()));
+        String newName;
+        
+        Zone fromZone = plugin.getZoneAt(from.getWorld(), new Point(from.getBlockX(), from.getBlockZ()));
+        String fromName;
+        if (fromZone == null && newZone == null) {
+            return;
+        }
+        
+        if (fromZone == null) {
+            fromName = "null";
+        } else {
+            fromName = fromZone.getName();
+        }
+        
+        if (newZone == null) {
+            newName = "null";
+        } else {
+            newName = newZone.getName();
+        }
+        
+        if (fromName.equalsIgnoreCase(newName)) {
+            return;
+        }
+        
+        PlayerChangeZoneEvent customEvent = new PlayerChangeZoneEvent(to, from, player, fromZone, newZone);
+        Bukkit.getServer().getPluginManager().callEvent(customEvent);
+    }
 }

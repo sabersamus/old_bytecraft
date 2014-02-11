@@ -54,7 +54,7 @@ public class WarpCommand extends AbstractCommand
                 Chunk chunk = world.getChunkAt(loc);
                 world.loadChunk(chunk);
                 
-                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new WarpTask(player, loc, warp), player.getWarpTimeout());
+                Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new WarpTask(player, loc, warp), player.getRank().getWarpTimeout());
                 player.sendMessage(ChatColor.AQUA + "Teleporting to " + ChatColor.GOLD + warp + ChatColor.AQUA + " please wait...");
             }else{
                 player.sendMessage(ChatColor.RED + "Could not find warp " + args[0]);

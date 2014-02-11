@@ -19,7 +19,7 @@ public class TeleportBlockCommand extends AbstractCommand
 
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
-        if (!player.hasFlag(Flag.NOBLE)) {
+        if (!player.getRank().canTeleportBlock()) {
             player.sendMessage(getInvalidPermsMessage());
             return true;
         }

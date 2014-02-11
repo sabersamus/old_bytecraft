@@ -8,7 +8,6 @@ import org.bukkit.World;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.api.BytecraftPlayer.Flag;
 import info.bytecraft.database.DAOException;
 import info.bytecraft.database.IContext;
 import info.bytecraft.database.IHomeDAO;
@@ -23,7 +22,7 @@ public class HomeCommand extends AbstractCommand
 
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
-        if (!player.hasFlag(Flag.NOBLE)){
+        if (!player.getRank().canSaveHomes()){
             player.sendMessage(getInvalidPermsMessage());
             return true;
         }

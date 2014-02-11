@@ -29,8 +29,6 @@ public class BytecraftPlayer extends PlayerDelegate
         SOFTWARNED,
         MUTE,
         INVISIBLE,
-        NOBLE,
-        LORD,
         TPBLOCK,
         CAN_FLY,
         CHEST_LOG;
@@ -96,9 +94,6 @@ public class BytecraftPlayer extends PlayerDelegate
         try(IContext ctx = plugin.createContext()){
             IPlayerDAO dao = ctx.getPlayerDAO();
             ChatColor color = dao.getRank(this).getColor();
-            if((hasFlag(Flag.LORD) || hasFlag(Flag.NOBLE)) && (rank == Rank.SETTLER || rank == Rank.MEMBER)){
-                color = ChatColor.GOLD;
-            }
             
             if(hasFlag(Flag.SOFTWARNED) || hasFlag(Flag.HARDWARNED)){
                 color = ChatColor.GRAY;
@@ -176,77 +171,6 @@ public class BytecraftPlayer extends PlayerDelegate
     public void setCountry(String v) { this.country = v; }
     public String getCountry() { return country; }
 
-    //Rank time outs
-    public int getMaxTeleportDistance()
-    {
-        if(getRank().isImmortal() || getRank() == Rank.PROTECTOR)return Integer.MAX_VALUE;
-        if(hasFlag(Flag.LORD))return 15000;
-        if(hasFlag(Flag.NOBLE))return 10000;
-        
-        return 300;
-    }
-    
-    public long getTeleportTimeout()
-    {
-        if(getRank().isImmortal()) return 20 * 0L;
-        if(rank == Rank.PROTECTOR) return 20 * 1L;
-        if(rank == Rank.MENTOR) return 20 * 2L;
-        if(hasFlag(Flag.LORD)) return 20 * 3L;
-        if(hasFlag(Flag.NOBLE)) return 20 * 4L;
-        
-        return 20 * 5L;
-    }
-    
-    public long getWarpTimeout()
-    {
-        if(getRank().isImmortal()) return 20 * 0L;
-        if(rank == Rank.PROTECTOR) return 20 * 1L;
-        if(rank == Rank.MENTOR) return 20 * 2L;
-        if(hasFlag(Flag.LORD)) return 20 * 3L;
-        if(hasFlag(Flag.NOBLE)) return 20 * 4L;
-        return 20 * 5L;
-    }
-    
-    public int getBackCost()
-    {
-        if(getRank().isImmortal())return 0;
-        if(hasFlag(Flag.LORD))return 500;
-        if(hasFlag(Flag.NOBLE))return 700;
-        return 1000;
-    }
-    
-    public int getToolCost()
-    {
-        if(getRank().isImmortal())return 0;
-        if(hasFlag(Flag.LORD))return 500;
-        if(hasFlag(Flag.NOBLE))return 700;
-        return 1000;
-    }
-    
-    /**
-     * Gets the amount of time <b>in minutes</b> that a player must wait
-     * before getting a rare drop after receiving one.
-     * @return
-     */
-    public int getRareDropTimeout()
-    {
-        if(getRank().isImmortal())return 0;//admins dont have to wait
-        if(hasFlag(Flag.LORD))return 2;
-        if(hasFlag(Flag.NOBLE))return 3;
-        return 5;
-    }
-    
-    /**
-     * Get's the increase of chance in percentage that a player will receive a rare drop.
-     */
-    public int getRareDropIncrease()
-    {
-        if(getRank().isImmortal())return 7;
-        if(hasFlag(Flag.LORD))return 5;
-        if(hasFlag(Flag.NOBLE))return 3;
-        return 0;
-    }
-    
     public void sendNotification(Notification notif, String message)
     {
         if(message != null && !message.equalsIgnoreCase("")){

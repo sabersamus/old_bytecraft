@@ -1,7 +1,5 @@
 package info.bytecraft.listener;
 
-import java.util.List;
-
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.api.BytecraftPlayer.Flag;
@@ -21,10 +19,6 @@ import org.bukkit.event.block.BlockIgniteEvent;
 import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.metadata.MetadataValue;
 
 public class BytecraftBlockListener implements Listener
 {
@@ -44,7 +38,7 @@ public class BytecraftBlockListener implements Listener
             return;
         }
         
-        if((player.hasFlag(Flag.NOBLE) || player.hasFlag(Flag.LORD)) &&
+        if((player.getRank().canCompassTeleport()) &&
                 player.getItemInHand().getType() == Material.COMPASS){
             event.setCancelled(true);
             return;

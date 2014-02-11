@@ -216,12 +216,6 @@ public class Bytecraft extends JavaPlugin
             player.setRank(dao.getRank(player));
             ChatColor color = player.getRank().getColor();
             
-            if(player.hasFlag(Flag.NOBLE)){
-                if(player.getRank() == Rank.MEMBER || player.getRank() == Rank.SETTLER){
-                    color = ChatColor.GOLD;
-                }
-            }
-            
             String name = color + player.getName();
             player.setDisplayName(name + ChatColor.WHITE);
             if(name.length() > 16){
@@ -311,11 +305,6 @@ public class Bytecraft extends JavaPlugin
             }
             
             ChatColor color = player.getRank().getColor();
-            if(player.hasFlag(Flag.NOBLE)){
-                if(player.getRank() == Rank.MEMBER || player.getRank() == Rank.SETTLER){
-                    color = ChatColor.GOLD;
-                }
-            }
             
             if(player.hasFlag(Flag.HARDWARNED) || player.hasFlag(Flag.SOFTWARNED)){
                 color = ChatColor.GRAY;

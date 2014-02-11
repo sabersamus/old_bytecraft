@@ -46,7 +46,7 @@ public class TeleportCommand extends AbstractCommand
     {
         if (args.length != 1)
             return true;
-        int maxDistance = player.getMaxTeleportDistance();
+        int maxDistance = player.getRank().getMaxTeleportDistance();
         List<BytecraftPlayer> cantidates = plugin.matchPlayer(args[0]);
         if (cantidates.size() != 1) {
             return true;
@@ -71,7 +71,7 @@ public class TeleportCommand extends AbstractCommand
                     plugin.getServer()
                             .getScheduler()
                             .scheduleSyncDelayedTask(plugin, task,
-                                    player.getTeleportTimeout());
+                                    player.getRank().getTeleportTimeout());
                     player.sendMessage(ChatColor.AQUA + "Teleporting to "
                             + target.getDisplayName());
                     return true;
@@ -82,7 +82,7 @@ public class TeleportCommand extends AbstractCommand
                 plugin.getServer()
                         .getScheduler()
                         .scheduleSyncDelayedTask(plugin, task,
-                                player.getTeleportTimeout());
+                                player.getRank().getTeleportTimeout());
                 player.sendMessage(ChatColor.AQUA + "Teleporting to "
                         + target.getDisplayName());
                 return true;

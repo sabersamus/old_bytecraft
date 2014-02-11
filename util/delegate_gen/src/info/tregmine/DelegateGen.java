@@ -34,10 +34,10 @@ public class DelegateGen
             buffer.append(">");
         }
         else if (type instanceof Class) {
-            Class classObj = (Class)type;
+            Class<?> classObj = (Class<?>)type;
             String className = null;
             if (classObj.isArray()) {
-                Class component = classObj.getComponentType();
+                Class<?> component = classObj.getComponentType();
                 className = component.getName() + "[]";
             } else {
                 className = classObj.getName();
@@ -52,10 +52,11 @@ public class DelegateGen
         return buffer.toString();
     }
 
+    @SuppressWarnings({ "rawtypes", "unused" })
     public static void generateDelegate(PrintStream out, String srcClass, String dstClass)
     {
         try {
-            Class inspectClass = Class.forName(srcClass);
+            Class<?> inspectClass = Class.forName(srcClass);
 
             String srcName = inspectClass.getName();
             //String[] srcNameSplit = srcName.split("\\.");
@@ -125,17 +126,17 @@ public class DelegateGen
                 if (typeVars.length != 0) {
                     String delim = "";
                     out.print("<");
-                    for (TypeVariable var : typeVars) {
+                    for (TypeVariable<?> var : typeVars) {
                         out.print(delim);
                         out.print(var.getName());
                         Type[] bounds = var.getBounds();
                         if (bounds.length != 0) {
                             out.print(" extends ");
-                            String delim2 = "";
+                            //String delim2 = "";
                             for (Type bound : bounds) {
                                 out.print(delim);
                                 out.print(serializeType(bound));
-                                delim2 = ", ";
+                               // delim2 = ", ";
                             }
                         }
                         delim = ", ";
@@ -144,7 +145,7 @@ public class DelegateGen
                 }
 
                 // Return Type
-                Class returnType = method.getReturnType();
+                Class<?> returnType = method.getReturnType();
                 Type genReturnType = method.getGenericReturnType();
                 if (genReturnType != null) {
                     out.print(serializeType(genReturnType));

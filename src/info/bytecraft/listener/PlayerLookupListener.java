@@ -35,7 +35,6 @@ public class PlayerLookupListener implements Listener
     {
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
         if (player == null) {
-            event.getPlayer().kickPlayer("Something went wrong");
             return;
         }
 

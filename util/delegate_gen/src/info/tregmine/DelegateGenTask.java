@@ -5,8 +5,6 @@ import java.io.*;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.Path;
-import org.apache.tools.ant.types.FileSet;
-import org.apache.tools.ant.DirectoryScanner;
 
 public class DelegateGenTask extends Task
 {

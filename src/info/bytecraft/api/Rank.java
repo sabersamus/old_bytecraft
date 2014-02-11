@@ -10,6 +10,8 @@ public enum Rank
     SETTLER(GREEN),
     MEMBER(DARK_GREEN),
     CHILD(AQUA),
+    NOBLE(GOLD),
+    LORD(GOLD),
     MENTOR(DARK_PURPLE),
     PROTECTOR(BLUE),
     ARCHITECT(YELLOW),
@@ -65,6 +67,13 @@ public enum Rank
                 || this == ADMIN || this == PRINCESS || this == ELDER);
     }
     
+    public boolean canCompassTeleport()
+    {
+        return (this == NOBLE || this == LORD
+                || this == PROTECTOR || this == MENTOR || this == ADMIN
+                || this == ARCHITECT || isElder());
+    }
+    
     public boolean canCreateZones()
     {
         return (this == ELDER || this == PRINCESS);
@@ -92,7 +101,9 @@ public enum Rank
     
     public boolean canFly()
     {
-        return (this == ADMIN || this == ELDER || this == PRINCESS);
+        return (this == NOBLE || this == LORD
+                || this == PROTECTOR || this == MENTOR || this == ARCHITECT
+                ||this == ADMIN||isElder());
     }
     
     public boolean canBless()
@@ -150,6 +161,20 @@ public enum Rank
         return (this != Rank.NEWCOMER);
     }
     
+    public boolean canTeleportBlock()
+    {
+        return (this == NOBLE || this == LORD
+                || this == PROTECTOR || this == MENTOR || this == ADMIN
+                || this == ARCHITECT || isElder());
+    }
+    
+    public boolean canChangeTime()
+    {
+        return (this == NOBLE || this == LORD
+                || this == PROTECTOR || this == MENTOR || this == ADMIN
+                || this == ARCHITECT || isElder());
+    }
+    
     public boolean canTeleportToPosition()
     {
         return (this == ADMIN || this == ELDER || this == PRINCESS);
@@ -173,6 +198,13 @@ public enum Rank
     public boolean isImmortal()
     {
         return (this == ADMIN || this == PRINCESS || this == ELDER);
+    }
+    
+    public boolean canSaveHomes()
+    {
+        return (this == NOBLE || this == LORD || this == ADMIN
+                || this == PROTECTOR || this == ARCHITECT || this == MENTOR
+                || isElder());
     }
     
     public boolean canGoToPlayersHomes()
@@ -245,6 +277,66 @@ public enum Rank
     {
         return (this == ADMIN || this == ARCHITECT || isElder());
     }
+    
+    public int getMaxTeleportDistance()
+    {
+        if(isImmortal() || this == Rank.PROTECTOR)return Integer.MAX_VALUE;
+        if(this == LORD)return 15000;
+        if(this == NOBLE)return 10000;
+        
+        return 300;
+    }
+    
+    public long getTeleportTimeout()
+    {
+        if(isImmortal()) return 20 * 0L;
+        if(this == Rank.PROTECTOR) return 20 * 1L;
+        if(this == Rank.MENTOR) return 20 * 2L;
+        if(this == LORD) return 20 * 3L;
+        if(this == NOBLE) return 20 * 4L;
+        
+        return 20 * 5L;
+    }
 
-
+    public long getWarpTimeout()
+    {
+        if(isImmortal()) return 20 * 0L;
+        if(this == Rank.PROTECTOR) return 20 * 1L;
+        if(this == Rank.MENTOR) return 20 * 2L;
+        if(this == LORD) return 20 * 3L;
+        if(this == NOBLE) return 20 * 4L;
+        return 20 * 5L;
+    }
+    
+    public int getBackCost()
+    {
+        if(isImmortal())return 0;
+        if(this == LORD)return 500;
+        if(this == NOBLE)return 700;
+        return 1000;
+    }
+    
+    public int getToolCost()
+    {
+        if(isImmortal())return 0;
+        if(this == LORD)return 500;
+        if(this == NOBLE)return 700;
+        return 1000;
+    }
+    
+    public int getRareDropTimeout()
+    {
+        if(isImmortal())return 0;//admins dont have to wait
+        if(this == LORD)return 2;
+        if(this == NOBLE)return 3;
+        return 5;
+    }
+    
+    public int getRareDropIncrease()
+    {
+        if(isImmortal())return 3;
+        if(this == LORD)return 2;
+        if(this == NOBLE)return 1;
+        return 0;
+    }
 }
