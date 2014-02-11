@@ -3,7 +3,6 @@ package info.bytecraft.commands;
 import static org.bukkit.ChatColor.GOLD;
 import static org.bukkit.ChatColor.WHITE;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 
@@ -90,6 +89,12 @@ public class TownCommand extends AbstractCommand
                         player.sendMessage(ChatColor.RED + "Flag not found");
                         return true;
                     }
+                    
+                    if(flag == Flag.CREATIVE && !player.getRank().canEditZones()){
+                        player.sendMessage(ChatColor.RED + "You must be an admin to set this flag.");
+                        return true;
+                    }
+                    
                     boolean value = Boolean.parseBoolean(args[2]);
                     this.updateFlag(zone, flag, value);
                     player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] Changed " + flag.name().toLowerCase() + " to " + value);

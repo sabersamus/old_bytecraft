@@ -141,6 +141,11 @@ public class ZoneCommand extends AbstractCommand
                         player.sendMessage(ChatColor.RED + "Flag not found");
                         return true;
                     }
+                    
+                    if(flag == Flag.CREATIVE && !player.getRank().canEditZones()){
+                        player.sendMessage(ChatColor.RED + "Only admins can set this flag!");
+                        return true;
+                    }
 
                     boolean value = Boolean.parseBoolean(args[3]);
                     this.updateFlag(zone, flag, value);
