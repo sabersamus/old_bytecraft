@@ -150,6 +150,9 @@ public class BytecraftPlayerListener implements Listener
     public void onFly(PlayerMoveEvent event)
     {
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
+        if(player == null){
+            event.getPlayer().kickPlayer("Something went wrong!");
+        }
         if(player.isFlying()){
             if(player.isSprinting()){
                 if(player.getRank().canFlyFast()){
@@ -417,15 +420,6 @@ public class BytecraftPlayerListener implements Listener
         else if (player.getRank().ordinal() >= Rank.LORD.ordinal()) {//this is very bad practice
 
             Block target = player.getDelegate().getTargetBlock(null, 300);
-
-            Block b1 =
-                    world.getBlockAt(new Location(player.getWorld(), target
-                            .getX(), target.getY() + 1, target.getZ()));
-
-            Block b2 =
-                    world.getBlockAt(new Location(player.getWorld(), target
-                            .getX(), target.getY() + 2, target.getZ()));
-
             int top = world.getHighestBlockYAt(target.getLocation());
             Location loc =
                     new Location(player.getWorld(), target.getX() + 0.5, top,
