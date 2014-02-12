@@ -82,11 +82,11 @@ public class ChatListener implements Listener
             
             String coloredMessage = "<" + nameColor + player.getName() + ChatColor.WHITE + "> " + color + message;
             
-            if (player.getRank() == Rank.SETTLER || player.getRank() == Rank.MEMBER) {
-                    if (player.getRank() == Rank.LORD) {
-                        coloredMessage =  "<" + ChatColor.GREEN + "[Lord]" +
-                                nameColor + player.getName()  + ChatColor.WHITE + "> " + color + message;
-                }
+            if (player.getRank() == Rank.LORD) {
+                coloredMessage =
+                        "<" + ChatColor.GREEN + "[Lord]" + nameColor
+                                + player.getName() + ChatColor.WHITE + "> "
+                                + color + message;
             }
             
             if(to.getChatChannel().equalsIgnoreCase(player.getChatChannel())){
