@@ -3,7 +3,7 @@ author: Sabersamus
 main: info.bytecraft.Bytecraft
 description: The main plugin for Bytecraft
 website: http://www.bytecraft.info
-version: 1.2.4
+version: 1.2.5
 commands:
     back:
         description: Go back to where you died... for a cost
@@ -150,8 +150,9 @@ commands:
         usage: |
             /<command> adduser <player> <rank>
             /<command> deluser <player>
-            /<command> info
+            /<command> info [perm]
             /<command> flag <hostiles|pvp|whitelist|build> <true|false>
+            /<command> flag <entermsg|exitmsg> <message>
     tpblock:
         description: Manage your teleport block
         usage: /<command> <on|off|status>
@@ -189,6 +190,9 @@ commands:
         description: Manage zones
         usage: |
             /<command> create <name>
+            /<command> delete <name>
+            /<command> adduser <name> <player> <permission>
+            /<command> deluser <name> <player>
             /<command> flag <name> <pvp|whitelist|build|hostiles> <true|false>
-            /<command> <entermsg|exitmsg> <name> <message>
-            /<command> info <name>
+            /<command> flag <entermsg|exitmsg> <name> <message>
+            /<command> info <name> [perm]
