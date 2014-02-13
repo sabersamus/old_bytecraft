@@ -219,6 +219,15 @@ public class Zone
 
     public boolean hasFlag(Flag flag)
     {
+        if(this.flags == null || this.flags.isEmpty())
+        {
+            return false;
+        }
+        
+        if(!this.flags.containsKey(flag)){
+            return false;
+        }
+        
         return this.flags.get(flag);
     }
     

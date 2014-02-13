@@ -205,6 +205,8 @@ public class ZoneCommand extends AbstractCommand
                     }
                 }
                 dao.createZone(zone, player);
+                zone.addPermissions(player.getName(), Permission.OWNER);
+                dao.addUser(zone, player.getName(), Permission.OWNER);
                 plugin.addZone(zone);
         } catch (DAOException e) {
             throw new RuntimeException(e);

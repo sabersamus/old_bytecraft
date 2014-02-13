@@ -79,6 +79,7 @@ public class DBZoneDAO implements IZoneDAO
                     zone.setFlag(Flag.BUILD, Boolean.parseBoolean(rs.getString("zone_build")));
                     zone.setFlag(Flag.HOSTILES, Boolean.parseBoolean(rs.getString("zone_hostile")));
                     zone.setFlag(Flag.WHITELIST, Boolean.parseBoolean(rs.getString("zone_whitelist")));
+                    zone.setFlag(Flag.CREATIVE, Boolean.parseBoolean(rs.getString("zone_creative")));
                     zone.setWorld(rs.getString("zone_world"));
                     zone.setRectangle(getRect(zone));
                     zone.setPermissions(getPermissions(zone));
@@ -95,8 +96,6 @@ public class DBZoneDAO implements IZoneDAO
     public void createZone(Zone zone, BytecraftPlayer player)
     throws DAOException
     {
-        zone.addPermissions(player.getName(), Permission.OWNER);
-        this.addUser(zone, player.getName(), Permission.OWNER);
         String sql = "INSERT INTO zone (zone_name, zone_world, zone_entermsg, zone_exitmsg) VALUES (?, ?, ?, ?)";
         try (PreparedStatement stm = conn.prepareStatement(sql)){
             stm.setString(1, zone.getName());
@@ -129,6 +128,7 @@ public class DBZoneDAO implements IZoneDAO
                         zone.setFlag(Flag.BUILD, Boolean.parseBoolean(rs.getString("zone_build")));
                         zone.setFlag(Flag.HOSTILES, Boolean.parseBoolean(rs.getString("zone_hostile")));
                         zone.setFlag(Flag.WHITELIST, Boolean.parseBoolean(rs.getString("zone_whitelist")));
+                        zone.setFlag(Flag.CREATIVE, Boolean.parseBoolean(rs.getString("zone_creative")));
                         zone.setWorld(rs.getString("zone_world"));
                         zone.setRectangle(getRect(zone));
                         zone.setPermissions(getPermissions(zone));
