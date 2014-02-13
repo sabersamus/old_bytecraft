@@ -4,6 +4,7 @@ import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.api.math.Point;
 import info.bytecraft.api.math.Rectangle;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -201,6 +202,11 @@ public class Zone
     public void removePermission(String name)
     {
         this.permissions.remove(name);
+    }
+    
+    public Collection<String> getUsers()
+    {
+        return this.permissions.keySet();
     }
     
     public Permission getUser(BytecraftPlayer player)
