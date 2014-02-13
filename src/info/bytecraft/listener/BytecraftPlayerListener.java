@@ -313,7 +313,7 @@ public class BytecraftPlayerListener implements Listener
         int x = block.getX();
         int y = block.getY();
         int z = block.getZ();
-        
+        String world = block.getWorld().getName();
         String biome = WordUtils.capitalize(block.getBiome().name().replaceAll("_", " "));
         BytecraftPlayer owner = null;
         int blessId = 0;
@@ -331,8 +331,10 @@ public class BytecraftPlayerListener implements Listener
         player.sendMessage(DARK_AQUA + "X: " + WHITE + x);
         player.sendMessage(DARK_AQUA + "Y: " + WHITE + y);
         player.sendMessage(DARK_AQUA + "Z: " + WHITE + z);
-        player.sendMessage(DARK_AQUA + "Biome: " + WHITE + biome);
+        player.sendMessage(DARK_AQUA + "World: " + WHITE + world);
+        player.sendMessage(DARK_AQUA + "Checksum: " + WHITE + Bytecraft.locationChecksum(block.getLocation()));
         
+        player.sendMessage(DARK_AQUA + "Biome: " + WHITE + biome);
         if(owner != null){
             String name = owner.getRank().getColor() + owner.getName() + WHITE;
             player.sendMessage(DARK_AQUA + "Bless ID: " + WHITE + blessId);
