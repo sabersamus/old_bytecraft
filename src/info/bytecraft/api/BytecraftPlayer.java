@@ -12,6 +12,7 @@ import info.bytecraft.database.IPlayerDAO;
 import java.text.NumberFormat;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.Set;
 
 import org.bukkit.ChatColor;
@@ -64,6 +65,8 @@ public class BytecraftPlayer extends PlayerDelegate
     private BytecraftPlayer blessTarget;
     private BytecraftPlayer lastMessager;
     
+    private HashMap<Badge, Integer> badges;
+    
     private Date loginTime;
 
     public BytecraftPlayer(Player player, Bytecraft plugin)
@@ -73,6 +76,7 @@ public class BytecraftPlayer extends PlayerDelegate
         loginTime = new Date();
         flags = EnumSet.noneOf(Flag.class);
         this.plugin = plugin;
+        badges = new HashMap<>();
     }
 
 
@@ -220,6 +224,22 @@ public class BytecraftPlayer extends PlayerDelegate
         
     }
     
+    public HashMap<Badge, Integer> getBadges() { return badges; }
+    public void setBadges(HashMap<Badge, Integer> badges) { this.badges = badges; }
+
+    public void addBadge(Badge badge, int level)
+    {
+        if(level > badge.getMaxLevel()){
+            level = badge.getMaxLevel();
+        }
+        this.badges.put(badge, level);
+    }
+    
+    public boolean hasBadge(Badge badge)
+    {
+        return getBadges().containsKey(badge);
+    }
+
     public int getOnlineTime()
     {
         return (int)((new Date().getTime() - loginTime.getTime())/1000L);

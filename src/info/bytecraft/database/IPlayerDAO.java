@@ -1,10 +1,12 @@
 package info.bytecraft.database;
 
+import java.util.HashMap;
 import java.util.List;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
+import info.bytecraft.api.Badge;
 import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.api.BytecraftPlayer.Flag;
 import info.bytecraft.api.Rank;
@@ -29,5 +31,9 @@ public interface IPlayerDAO
     public int getPlayTime(BytecraftPlayer player) throws DAOException;
     public void updatePlayTime(BytecraftPlayer player) throws DAOException;
     public boolean isBanned(BytecraftPlayer player) throws DAOException;
-    void ban(BytecraftPlayer player) throws DAOException;
+    public void ban(BytecraftPlayer player) throws DAOException;
+    
+    public HashMap<Badge, Integer> getBadges(BytecraftPlayer player) throws DAOException;
+    public void addBadge(BytecraftPlayer player, Badge badge, int level) throws DAOException;
+    
 }

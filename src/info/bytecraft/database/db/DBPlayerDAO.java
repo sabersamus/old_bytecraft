@@ -15,8 +15,10 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import info.bytecraft.Bytecraft;
+import info.bytecraft.api.Badge;
 import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.api.Rank;
 import info.bytecraft.api.BytecraftPlayer.Flag;
@@ -95,6 +97,7 @@ public class DBPlayerDAO implements IPlayerDAO
             throw new DAOException(sql, e);
         }
         loadFlags(player);
+        player.setBadges(this.getBadges(player));
         return player;
     }
     
@@ -425,6 +428,71 @@ public class DBPlayerDAO implements IPlayerDAO
         String sql = "UPDATE player SET banned = true WHERE player_name = ?";
         try(PreparedStatement stm = conn.prepareStatement(sql)){
             stm.setString(1, player.getName());
+            stm.execute();
+        }catch(SQLException e){
+            throw new DAOException(sql, e);
+        }
+    }
+
+    @Override
+    public HashMap<Badge, Integer> getBadges(BytecraftPlayer player)
+            throws DAOException
+    {
+        String sql = "SELECT * FROM player_badge WHERE player_name = ?";
+        HashMap<Badge, Integer> badges = Maps.newHashMap();
+        
+        try(PreparedStatement stm = conn.prepareStatement(sql)){
+            stm.setString(1, player.getName());
+            stm.execute();
+            
+            try(ResultSet rs = stm.getResultSet()){
+                while(rs.next()){
+                    badges.put(Badge.fromString(rs.getString("badge_level")), rs.getInt("badge_level"));
+                }
+            }
+            
+        }catch(SQLException e){
+            throw new DAOException(sql, e);
+        }
+        
+        return badges;
+    }
+
+    @Override
+    public void addBadge(BytecraftPlayer player, Badge badge, int level)
+            throws DAOException
+    {
+        String sql = "SELECT * FROM player_badge WHERE player_name = ? AND badge = ?";
+        try(PreparedStatement stm = conn.prepareStatement(sql)){
+            stm.setString(1, player.getName());
+            stm.setString(2, badge.getName().toLowerCase());
+            stm.execute();
+            
+            if(stm.getResultSet().next()){
+                this.updateBadge(player, badge, level);
+                return;
+            }else{
+                sql = "INSERT INTO player_badge (player_name, badge, badge_level) VALUES (?, ?, ?)";
+                try(PreparedStatement stmt = conn.prepareStatement(sql)){
+                    stmt.setString(1, player.getName());
+                    stmt.setString(2, badge.getName().toLowerCase());
+                    stmt.setInt(3, level);
+                    stmt.execute();
+                }
+            }
+            
+        }catch(SQLException e){
+            throw new DAOException(sql, e);
+        }
+    }
+    
+    private void updateBadge(BytecraftPlayer player, Badge badge, int level) throws DAOException
+    {
+        String sql = "UPDATE player_badge SET badge_level = ? WHERE player_name = ? AND badge = ?";
+        try(PreparedStatement stm = conn.prepareStatement(sql)){
+            stm.setInt(1, level);
+            stm.setString(2, player.getName());
+            stm.setString(3, badge.getName().toLowerCase());
             stm.execute();
         }catch(SQLException e){
             throw new DAOException(sql, e);
