@@ -202,9 +202,11 @@ public enum Rank
     
     public boolean canSaveHomes()
     {
-        return (this == NOBLE || this == LORD || this == ADMIN
-                || this == PROTECTOR || this == ARCHITECT || this == MENTOR
-                || isElder());
+        return (this == SETTLER 
+                || this == MEMBER || this == NOBLE 
+                || this == LORD || this == ADMIN 
+                || this == PROTECTOR || this == ARCHITECT 
+                || this == MENTOR || isElder());
     }
     
     public boolean canGoToPlayersHomes()
@@ -276,6 +278,16 @@ public enum Rank
     public boolean canKeepItems()
     {
         return (this == ADMIN || this == ARCHITECT || isElder());
+    }
+    
+    public int getMaxHomes()
+    {
+        if(isImmortal()) return 10;
+        if(this == PROTECTOR || this == ARCHITECT
+                || this == MENTOR)return 5;
+        if(this == LORD) return 5;
+        if(this == NOBLE)return 3;
+        return 1;
     }
     
     public int getMaxTeleportDistance()

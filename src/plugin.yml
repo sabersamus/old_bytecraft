@@ -63,7 +63,10 @@ commands:
         usage: /<command> <player>
     home:
         description: Manage your home
-        usage: /<command> [save]
+        usage: |
+            /<command> go [name]
+            /<command> save [name]
+            /<command> delete [name]
     inv:
         description: View another players inventory
         usage: /<command> <player>
