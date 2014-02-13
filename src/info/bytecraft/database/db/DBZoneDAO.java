@@ -95,6 +95,8 @@ public class DBZoneDAO implements IZoneDAO
     public void createZone(Zone zone, BytecraftPlayer player)
     throws DAOException
     {
+        zone.addPermissions(player.getName(), Permission.OWNER);
+        this.addUser(zone, player.getName(), Permission.OWNER);
         String sql = "INSERT INTO zone (zone_name, zone_world, zone_entermsg, zone_exitmsg) VALUES (?, ?, ?, ?)";
         try (PreparedStatement stm = conn.prepareStatement(sql)){
             stm.setString(1, zone.getName());
