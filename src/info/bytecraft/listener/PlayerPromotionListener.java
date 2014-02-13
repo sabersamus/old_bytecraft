@@ -36,6 +36,7 @@ public class PlayerPromotionListener implements Listener
                 try (IContext ctx = plugin.createContext()) {
                     IPlayerDAO dao = ctx.getPlayerDAO();
                     dao.updatePermissions(player);
+                    plugin.refreshPlayer(player);
                 } catch (DAOException e) {
                     throw new RuntimeException(e);
                 }
@@ -51,7 +52,7 @@ public class PlayerPromotionListener implements Listener
             return;
         }
         
-        if(player.getPlayTime() > 3600 * 24 * 20 && !player.hasBadge(Badge.VETERAN)) {
+        if(player.getPlayTime() > 3600 * 24 * 10 && !player.hasBadge(Badge.VETERAN)) {
             Badge badge = Badge.VETERAN;
             
             try(IContext ctx = plugin.createContext()){
