@@ -3,6 +3,8 @@ package info.bytecraft.commands;
 import static org.bukkit.ChatColor.GOLD;
 import static org.bukkit.ChatColor.WHITE;
 
+import java.util.Collection;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 
@@ -42,7 +44,8 @@ public class TownCommand extends AbstractCommand
         }else if(args.length == 1){
             //town info
             if("info".equalsIgnoreCase(args[0])){
-                return info(player, zone);
+               info(player, zone, false);
+               return true;
             }
         }else if(args.length == 2){
             //town deluser name
@@ -59,10 +62,15 @@ public class TownCommand extends AbstractCommand
                     this.delUser(zone, target, player);
                     return true;
                 }
+            }else if("info".equalsIgnoreCase(args[0])){
+                if("perm".equalsIgnoreCase(args[1])){
+                    this.info(player, zone, true);
+                }
             }
-        }else if(args.length == 3){
+        }else if(args.length >= 3){
             //town adduser <player> rank
             //town flag <flag> <true/false>
+            //town flag entermsg|exitmsg <message>
             if("adduser".equalsIgnoreCase(args[0])){
                 if((perm != null && perm == Permission.OWNER) || player.getRank().canEditZones()){
                     
@@ -95,56 +103,68 @@ public class TownCommand extends AbstractCommand
                         return true;
                     }
                     
+                    if(flag == Flag.ENTERMSG || flag == Flag.ENTERMSG){
+                        this.changeSetting(zone, flag, messageFromArgs(args));
+                        player.sendMessage(ChatColor.RED + "[" + zone.getName()
+                                + "] Changed " + flag.name().toLowerCase() + " to " + messageFromArgs(args));
+                        return true;
+                    }
+                    
                     boolean value = Boolean.parseBoolean(args[2]);
                     this.updateFlag(zone, flag, value);
                     player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] Changed " + flag.name().toLowerCase() + " to " + value);
                 }
             }
-        }else{
-            if (args[0].equalsIgnoreCase("entermsg")
-                    || args[0].equalsIgnoreCase("exitmsg")) {
-                Permission p = zone.getUser(player);
-                if ((p != null && p == Permission.OWNER) || player.getRank().canEditZones()) {
-                    Flag flag =
-                            args[0].equalsIgnoreCase("entermsg") ? Flag.ENTERMSG
-                                    : Flag.EXITMSG;
-
-                    StringBuilder sb = new StringBuilder();
-                    for (int i = 1; i < args.length; i++) {
-                        sb.append(args[i] + " ");
-                    }
-
-                    this.changeSetting(zone, flag, sb.toString());
-                    player.sendMessage(ChatColor.RED + "[" + zone.getName()
-                            + "] Changed " + flag.name().toLowerCase() + " to " + sb.toString());
-                }
-            }
         }
-        
         return true;
     }
     
-    private boolean info(BytecraftPlayer player, Zone zone)
+    private String messageFromArgs(String[] args)
     {
-        Rectangle rect = zone.getRectangle();
-        player.sendMessage(GOLD + "Information about " + zone.getName());
-        player.sendMessage(GOLD + "ID: " + WHITE + zone.getId());
-        player.sendMessage((GOLD + "Rect: " + WHITE + "("+ 
-        rect.getLeft() + ", " + + rect.getTop() + ") (" 
-                + rect.getRight()+ ", " + + rect.getBottom() + ")").replace(",", ChatColor.GOLD + "," + ChatColor.WHITE));
-        player.sendMessage(GOLD
-                + "Enter: " + WHITE
-                + (!zone.hasFlag(Flag.WHITELIST) ? "Everyone (true)"
-                        : "Only allowed (false)"));
-        player.sendMessage(GOLD
-                + "Build: " + WHITE
-                + (zone.hasFlag(Flag.BUILD) ? "Everyone (true)"
-                        : "Only makers (false)"));
-        player.sendMessage(GOLD + "PVP: " + WHITE + zone.hasFlag(Flag.PVP));
-        player.sendMessage(GOLD + "Hostiles: " + WHITE + zone.hasFlag(Flag.HOSTILES));
-        player.sendMessage(GOLD + "Enter message: " + WHITE + zone.getEnterMessage());
-        player.sendMessage(GOLD + "Exit Message: " + WHITE + zone.getExitMessage());
-        return true;
+        StringBuilder buffer = new StringBuilder();
+        for(int i = 2; i < args.length; i++){
+            buffer.append(args[i]);
+            buffer.append(" ");
+        }
+        
+        return buffer.toString();
+    }
+
+
+    private void info(BytecraftPlayer player, Zone zone, boolean perm)
+    {
+        if(!perm){
+            Rectangle rect = zone.getRectangle();
+            player.sendMessage(GOLD + "Information about " + zone.getName());
+            player.sendMessage(GOLD + "ID: " + WHITE + zone.getId());
+            player.sendMessage((GOLD + "Rect: " + WHITE + "("+ 
+            rect.getLeft() + ", " + + rect.getTop() + ") (" 
+                    + rect.getRight()+ ", " + + rect.getBottom() + ")").replace(",", ChatColor.GOLD + "," + ChatColor.WHITE));
+            player.sendMessage(GOLD
+                    + "Enter: " + WHITE
+                    + (!zone.hasFlag(Flag.WHITELIST) ? "Everyone (true)"
+                            : "Only allowed (false)"));
+            player.sendMessage(GOLD
+                    + "Build: " + WHITE
+                    + (zone.hasFlag(Flag.BUILD) ? "Everyone (true)"
+                            : "Only makers (false)"));
+            player.sendMessage(GOLD + "PVP: " + WHITE + zone.hasFlag(Flag.PVP));
+            player.sendMessage(GOLD + "Hostiles: " + WHITE + zone.hasFlag(Flag.HOSTILES));
+            player.sendMessage(GOLD + "Enter message: " + WHITE + zone.getEnterMessage());
+            player.sendMessage(GOLD + "Exit Message: " + WHITE + zone.getExitMessage());
+        }else{
+            Collection<String> users = zone.getUsers();
+            if(users.isEmpty()){
+                player.sendMessage(ChatColor.RED + "No permissions for " + zone.getName());
+                return;
+            }
+            player.sendMessage(ChatColor.YELLOW + "Permissions for " + ChatColor.RED + zone.getName());
+            for(String name: zone.getUsers()){
+                BytecraftPlayer offline = plugin.getPlayerOffline(name);
+                player.sendMessage(offline.getNameColor() + offline.getName() + ChatColor.YELLOW + " - " + zone.getUser(offline));
+            }
+        }
+        return;
     }
     
     private void addUser(Zone zone, BytecraftPlayer player, BytecraftPlayer target, Permission p)
