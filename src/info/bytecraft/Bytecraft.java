@@ -545,4 +545,12 @@ public class Bytecraft extends JavaPlugin
         return this.armorNames.get(type);
     }
     
+    public static int locationChecksum(Location loc)
+    {
+        int checksum = (loc.getBlockX() + "," +
+                loc.getBlockZ() + "," +
+                loc.getBlockY() + "," +
+                loc.getWorld().getName()).hashCode();
+        return checksum;
+    }
 }
