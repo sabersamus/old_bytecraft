@@ -452,25 +452,6 @@ public class BytecraftPlayerListener implements Listener
     }
     
     @EventHandler
-    public void onClose(InventoryCloseEvent event)
-    {
-        Player player = (Player) event.getPlayer();
-        if (player.getGameMode() == GameMode.CREATIVE) {
-            for (ItemStack item : player.getInventory().getContents()) {
-                if (item != null) {
-                    ItemMeta meta = item.getItemMeta();
-                    List<String> lore = new ArrayList<String>();
-                    lore.add(ChatColor.YELLOW + "Creative");
-                    BytecraftPlayer p = this.plugin.getPlayer(player);
-                    lore.add(ChatColor.YELLOW + "by: " + p.getDisplayName());
-                    meta.setLore(lore);
-                    item.setItemMeta(meta);
-                }
-            }
-        }
-    }
-    
-    @EventHandler
     public void onPlayerClick(PlayerInteractEvent event)
     {
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK) {

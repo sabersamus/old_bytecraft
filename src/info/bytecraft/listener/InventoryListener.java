@@ -12,11 +12,13 @@ import info.bytecraft.database.IInventoryDAO.ChangeType;
 import info.bytecraft.database.IInventoryDAO.InventoryType;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.DoubleChest;
@@ -25,9 +27,11 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class InventoryListener implements Listener
 {
@@ -214,5 +218,37 @@ public class InventoryListener implements Listener
             }
         }
     }
-
+    
+    @EventHandler
+    public void onClose(InventoryCloseEvent event)
+    {
+        Player player = (Player) event.getPlayer();
+        if (player.getGameMode() == GameMode.CREATIVE) {
+            for (ItemStack item : player.getInventory().getContents()) {
+                if (item != null) {
+                    ItemMeta meta = item.getItemMeta();
+                    List<String> lore = new ArrayList<String>();
+                    lore.add(ChatColor.YELLOW + "Creative");
+                    BytecraftPlayer p = this.plugin.getPlayer(player);
+                    lore.add(ChatColor.YELLOW + "by: " + p.getDisplayName());
+                    meta.setLore(lore);
+                    item.setItemMeta(meta);
+                }
+            }
+        }
+    }
+    
+    @EventHandler
+    public void onDrop(PlayerDropItemEvent event)
+    {
+        BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
+        if(player.getGameMode() != GameMode.CREATIVE)return;
+        ItemStack stack = event.getItemDrop().getItemStack();
+        ItemMeta meta = stack.getItemMeta();
+        List<String> lore = new ArrayList<String>();
+        lore.add(ChatColor.YELLOW + "Creative");
+        lore.add(ChatColor.YELLOW + "by: " + player.getDisplayName());
+        meta.setLore(lore);
+        stack.setItemMeta(meta);
+    }
 }
