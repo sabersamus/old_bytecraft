@@ -1,10 +1,12 @@
 package info.bytecraft.listener;
 
 import info.bytecraft.Bytecraft;
+import info.bytecraft.api.Badge;
 import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.api.Rank;
 import info.bytecraft.database.*;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -37,6 +39,30 @@ public class PlayerPromotionListener implements Listener
                 } catch (DAOException e) {
                     throw new RuntimeException(e);
                 }
+            }
+        }
+    }
+    
+    @EventHandler
+    public void earnBadge(PlayerJoinEvent event)
+    {
+        BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
+        if(player == null){
+            return;
+        }
+        
+        if(player.getPlayTime() > 3600 * 24 * 20 && !player.hasBadge(Badge.VETERAN)) {
+            Badge badge = Badge.VETERAN;
+            
+            try(IContext ctx = plugin.createContext()){
+                IPlayerDAO dao = ctx.getPlayerDAO();
+                dao.addBadge(player, badge, 1);
+                player.addBadge(badge, 1);
+                
+                player.sendMessage(ChatColor.GOLD + "Congratulations! You are now a veteran!");
+                Bukkit.broadcastMessage(player.getDisplayName() + ChatColor.AQUA + "Just received the badge " + badge.getName());
+            }catch(DAOException e){
+                throw new RuntimeException(e);
             }
         }
     }
