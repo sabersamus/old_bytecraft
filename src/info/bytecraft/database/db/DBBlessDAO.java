@@ -8,8 +8,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
+
+import com.google.common.collect.Maps;
 
 public class DBBlessDAO implements IBlessDAO
 {
@@ -18,6 +23,34 @@ public class DBBlessDAO implements IBlessDAO
     public DBBlessDAO(Connection conn)
     {
         this.conn = conn;
+    }
+    
+    public Map<Location, String> getBlessedBlocks()
+    throws DAOException
+    {
+        Map<Location, String> blessedBlocks = Maps.newHashMap();
+        
+        String sql = "SELECT * FROM bless";
+        try(PreparedStatement stm = conn.prepareStatement(sql)){
+            stm.execute();
+            
+            try(ResultSet rs = stm.getResultSet()){
+                while(rs.next()){
+                    String world = rs.getString("world");
+                    int x = rs.getInt("x");
+                    int y = rs.getInt("y");
+                    int z = rs.getInt("z");
+                    String owner = rs.getString("player_name");
+                    
+                    blessedBlocks.put(new Location(Bukkit.getWorld(world), x, y, z), owner);
+                }
+            }
+            
+        }catch(SQLException e){
+            throw new DAOException(sql, e);
+        }
+        
+        return blessedBlocks;
     }
 
     public boolean isBlessed(Block block)

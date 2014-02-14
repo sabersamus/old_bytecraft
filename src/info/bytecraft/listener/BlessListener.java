@@ -6,13 +6,10 @@ import java.util.Set;
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.api.Notification;
-import info.bytecraft.database.DAOException;
-import info.bytecraft.database.IBlessDAO;
-import info.bytecraft.database.IContext;
 
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -67,15 +64,9 @@ public class BlessListener implements Listener
                 return;
             }
 
-            try (IContext ctx = plugin.createContext()) {
-                IBlessDAO dao = ctx.getBlessDAO();
-                if(dao.isBlessed(event.getClickedBlock())){
-                    event.setCancelled(true);
-                    player.sendMessage(ChatColor.RED + "This block is already blessed!");
-                    return;
-                }
-                
-                dao.bless(event.getClickedBlock(), target);
+            Location loc = event.getClickedBlock().getLocation();
+            
+            if(plugin.blessBlock(loc, target)){
                 target.sendNotification(Notification.BLESS, ChatColor.AQUA
                         + "Your god has blessed a block in your name!");
                 player.sendMessage(ChatColor.AQUA
@@ -83,34 +74,32 @@ public class BlessListener implements Listener
                         + target.getDisplayName());
                 event.setCancelled(true);
                 return;
-                //player.setBlessTarget(null);
-            } catch (DAOException e) {
-                throw new RuntimeException(e);
+            }else{
+                event.setCancelled(true);
+                player.sendMessage(ChatColor.RED + "This block is already blessed!");
+                return;
             }
         }
         else {
             if (event.getAction() == Action.LEFT_CLICK_BLOCK
                     || event.getAction() == Action.RIGHT_CLICK_BLOCK) {
-                try (IContext ctx = plugin.createContext()) {
-                    IBlessDAO dao = ctx.getBlessDAO();
-                    if (dao.isBlessed(event.getClickedBlock())) {
-                        BytecraftPlayer owner = plugin.getPlayerOffline(dao.getOwner(event.getClickedBlock()));
-                        String name = owner.getNameColor() + owner.getName();
-                        if (!player.getName().equalsIgnoreCase(
-                                owner.getName())) {
-                            player.sendMessage(ChatColor.RED + "Blessed to: " + name);
-                            if (!player.getRank().canOverrideBless()) {
-                                event.setCancelled(true);
-                                return;
-                            }
+                Location loc = event.getClickedBlock().getLocation();
+                
+                if(plugin.isBlessed(loc)){
+                    BytecraftPlayer owner = plugin.getOwner(loc);
+                    String name = owner.getNameColor() + owner.getName();
+                    if (!player.getName().equalsIgnoreCase(
+                            owner.getName())) {
+                        player.sendMessage(ChatColor.RED + "Blessed to: " + name);
+                        if (!player.getRank().canOverrideBless()) {
+                            event.setCancelled(true);
+                            return;
                         }
-                        else {
-                            player.sendMessage(ChatColor.AQUA
-                                    + "Blessed to you");
-                        }
+                    }else {
+                        player.sendMessage(ChatColor.AQUA
+                                + "Blessed to you");
+                        return;
                     }
-                } catch (DAOException e) {
-                    throw new RuntimeException(e);
                 }
             }
         }
@@ -124,20 +113,16 @@ public class BlessListener implements Listener
         if(event.isCancelled())return;
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
         
-        Block block = event.getBlock();
+        Location loc = event.getBlock().getLocation();
         
-        try(IContext ctx = plugin.createContext()){
-            IBlessDAO bDao = ctx.getBlessDAO();
-            if(bDao.isBlessed(block)){
-                if(!player.getName().equalsIgnoreCase(bDao.getOwner(block)) 
-                        && !player.getRank().canOverrideBless()){
-                    player.sendMessage(ChatColor.RED + "You can not destroy blessed blocks.");
-                    event.setCancelled(true);
-                    player.setFireTicks(20);
-                }
+        if(plugin.isBlessed(loc)){
+            BytecraftPlayer owner = plugin.getOwner(loc);
+            if(!player.getName().equalsIgnoreCase(owner.getName()) 
+                    && !player.getRank().canOverrideBless()){
+                player.sendMessage(ChatColor.RED + "You can not destroy blessed blocks.");
+                event.setCancelled(true);
+                player.setFireTicks(20);
             }
-        }catch(DAOException e){
-            throw new RuntimeException(e);
         }
     }
 }
