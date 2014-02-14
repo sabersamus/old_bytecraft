@@ -56,7 +56,7 @@ public class BrushCommand extends AbstractCommand implements Listener
     @Override
     public boolean handlePlayer(BytecraftPlayer p, String[] args)
     {
-        if (!p.getRank().canFill()) {
+        if (!p.getRank().canBrush()) {
             return true;
         }
 

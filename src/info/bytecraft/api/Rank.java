@@ -351,4 +351,9 @@ public enum Rank
         if(this == NOBLE)return 1;
         return 0;
     }
+
+    public boolean canBrush()
+    {
+        return isElder();
+    }
 }
