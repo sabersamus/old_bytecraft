@@ -1,6 +1,5 @@
 package info.bytecraft.listener;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -16,8 +15,8 @@ import info.bytecraft.database.IBlessDAO;
 import info.bytecraft.database.IContext;
 import info.bytecraft.database.ILogDAO;
 import info.bytecraft.zones.Zone;
+import info.bytecraft.zones.ZoneWorld;
 import info.bytecraft.api.TargetBlock;
-import info.bytecraft.api.math.Point;
 
 import org.apache.commons.lang.WordUtils;
 
@@ -42,7 +41,6 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -56,7 +54,6 @@ import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import com.google.common.collect.Maps;
 
@@ -99,6 +96,32 @@ public class BytecraftPlayerListener implements Listener
         
         if(player.getGameMode() != GameMode.SURVIVAL && !player.getRank().canFill()){
             player.setGameMode(GameMode.SURVIVAL);
+        }
+        
+        List<BytecraftPlayer> players = plugin.getOnlinePlayers();
+        if (player.hasFlag(Flag.INVISIBLE)) {
+            player.sendMessage(ChatColor.YELLOW + "You have joined invisible");
+
+            // Hide the new player from all existing players
+            for (BytecraftPlayer current : players) {
+                if (!current.getRank().canVanish()) {
+                    current.hidePlayer(player.getDelegate());
+                } else {
+                    current.showPlayer(player.getDelegate());
+                }
+            }
+        }
+        
+        for (BytecraftPlayer current : players) {
+            if (current.hasFlag(Flag.INVISIBLE)) {
+                player.hidePlayer(current.getDelegate());
+            } else {
+                player.showPlayer(current.getDelegate());
+            }
+
+            if (player.getRank().canVanish()) {
+                player.showPlayer(current.getDelegate());
+            }
         }
         
     }
@@ -190,7 +213,8 @@ public class BytecraftPlayerListener implements Listener
             if (event.getEntity() instanceof Player) {
                 BytecraftPlayer victim = plugin.getPlayer((Player)event.getEntity());
                 Location loc = victim.getLocation();
-                Zone zone = plugin.getZoneAt(loc.getWorld(), new Point(loc.getBlockX(), loc.getBlockZ()));
+                ZoneWorld world = plugin.getWorld(loc.getWorld());
+                Zone zone = world.findZone(loc);
                 if (zone == null || !zone.hasFlag(Zone.Flag.PVP)) {
                     event.setCancelled(true);
                     event.setDamage(0);

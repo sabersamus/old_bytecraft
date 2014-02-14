@@ -64,10 +64,9 @@ public class PlayerLookupListener implements Listener
         } catch (DAOException e) {
             throw new RuntimeException(e);
         }
-
+        
         if (player.hasFlag(Flag.INVISIBLE)) {
             this.hidePlayer(player, plugin.getOnlinePlayers());
-            this.hideOnline(player, plugin.getOnlinePlayers());
         } else {
             if (player.getCountry() != null
                     && !player.hasFlag(Flag.HIDDEN_LOCATION)) {
@@ -121,38 +120,14 @@ public class PlayerLookupListener implements Listener
     private void hidePlayer(BytecraftPlayer player, List<BytecraftPlayer> online)
     {
         if (player.hasFlag(Flag.INVISIBLE)) {
-            player.sendMessage(ChatColor.YELLOW + "You are now invisible!");
-
             // Hide the new player from all existing players
             for (BytecraftPlayer current : online) {
                 if (!current.getRank().canVanish()) {
-                    current.hidePlayer(player.getDelegate());
                 } else {
-                    current.showPlayer(player.getDelegate());
                     if(current.getId() != player.getId()){
                         current.sendMessage(player.getDisplayName() + ChatColor.AQUA + " has joined invisible");
                     }
                 }
-            }
-        }
-        else {
-            for (BytecraftPlayer current : online) {
-                current.showPlayer(player.getDelegate());
-            }
-        }
-    }
-    
-    private void hideOnline(BytecraftPlayer toHide, List<BytecraftPlayer> online)
-    {
-        for(BytecraftPlayer invisible: online){
-            if(invisible.hasFlag(Flag.INVISIBLE)){
-                if(!toHide.getRank().canVanish()){
-                    toHide.hidePlayer(invisible.getDelegate());
-                }else{
-                    toHide.showPlayer(invisible.getDelegate());
-                }
-            }else{
-                toHide.showPlayer(invisible.getDelegate());
             }
         }
     }
