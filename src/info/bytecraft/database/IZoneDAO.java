@@ -1,11 +1,11 @@
 package info.bytecraft.database;
 
 import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.api.math.Rectangle;
 import info.bytecraft.zones.Lot;
 import info.bytecraft.zones.Zone;
 import info.bytecraft.zones.Zone.Flag;
 import info.bytecraft.zones.Zone.Permission;
+import info.tregmine.quadtree.Rectangle;
 
 import java.util.List;
 import java.util.Map;

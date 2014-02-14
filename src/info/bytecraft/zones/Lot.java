@@ -1,8 +1,7 @@
 package info.bytecraft.zones;
 
 import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.api.math.Point;
-import info.bytecraft.api.math.Rectangle;
+import info.tregmine.quadtree.Rectangle;
 
 import java.util.HashSet;
 import java.util.List;
@@ -99,21 +98,10 @@ public class Lot
     
     public boolean intersects(Lot other)
     {
-        Point p1 = new Point(rect.getLeft(), rect.getTop());
-        Point p2 = new Point(rect.getRight(), rect.getBottom());
-        int zoneWidth = Math.max(p1.getX(), p2.getX()) - Math.min(p1.getX(), p2.getX());
-        int zoneHeight = Math.max(p1.getZ(), p2.getZ()) - Math.min(p1.getZ(), p2.getZ());
+        if(!this.getZoneName().equalsIgnoreCase(other.getZoneName())){
+            return false;
+        }
         
-        
-        Rectangle zr2 = other.getRect();
-        Point p3 = new Point(zr2.getLeft(), zr2.getTop());
-        Point p4 = new Point(zr2.getRight(), zr2.getBottom());
-        
-        int otherWidth = Math.max(p3.getX(), p4.getX()) - Math.min(p3.getX(), p4.getX());
-        int otherHeight = Math.max(p3.getZ(), p4.getZ()) - Math.min(p3.getZ(), p4.getZ());
-        
-        java.awt.Rectangle r1 = new java.awt.Rectangle(p1.getX(), p1.getZ(), zoneWidth, zoneHeight);
-        java.awt.Rectangle r2 = new java.awt.Rectangle(p3.getX(), p3.getZ(), otherWidth, otherHeight);
-        return r1.intersects(r2);
+        return this.rect.intersects(other.rect);
     }
 }

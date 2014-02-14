@@ -4,7 +4,7 @@ import info.bytecraft.Bytecraft;
 import info.bytecraft.zones.Lot;
 import info.bytecraft.zones.Zone;
 import info.bytecraft.zones.Zone.Permission;
-import info.bytecraft.api.math.Point;
+import info.bytecraft.zones.ZoneWorld;
 import info.bytecraft.database.DAOException;
 import info.bytecraft.database.IContext;
 import info.bytecraft.database.IPlayerDAO;
@@ -267,7 +267,9 @@ public class BytecraftPlayer extends PlayerDelegate
     
     public BooleanStringReturn canBeHere(Location loc)
     {
-        Zone zone = plugin.getZoneAt(loc.getWorld(), new Point(loc.getBlockX(), loc.getBlockZ()));
+        ZoneWorld world = plugin.getWorld(loc.getWorld());
+        Zone zone = world.findZone(loc);
+        
         if (zone == null) { // Wilderness - Can be there
             return new BooleanStringReturn(true, null);
         }
@@ -305,9 +307,9 @@ public class BytecraftPlayer extends PlayerDelegate
     
     public boolean hasBlockPermission(Location loc, boolean punish)
     {
-        Point point = new Point(loc.getBlockX(), loc.getBlockZ());
-
-        Zone zone = plugin.getZoneAt(loc.getWorld(), point);
+        ZoneWorld world = plugin.getWorld(loc.getWorld());
+        
+        Zone zone = world.findZone(loc);
         
         if (zone == null) { // Is in the wilderness - So return true
             return true;

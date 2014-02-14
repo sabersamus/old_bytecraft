@@ -6,18 +6,17 @@ import static org.bukkit.ChatColor.WHITE;
 import java.util.Collection;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.api.math.Point;
-import info.bytecraft.api.math.Rectangle;
 import info.bytecraft.database.DAOException;
 import info.bytecraft.database.IContext;
 import info.bytecraft.database.IZoneDAO;
 import info.bytecraft.zones.Zone;
+import info.bytecraft.zones.ZoneWorld;
 import info.bytecraft.zones.Zone.Flag;
 import info.bytecraft.zones.Zone.Permission;
+import info.tregmine.quadtree.Rectangle;
 
 public class TownCommand extends AbstractCommand
 {
@@ -30,8 +29,9 @@ public class TownCommand extends AbstractCommand
     
     public boolean handlePlayer(BytecraftPlayer player, String[] args)
     {
-        Location loc = player.getLocation();
-        Zone zone = plugin.getZoneAt(loc.getWorld(), new Point(loc.getBlockX(), loc.getBlockZ()));
+        ZoneWorld world = plugin.getWorld(player.getWorld());
+        
+        Zone zone = world.findZone(player.getLocation());
         if(zone == null){
             player.sendMessage(ChatColor.RED + "You are not in a zone!");
             return true;

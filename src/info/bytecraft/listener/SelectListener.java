@@ -2,10 +2,10 @@ package info.bytecraft.listener;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.api.math.Point;
 import info.bytecraft.zones.Lot;
 import info.bytecraft.zones.Zone;
 import info.bytecraft.zones.Zone.Permission;
+import info.bytecraft.zones.ZoneWorld;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -32,9 +32,9 @@ public class SelectListener implements Listener
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
         if(event.getAction() == Action.RIGHT_CLICK_BLOCK && player.getItemInHand().getType() == Material.STICK){
             Block block = event.getClickedBlock();
-            Point p = new Point(block.getX(), block.getZ());
-            if(plugin.getZoneAt(block.getWorld(), p) != null){
-                Zone zone = plugin.getZoneAt(block.getWorld(), p);
+            ZoneWorld world = plugin.getWorld(block.getWorld());
+            if(world.findZone(block.getLocation()) != null){
+                Zone zone = world.findZone(block.getLocation());
                 Permission perm = zone.getUser(player);
                 if((perm == null || perm != Permission.OWNER) && !player.getRank().canEditZones())return;
                 if(zone.findLot(block.getLocation()) != null){

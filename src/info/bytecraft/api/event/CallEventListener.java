@@ -2,8 +2,8 @@ package info.bytecraft.api.event;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.api.math.Point;
 import info.bytecraft.zones.Zone;
+import info.bytecraft.zones.ZoneWorld;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -30,10 +30,14 @@ public class CallEventListener implements Listener
         Location to = event.getTo();
         Location from = event.getFrom();
         
-        Zone newZone = plugin.getZoneAt(to.getWorld(), new Point(to.getBlockX(), to.getBlockZ()));
+        ZoneWorld toWorld = plugin.getWorld(to.getWorld());
+        
+        Zone newZone = toWorld.findZone(to);
         String newName;
         
-        Zone fromZone = plugin.getZoneAt(from.getWorld(), new Point(from.getBlockX(), from.getBlockZ()));
+        ZoneWorld fromWorld = plugin.getWorld(from.getWorld());
+        
+        Zone fromZone = fromWorld.findZone(from);
         String fromName;
         if (fromZone == null && newZone == null) {
             return;
@@ -83,10 +87,14 @@ public class CallEventListener implements Listener
         Location to = event.getTo();
         Location from = event.getFrom();
         
-        Zone newZone = plugin.getZoneAt(to.getWorld(), new Point(to.getBlockX(), to.getBlockZ()));
+        ZoneWorld toWorld = plugin.getWorld(to.getWorld());
+        
+        Zone newZone = toWorld.findZone(to);
         String newName;
         
-        Zone fromZone = plugin.getZoneAt(from.getWorld(), new Point(from.getBlockX(), from.getBlockZ()));
+        ZoneWorld fromWorld = plugin.getWorld(from.getWorld());
+        
+        Zone fromZone = fromWorld.findZone(from);
         String fromName;
         if (fromZone == null && newZone == null) {
             return;

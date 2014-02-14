@@ -2,14 +2,15 @@ package info.bytecraft.commands;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.api.math.Point;
-import info.bytecraft.api.math.Rectangle;
 import info.bytecraft.database.DAOException;
 import info.bytecraft.database.IContext;
 import info.bytecraft.database.IZoneDAO;
 import info.bytecraft.zones.Lot;
 import info.bytecraft.zones.Zone;
+import info.bytecraft.zones.ZoneWorld;
 import info.bytecraft.zones.Zone.Permission;
+import info.tregmine.quadtree.IntersectionException;
+import info.tregmine.quadtree.Rectangle;
 
 import java.util.List;
 
@@ -17,7 +18,6 @@ import static org.bukkit.ChatColor.*;
 
 import org.bukkit.block.Block;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 
 public class LotCommand extends AbstractCommand
 {
@@ -65,41 +65,49 @@ public class LotCommand extends AbstractCommand
 
     public void createLot(BytecraftPlayer player, String[] args)
     {
+        ZoneWorld world = plugin.getWorld(player.getWorld());
+        if(world == null){
+            return;
+        }
+        
         if (args.length < 3) {
             player.sendMessage("syntax: /lot create [name] [owner]");
             return;
         }
 
         Block tb1 = player.getLotBlock1();
+        
+        Zone tzone = world.findZone(tb1.getLocation());
+        String name = args[1] + "." + tzone.getName();
+        if(world.lotExists(name)){
+            player.sendMessage(RED + "A lot named " + name
+                    + " already exists.");
+            return;
+        }
+        
+        String playerName = args[2];
 
-        Zone tzone = plugin.getZoneAt(tb1.getWorld(), new Point(tb1.getX(), tb1.getZ()));
+        BytecraftPlayer victim = plugin.getPlayerOffline(playerName);
+        if (victim == null) {
+            player.sendMessage(RED + "Player " + playerName
+                    + " was not found.");
+            return;
+        }
+        
+        
+        
         try (IContext ctx = plugin.createContext()) {
             IZoneDAO dao = ctx.getZoneDAO();
-            String name = args[1] + "." + tzone.getName();
-
-            if (dao.lotExists(tzone.getName(), name)) {
-                player.sendMessage(RED + "A lot named " + name
-                        + " already exists.");
-                return;
-            }
-
-            String playerName = args[2];
-
-            BytecraftPlayer victim = plugin.getPlayerOffline(playerName);
-            if (victim == null) {
-                player.sendMessage(RED + "Player " + playerName
-                        + " was not found.");
-                return;
-            }
-
+            
+            
             Block b1 = player.getLotBlock1();
             Block b2 = player.getLotBlock2();
             if (b1 == null || b2 == null) {
                 player.sendMessage("Please select two corners");
                 return;
             }
-
-            Zone zone = plugin.getZoneAt(b1.getWorld(), new Point(b1.getX(), b1.getZ()));
+            
+            Zone zone = world.findZone(b1.getLocation());
             
             Permission perm = zone.getUser(player);
             if (perm != Permission.OWNER && !player.getRank().canEditZones()) {
@@ -109,10 +117,8 @@ public class LotCommand extends AbstractCommand
                 return;
             }
 
-            Zone checkZone = plugin.getZoneAt(b2.getWorld(), new Point(b2.getX(), b2.getZ()));
+            Zone checkZone = world.findZone(b2.getLocation());
 
-            // identity check. both lookups should return exactly the same
-            // object
             if (zone.getId() != checkZone.getId()) {
                 return;
             }
@@ -123,17 +129,18 @@ public class LotCommand extends AbstractCommand
             Lot lot = new Lot();
             lot.setZoneName(zone.getName());
             lot.setRect(rect);
-            lot.setName(args[1] + "." + zone.getName());
+            lot.setName(name);
             lot.addOwner(victim);
 
-            for(Lot other: zone.getLots().values()){
-                if(other.intersects(lot)){
-                    player.sendMessage(ChatColor.RED + "Lot intersects with lot: " + other.getName());
-                    return;
-                }
+            try {
+                world.addLot(lot);
+            } catch (IntersectionException e) {
+                player.sendMessage(RED
+                        + "The specified rectangle intersects an existing lot.");
+                return;
             }
             
-            zone.addLot(lot);
+            //zone.addLot(lot);
             dao.addLot(lot);
             dao.addLotUser(lot.getId(), victim.getName());
 
@@ -147,20 +154,25 @@ public class LotCommand extends AbstractCommand
 
     public void setLotOwner(BytecraftPlayer player, String[] args)
     {
+        ZoneWorld world = plugin.getWorld(player.getWorld());
+        if(world == null){
+            return;
+        }
+        
         if (args.length < 3) {
             player.sendMessage("syntax: /lot addowner [name] [player]");
             return;
         }
         
-        Location loc = player.getLocation();
-        
         String name = args[1];
-        Zone zone = plugin.getZoneAt(loc.getWorld(), new Point(loc.getBlockX(), loc.getBlockZ()));
-        Lot lot = zone.getLot(name);
+
+        Lot lot = world.getLot(name);
         if (lot == null) {
             player.sendMessage(RED + "No lot named " + name + " found.");
             return;
         }
+        
+        Zone zone = plugin.getZone(lot.getZoneName());
 
         Permission perm = zone.getUser(player);
         if (perm == Zone.Permission.OWNER) {
@@ -232,23 +244,25 @@ public class LotCommand extends AbstractCommand
 
     public void deleteLot(BytecraftPlayer player, String[] args)
     {
+        ZoneWorld world = plugin.getWorld(player.getWorld());
+        if(world == null){
+            return;
+        }
+        
         if (args.length < 2) {
             player.sendMessage("syntax: /lot delete [name]");
             return;
         }
-        Location loc = player.getLocation();
-        Zone zone = plugin.getZoneAt(loc.getWorld(), new Point(loc.getBlockX(), loc.getBlockZ()));
-        if(zone == null){
-            player.sendMessage(ChatColor.RED + "You are not currently in a zone!");
-            return;
-        }
-        String name = args[1] + "." + zone.getName();
+        
+        String name = args[1];
 
-        Lot lot = zone.getLot(name);
+        Lot lot = world.getLot(name);
         if (lot == null) {
             player.sendMessage(RED + "No lot named " + name + " found.");
             return;
         }
+
+        Zone zone = plugin.getZone(lot.getZoneName());
 
         Zone.Permission perm = zone.getUser(player);
         if (perm == Permission.OWNER) {
@@ -268,10 +282,11 @@ public class LotCommand extends AbstractCommand
 
         try (IContext ctx = plugin.createContext()) {
             IZoneDAO dao = ctx.getZoneDAO();
-            zone.deleteLot(lot);
             dao.deleteLot(lot.getId());
             dao.deleteLotUsers(lot.getId());
-            zone.deleteLot(lot);
+            
+            world.deleteLot(lot.getName());
+            
             player.sendMessage(GREEN + lot.getName() + " has been deleted.");
         } catch (DAOException e) {
             throw new RuntimeException(e);

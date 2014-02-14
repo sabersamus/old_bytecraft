@@ -1,15 +1,14 @@
 package info.bytecraft.listener;
 
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Set;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BooleanStringReturn;
 import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.api.event.PlayerChangeZoneEvent;
-import info.bytecraft.api.math.Point;
 import info.bytecraft.zones.Zone;
+import info.bytecraft.zones.ZoneWorld;
 import info.bytecraft.zones.Zone.Flag;
 import info.bytecraft.zones.Zone.Permission;
 
@@ -50,8 +49,10 @@ public class ZoneListener implements Listener
         
         Location l = player.getLocation();
         
-        Zone zone = plugin.getZoneAt(l.getWorld(), new Point(l.getBlockX(), l.getBlockZ()));
+        ZoneWorld world = plugin.getWorld(l.getWorld());
         
+        Zone zone = world.findZone(l); 
+                
         if(zone == null)return;
         
         this.welcomeMessage(zone, player, zone.getUser(player));
@@ -131,9 +132,10 @@ public class ZoneListener implements Listener
     {
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
         Location loc = player.getLocation();
-        Point p = new Point(loc.getBlockX(), loc.getBlockZ());
         
-        Zone zone = plugin.getZoneAt(loc.getWorld(), p);
+        ZoneWorld world = plugin.getWorld(loc.getWorld());
+        
+        Zone zone = world.findZone(loc);
         if(zone == null)return;
         
         if(zone.hasFlag(Flag.CREATIVE)){
@@ -198,16 +200,18 @@ public class ZoneListener implements Listener
     public void onSpawn(CreatureSpawnEvent event)
     {
         Entity ent = event.getEntity();
-        List<Zone> zones = plugin.getZones(ent.getWorld().getName());
-        if(zones.isEmpty())return;
-        for(Zone zone: zones){
-            if(zone.contains(ent.getLocation()) && zone.getWorld().equalsIgnoreCase(ent.getWorld().getName())){
-                if(!zone.hasFlag(Flag.HOSTILES)){
-                    if(types.contains(ent.getType())){
-                        event.setCancelled(true);
-                        return;
-                    }
-                }
+        Location loc = event.getLocation();
+        
+        ZoneWorld world = plugin.getWorld(loc.getWorld());
+        
+        Zone zone = world.findZone(loc);
+        
+        if(zone == null)return;
+        
+        if(!zone.hasFlag(Flag.HOSTILES)){
+            if(types.contains(ent.getType())){
+                event.setCancelled(true);
+                return;
             }
         }
     }

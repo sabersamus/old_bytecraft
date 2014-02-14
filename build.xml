@@ -56,7 +56,8 @@
                 <attribute name="Class-Path"
                     value="lib/commons-dbcp-1.4.jar
                     lib/commons-pool-1.5.6.jar
-                	lib/javax.mail.jar" />
+                	lib/javax.mail.jar
+                	lib/quadtree.jar" />
             </manifest>
         </jar>
     </target>

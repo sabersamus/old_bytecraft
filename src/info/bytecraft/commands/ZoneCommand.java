@@ -1,7 +1,6 @@
 package info.bytecraft.commands;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
@@ -9,13 +8,15 @@ import org.bukkit.block.Block;
 import static org.bukkit.ChatColor.*;
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.api.math.Rectangle;
 import info.bytecraft.zones.Zone;
 import info.bytecraft.zones.Zone.Flag;
 import info.bytecraft.zones.Zone.Permission;
+import info.bytecraft.zones.ZoneWorld;
 import info.bytecraft.database.DAOException;
 import info.bytecraft.database.IContext;
 import info.bytecraft.database.IZoneDAO;
+import info.tregmine.quadtree.IntersectionException;
+import info.tregmine.quadtree.Rectangle;
 
 public class ZoneCommand extends AbstractCommand
 {
@@ -42,13 +43,7 @@ public class ZoneCommand extends AbstractCommand
         {
             if ("create".equalsIgnoreCase(args[0])) {
                 if (player.getRank().canCreateZones()) {
-                    if (!zoneExists(args[1])) {
-                        if (createZone(player, args[1])) {
-                            player.sendMessage(ChatColor.RED + "Created zone "
-                                    + args[1]);
-                            return true;
-                        }
-                    }
+                    this.createZone(player, args);
                 }else{
                     player.sendMessage(getInvalidPermsMessage());
                     return true;
@@ -61,9 +56,7 @@ public class ZoneCommand extends AbstractCommand
                                 + " doesn't exist");
                     }
                     else {
-                        deleteZone(args[1]);
-                        player.sendMessage(ChatColor.RED + "Deleted zone "
-                                + args[1]);
+                        this.deleteZone(player, args);
                     }
                 }else{
                     player.sendMessage(getInvalidPermsMessage());
@@ -172,58 +165,95 @@ public class ZoneCommand extends AbstractCommand
         return true;
     }
 
-    private boolean createZone(BytecraftPlayer player, String name)
+    private void createZone(BytecraftPlayer player, String[] args)
     {
-        if (zoneExists(name)) {
-            player.sendMessage(ChatColor.RED + "Zone " + name
-                    + " already exists");
-            return false;
+        ZoneWorld world = plugin.getWorld(player.getWorld());
+        if(world == null){
+            return;
         }
-        Zone zone = new Zone(name);
-        zone.setWorld(player.getWorld().getName());
+        
+        if (args.length < 2) {
+            player.sendMessage("syntax: /zone create [zone-name]");
+            return;
+        }
+        
+        String name = args[1];
+        if (world.zoneExists(name)) {
+            player.sendMessage(RED + "A zone named " + name
+                    + " does already exist.");
+            return;
+        }
+        
         Block b1 = player.getZoneBlock1();
         Block b2 = player.getZoneBlock2();
-        if(b1 == null || b2 == null){
-            player.sendMessage(ChatColor.RED + "Please select 2 points");
-            return true;
+        if (b1 == null || b2 == null) {
+            player.sendMessage("Please select two corners");
+            return;
         }
         
-        zone.setRectangle(new Rectangle(b1.getX(), b1.getZ(), b2.getX(), b2.getZ()));
-        
-        try (IContext ctx = plugin.createContext()) {
-                IZoneDAO dao = ctx.getZoneDAO();
-                List<Zone> zones = plugin.getZones(player.getWorld().getName());
-                for (Zone other : zones) {
-                if(other.getName().equalsIgnoreCase(zone.getName())){
-                    continue;
-                }
-                    if (zone.intersects(other)) {
-                        player.sendMessage(ChatColor.RED
-                                + "Zone intersects with zone: " + other.getName()
-                                + " . Please try somewhere else.");
-                        return true;
-                    }
-                }
-                dao.createZone(zone, player);
-                zone.addPermissions(player.getName(), Permission.OWNER);
-                dao.addUser(zone, player.getName(), Permission.OWNER);
-                plugin.addZone(zone);
-        } catch (DAOException e) {
-            throw new RuntimeException(e);
-        }
-        return true;
-    }
+        Rectangle rect =
+                new Rectangle(b1.getX(), b1.getZ(), b2.getX(), b2.getZ());
 
-    private boolean deleteZone(String name)
-    {
+        Zone zone = new Zone();
+        zone.setWorld(world.getName());
+        zone.setName(name);
+        zone.setRectangle(rect);
+
+        zone.setEnterMessage("Welcome to " + name + "!");
+        zone.setExitMessage("Now leaving " + name + ".");
+        zone.addPermissions(player.getName(), Permission.OWNER);
+        
+        player.sendMessage(RED + "Creating zone at " + rect);
+        
+        try {
+            world.addZone(zone);
+            player.sendMessage(RED + "[" + zone.getName() + "] "
+                    + "Zone created successfully.");
+        } catch (IntersectionException e) {
+            player.sendMessage(RED
+                    + "The zone you tried to create overlaps an existing zone.");
+            return;
+        }
+        
         try (IContext ctx = plugin.createContext()) {
             IZoneDAO dao = ctx.getZoneDAO();
-            dao.deleteZone(name);
-            plugin.deleteZone(plugin.getZone(name));
+            dao.createZone(zone, player);
+            dao.addUser(zone, player.getName(), Permission.OWNER);
         } catch (DAOException e) {
             throw new RuntimeException(e);
         }
-        return true;
+    }
+
+    private void deleteZone(BytecraftPlayer player, String[] args)
+    {
+        ZoneWorld world = plugin.getWorld(player.getWorld());
+        if (world == null) {
+            return;
+        }
+
+        if (args.length < 2) {
+            player.sendMessage("syntax: /zone delete [name]");
+            return;
+        }
+
+        String name = args[1];
+
+        Zone zone = world.getZone(name);
+        if (zone == null) {
+            player.sendMessage(RED + "A zone named " + name
+                    + " does not exist.");
+            return;
+        }
+
+        world.deleteZone(name);
+        player.sendMessage(RED + "[" + name + "] " + "Zone deleted.");
+
+        try (IContext ctx = plugin.createContext()) {
+            IZoneDAO dao = ctx.getZoneDAO();
+            dao.deleteZone(zone.getName());
+        } catch (DAOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private boolean zoneExists(String name)

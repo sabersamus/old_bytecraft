@@ -1,21 +1,22 @@
 package info.bytecraft;
 
 import info.bytecraft.api.*;
+import info.bytecraft.zones.Lot;
 import info.bytecraft.zones.Zone;
 import info.bytecraft.zones.Zone.Permission;
+import info.bytecraft.zones.ZoneWorld;
 import info.bytecraft.api.BytecraftPlayer.Flag;
 import info.bytecraft.api.event.CallEventListener;
-import info.bytecraft.api.math.Point;
 import info.bytecraft.commands.*;
 import info.bytecraft.database.*;
 import info.bytecraft.database.db.DBContextFactory;
 import info.bytecraft.listener.*;
+import info.tregmine.quadtree.IntersectionException;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.*;
-import java.util.logging.Logger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -35,17 +36,18 @@ import com.maxmind.geoip.LookupService;
 public class Bytecraft extends JavaPlugin
 {
     private HashMap<String, BytecraftPlayer> players;
-    private static IContextFactory contextFactory;
-    public static Logger LOGGER;
+    private IContextFactory contextFactory;
     
     private List<String> deathMessages;
     private List<String> quitMessages;
     private List<String> swordNames;
     private Map<String, List<String>> armorNames;
+    private Map<Location, String> blessedBlocks;
     
     private LookupService lookup = null;
     
-    private List<Zone> zones;
+    private Map<String, ZoneWorld> worlds;
+    private Map<String, Zone> zones;
     
     public void onLoad()
     {
@@ -53,10 +55,18 @@ public class Bytecraft extends JavaPlugin
         reloadConfig();
         
         FileConfiguration config = getConfig();
-        LOGGER = getLogger();
         contextFactory = new DBContextFactory(config, this);
         
-        zones = new ArrayList<>();
+        worlds = new TreeMap<>(
+                new Comparator<String>() {
+                    @Override
+                    public int compare(String a, String b)
+                    {
+                        return a.compareToIgnoreCase(b);
+                    }
+                });
+        
+        zones = new HashMap<>();
         
         try{
             lookup = new LookupService(new File(folder, "GeoIPCity.dat"), 
@@ -68,11 +78,11 @@ public class Bytecraft extends JavaPlugin
         try(IContext ctx = createContext())
         {
             IMessageDAO dao = ctx.getMessageDAO();
-            IZoneDAO zDao = ctx.getZoneDAO();
+            IBlessDAO bDao = ctx.getBlessDAO();
             this.deathMessages = dao.loadDeathMessages();
             this.quitMessages = dao.loadQuitMessages();
             
-            zones = zDao.loadZones();
+            this.blessedBlocks = bDao.getBlessedBlocks();
                         
             ILoreDAO lore  = ctx.getLoreDAO();
             
@@ -166,6 +176,15 @@ public class Bytecraft extends JavaPlugin
             this.removePlayer(player);
         }
         
+        this.armorNames = null;
+        this.deathMessages = null;
+        this.lookup = null;
+        this.players = null;
+        this.quitMessages = null;
+        this.swordNames = null;
+        this.zones = null;
+        this.contextFactory = null; 
+        this.blessedBlocks = null;
     }
     
     public IContextFactory getContextFactory()
@@ -187,7 +206,6 @@ public class Bytecraft extends JavaPlugin
         pm.registerEvents(new ButtonListener(this), this);
         pm.registerEvents(new BytecraftPlayerListener(this), this);
         pm.registerEvents(new BytecraftBlockListener(this), this);
-        pm.registerEvents(new BytecraftServerListener(this), this);
         pm.registerEvents(new CallEventListener(this), this);
         pm.registerEvents(new ChatListener(this), this);
         pm.registerEvents(new FillListener(this), this);
@@ -339,7 +357,7 @@ public class Bytecraft extends JavaPlugin
             Location loc = player.getLocation();
             
             if(loc != null){
-               Zone zone = getZoneAt(loc.getWorld(), new Point(loc.getBlockX(), loc.getBlockZ()));
+               Zone zone = this.getWorld(loc.getWorld()).findZone(loc);
                if(zone != null){
                    player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] "
                            + zone.getEnterMessage());
@@ -411,48 +429,93 @@ public class Bytecraft extends JavaPlugin
     // ========================================================
     // ======================= Zones ==========================
     // ========================================================
-    
-    public List<Zone> getZones(String world)
+    public ZoneWorld getWorld(World world)
     {
-        List<Zone> zones = Lists.newArrayList();
-        for(Zone zone: this.zones){
-            if(zone.getWorld().equalsIgnoreCase(world)){
-                zones.add(zone);
+        ZoneWorld zoneWorld = worlds.get(world.getName());
+
+        // lazy load zone worlds as required
+        if (zoneWorld == null) {
+            try (IContext ctx = contextFactory.createContext()) {
+                IZoneDAO dao = ctx.getZoneDAO();
+
+                zoneWorld = new ZoneWorld(world);
+                List<Zone> zones = dao.getZones(world.getName());
+                for (Zone zone : zones) {
+                    try {
+                        zoneWorld.addZone(zone);
+                        this.zones.put(zone.getName(), zone);
+                    } catch (IntersectionException e) {
+                        getLogger().warning("Failed to load zone " + zone.getName()
+                                + " with id " + zone.getId() + ".");
+                    }
+                }
+
+                List<Lot> lots = dao.getLots(world.getName());
+                for (Lot lot : lots) {
+                    try {
+                        zoneWorld.addLot(lot);
+                    } catch (IntersectionException e) {
+                        getLogger().warning("Failed to load lot " + lot.getName()
+                                + " with id " + lot.getId() + ".");
+                    }
+                }
+
+                worlds.put(world.getName(), zoneWorld);
+            } catch (DAOException e) {
+                throw new RuntimeException(e);
             }
         }
-        return zones;
-    }
-    
-    public Zone getZoneAt(World world, Point p)
-    {
-        for(Zone zone: getZones(world.getName())){
-            if(zone.contains(p)){
-                return zone;
-            }
-        }
-        return null;
+
+        return zoneWorld;
     }
     
     public Zone getZone(String name)
     {
-        for(Zone zone: zones){
-            if(zone.getName().equalsIgnoreCase(name)){
-                return zone;
-            }
+        return zones.get(name);
+    }
+    
+    // ========================================================
+    // ===================== Bless ============================
+    // ========================================================
+    
+    public Map<Location, String> getBlessedBlocks()
+    {
+        return blessedBlocks;
+    }
+    
+    public boolean isBlessed(Location loc)
+    {
+        return this.blessedBlocks.containsKey(loc);
+    }
+    
+    public BytecraftPlayer getOwner(Location loc)
+    {
+        if(!isBlessed(loc)){
+            return null;
         }
-        return null;
+        
+        return getPlayerOffline(this.blessedBlocks.get(loc));
     }
     
-    public void addZone(Zone zone)
+    public boolean blessBlock(Location loc, BytecraftPlayer owner)
     {
-        this.zones.add(zone);
+        if(isBlessed(loc)){
+            return false;
+        }
+        
+        this.blessedBlocks.put(loc, owner.getName());
+        
+        try(IContext ctx = createContext()){
+            IBlessDAO dao = ctx.getBlessDAO();
+            
+            dao.bless(loc.getBlock(), owner);
+            return true;
+        }catch(DAOException e){
+            throw new RuntimeException(e);
+        }
     }
     
-    public void deleteZone(Zone zone)
-    {
-        this.zones.remove(zone);
-    }
-    
+
     // ========================================================
     // ===================== Other ============================
     // ========================================================

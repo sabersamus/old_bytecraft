@@ -1,13 +1,13 @@
 package info.bytecraft.database.db;
 
 import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.api.math.Rectangle;
 import info.bytecraft.database.DAOException;
 import info.bytecraft.database.IZoneDAO;
 import info.bytecraft.zones.Lot;
 import info.bytecraft.zones.Zone;
 import info.bytecraft.zones.Zone.Flag;
 import info.bytecraft.zones.Zone.Permission;
+import info.tregmine.quadtree.Rectangle;
 
 import java.sql.*;
 import java.util.ArrayList;
