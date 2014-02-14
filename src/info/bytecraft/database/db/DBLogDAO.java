@@ -79,22 +79,6 @@ public class DBLogDAO implements ILogDAO
         }
     }
 
-    public void insertFillLog(BytecraftPlayer player, AbstractFiller fill, Material mat, String action) throws DAOException
-    {
-        String sql =
-                "INSERT INTO fill_log (player_name, action, size, material) VALUES (?, ?, ?, ?)";
-        try (PreparedStatement stm = conn.prepareStatement(sql)) {
-            stm.setString(1, player.getName());
-            stm.setString(2, action.toLowerCase());
-            stm.setInt(3, fill.getTotalVolume());
-            stm.setString(4, mat.name().toLowerCase());
-
-            stm.execute();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public void insertPaperLog(BytecraftPlayer player, Location loc,
             Material mat, String action) throws DAOException
     {

@@ -154,12 +154,6 @@ public class FillCommand extends AbstractCommand
                             + b2.getLocation().getBlockZ() + ","
                             + b2.getLocation().getBlockY() + "]  with "
                             + mat.toString() + " " + mat.getItemTypeId());
-                    
-                    try(IContext ctx = plugin.createContext()){
-                        ctx.getLogDAO().insertFillLog(player, filler, mat.getItemType(), "fill");
-                    } catch (DAOException e) {
-                        throw new RuntimeException(e);
-                    }
                 }
 
                 if (command.equals("testfill")) {
@@ -185,12 +179,6 @@ public class FillCommand extends AbstractCommand
                 if (command.equals("fill")) {
                     filler = new Replacer(plugin, undoHistory, player, b1, b2, mat,
                                     toMat, 100000);
-                    
-                    try(IContext ctx = plugin.createContext()){
-                        ctx.getLogDAO().insertFillLog(player, filler, toMat.getItemType(), "fill");
-                    } catch (DAOException e) {
-                        throw new RuntimeException(e);
-                    }
                 }
 
                 if (command.equals("testfill")) {
