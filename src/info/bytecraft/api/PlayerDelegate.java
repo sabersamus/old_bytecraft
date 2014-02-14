@@ -100,7 +100,7 @@ public abstract class PlayerDelegate
         return delegate.isSleepingIgnored();
     }
 
-    @SuppressWarnings("deprecated")
+    @SuppressWarnings("deprecation")
     public void sendBlockChange(org.bukkit.Location p0, int p1, byte p2)
     {
         checkState();
@@ -114,14 +114,14 @@ public abstract class PlayerDelegate
         delegate.sendBlockChange(p0, p1, p2);
     }
 
-    @SuppressWarnings("deprecated")
+    @SuppressWarnings("deprecation")
     public boolean sendChunkChange(org.bukkit.Location p0, int p1, int p2, int p3, byte[] p4)
     {
         checkState();
         return delegate.sendChunkChange(p0, p1, p2, p3, p4);
     }
 
-    @SuppressWarnings("deprecated")
+    @SuppressWarnings("deprecation")
     public void updateInventory()
     {
         checkState();
@@ -326,7 +326,7 @@ public abstract class PlayerDelegate
         delegate.setResourcePack(p0);
     }
 
-    @SuppressWarnings("deprecated")
+    @SuppressWarnings("deprecation")
     public void setTexturePack(java.lang.String p0)
     {
         checkState();
@@ -435,7 +435,7 @@ public abstract class PlayerDelegate
         delegate.setSprinting(p0);
     }
 
-    @SuppressWarnings("deprecated")
+    @SuppressWarnings("deprecation")
     public void playEffect(org.bukkit.Location p0, org.bukkit.Effect p1, int p2)
     {
         checkState();
@@ -484,7 +484,7 @@ public abstract class PlayerDelegate
         return delegate.getPlayerTime();
     }
 
-    @SuppressWarnings("deprecated")
+    @SuppressWarnings("deprecation")
     public void playSound(org.bukkit.Location p0, java.lang.String p1, float p2, float p3)
     {
         checkState();
@@ -515,7 +515,7 @@ public abstract class PlayerDelegate
         delegate.playNote(p0, p1, p2);
     }
 
-    @SuppressWarnings("deprecated")
+    @SuppressWarnings("deprecation")
     public void playNote(org.bukkit.Location p0, byte p1, byte p2)
     {
         checkState();
@@ -558,7 +558,7 @@ public abstract class PlayerDelegate
         delegate.setExp(p0);
     }
 
-    @SuppressWarnings("deprecated")
+    @SuppressWarnings("deprecation")
     public boolean isOnGround()
     {
         checkState();
@@ -757,14 +757,14 @@ public abstract class PlayerDelegate
         delegate.setMaximumNoDamageTicks(p0);
     }
 
-    @SuppressWarnings("deprecated")
+    @SuppressWarnings("deprecation")
     public int _INVALID_getLastDamage()
     {
         checkState();
         return delegate._INVALID_getLastDamage();
     }
 
-    @SuppressWarnings("deprecated")
+    @SuppressWarnings("deprecation")
     public void _INVALID_setLastDamage(int p0)
     {
         checkState();
@@ -879,21 +879,21 @@ public abstract class PlayerDelegate
         return delegate.getEyeLocation();
     }
 
-    @SuppressWarnings("deprecated")
+    @SuppressWarnings("deprecation")
     public java.util.List<org.bukkit.block.Block> getLineOfSight(java.util.HashSet<java.lang.Byte> p0, int p1)
     {
         checkState();
         return delegate.getLineOfSight(p0, p1);
     }
 
-    @SuppressWarnings("deprecated")
+    @SuppressWarnings("deprecation")
     public org.bukkit.block.Block getTargetBlock(java.util.HashSet<java.lang.Byte> p0, int p1)
     {
         checkState();
         return delegate.getTargetBlock(p0, p1);
     }
 
-    @SuppressWarnings("deprecated")
+    @SuppressWarnings("deprecation")
     public java.util.List<org.bukkit.block.Block> getLastTwoTargetBlocks(java.util.HashSet<java.lang.Byte> p0, int p1)
     {
         checkState();
@@ -912,21 +912,21 @@ public abstract class PlayerDelegate
         return delegate.getEyeHeight();
     }
 
-    @SuppressWarnings("deprecated")
+    @SuppressWarnings("deprecation")
     public org.bukkit.entity.Egg throwEgg()
     {
         checkState();
         return delegate.throwEgg();
     }
 
-    @SuppressWarnings("deprecated")
+    @SuppressWarnings("deprecation")
     public org.bukkit.entity.Snowball throwSnowball()
     {
         checkState();
         return delegate.throwSnowball();
     }
 
-    @SuppressWarnings("deprecated")
+    @SuppressWarnings("deprecation")
     public org.bukkit.entity.Arrow shootArrow()
     {
         checkState();
@@ -1215,42 +1215,42 @@ public abstract class PlayerDelegate
         return delegate.hasMetadata(p0);
     }
 
-    @SuppressWarnings("deprecated")
+    @SuppressWarnings("deprecation")
     public void _INVALID_damage(int p0, org.bukkit.entity.Entity p1)
     {
         checkState();
         delegate._INVALID_damage(p0, p1);
     }
 
-    @SuppressWarnings("deprecated")
+    @SuppressWarnings("deprecation")
     public void _INVALID_damage(int p0)
     {
         checkState();
         delegate._INVALID_damage(p0);
     }
 
-    @SuppressWarnings("deprecated")
+    @SuppressWarnings("deprecation")
     public int _INVALID_getHealth()
     {
         checkState();
         return delegate._INVALID_getHealth();
     }
 
-    @SuppressWarnings("deprecated")
+    @SuppressWarnings("deprecation")
     public void _INVALID_setHealth(int p0)
     {
         checkState();
         delegate._INVALID_setHealth(p0);
     }
 
-    @SuppressWarnings("deprecated")
+    @SuppressWarnings("deprecation")
     public int _INVALID_getMaxHealth()
     {
         checkState();
         return delegate._INVALID_getMaxHealth();
     }
 
-    @SuppressWarnings("deprecated")
+    @SuppressWarnings("deprecation")
     public void _INVALID_setMaxHealth(int p0)
     {
         checkState();
@@ -1461,7 +1461,7 @@ public abstract class PlayerDelegate
         return delegate.isBanned();
     }
 
-    @SuppressWarnings("deprecated")
+    @SuppressWarnings("deprecation")
     public void setBanned(boolean p0)
     {
         checkState();
