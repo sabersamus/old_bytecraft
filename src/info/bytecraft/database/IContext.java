@@ -13,6 +13,7 @@ public interface IContext extends AutoCloseable
     public IMessageDAO getMessageDAO();
     public IPlayerDAO getPlayerDAO();
     public IReportDAO getReportDAO();
+    public ISaleSignDAO getSaleSignDAO();
     public IWarpDAO getWarpDAO();
     public IZoneDAO getZoneDAO();
 

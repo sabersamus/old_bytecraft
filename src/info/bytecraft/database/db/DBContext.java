@@ -14,6 +14,7 @@ import info.bytecraft.database.ILoreDAO;
 import info.bytecraft.database.IMessageDAO;
 import info.bytecraft.database.IPlayerDAO;
 import info.bytecraft.database.IReportDAO;
+import info.bytecraft.database.ISaleSignDAO;
 import info.bytecraft.database.IWarpDAO;
 import info.bytecraft.database.IZoneDAO;
 
@@ -102,6 +103,12 @@ public class DBContext implements IContext
     public IItemDAO getItemDAO()
     {
         return new DBItemDAO(conn);
+    }
+
+    @Override
+    public ISaleSignDAO getSaleSignDAO()
+    {
+        return new DBSaleSignDAO(conn);
     }
 
 }
