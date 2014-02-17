@@ -37,8 +37,8 @@ public class SelectListener implements Listener
                 Zone zone = world.findZone(block.getLocation());
                 Permission perm = zone.getUser(player);
                 if((perm == null || perm != Permission.OWNER) && !player.getRank().canEditZones())return;
-                if(zone.findLot(block.getLocation()) != null){
-                    Lot lot = zone.findLot(block.getLocation());
+                if(world.findLot(block.getLocation()) != null){
+                    Lot lot = world.findLot(block.getLocation());
                     if(lot.isOwner(player) || perm == Permission.OWNER || player.getRank().canEditZones()){
                         player.sendMessage(ChatColor.YELLOW + "This lots name is: " + lot.getName());
                         return;
