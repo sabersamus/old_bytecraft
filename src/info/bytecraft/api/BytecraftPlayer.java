@@ -18,7 +18,10 @@ import java.util.Set;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Vehicle;
 
 public class BytecraftPlayer extends PlayerDelegate
 {
@@ -37,7 +40,10 @@ public class BytecraftPlayer extends PlayerDelegate
     
     public static enum ChatState{
         CHAT,
-        SELL;
+        SELL,
+        SALESIGN_BUY,
+        SALESIGN_WITHDRAW,
+        SALESIGN_SETUP;
     }
 
     private Bytecraft plugin;
@@ -64,6 +70,10 @@ public class BytecraftPlayer extends PlayerDelegate
     
     private BytecraftPlayer blessTarget;
     private BytecraftPlayer lastMessager;
+    
+    private SaleSign currentSaleSign;
+    private SaleSign newSaleSign;
+    private int saleBuyCount;
     
     private HashMap<Badge, Integer> badges;
     
@@ -207,6 +217,42 @@ public class BytecraftPlayer extends PlayerDelegate
     public Block getLotBlock2() { return lotBlock2; }
 
     public void setLotBlock2(Block lotBlock2) { this.lotBlock2 = lotBlock2; }
+
+    public SaleSign getCurrentSaleSign()
+    {
+        return currentSaleSign;
+    }
+
+
+    public void setCurrentSaleSign(SaleSign currentSaleSign)
+    {
+        this.currentSaleSign = currentSaleSign;
+    }
+
+
+    public SaleSign getNewSaleSign()
+    {
+        return newSaleSign;
+    }
+
+
+    public void setNewSaleSign(SaleSign newSaleSign)
+    {
+        this.newSaleSign = newSaleSign;
+    }
+
+
+    public int getSaleBuyCount()
+    {
+        return saleBuyCount;
+    }
+
+
+    public void setSaleBuyCount(int count)
+    {
+        this.saleBuyCount = count;
+    }
+
 
     //Flags
     public boolean hasFlag(Flag flag)
@@ -393,4 +439,37 @@ public class BytecraftPlayer extends PlayerDelegate
         return false; // If they don't fit into any of that. Return false
     }
     
+    //org.bukkit.entity.Player override
+    @Override
+    public boolean teleport(Entity player)
+    {
+        this.teleportWithHorse(player.getLocation());
+        return true;
+    }
+    
+    @Override
+    public boolean teleport(Location location)
+    {
+        this.teleportWithHorse(location);
+        return true;
+    }
+    
+    public boolean teleport(BytecraftPlayer player)
+    {
+        return this.teleport(player.getDelegate());
+    }
+
+
+    public void teleportWithHorse(Location loc)
+    {
+        Entity v = getVehicle();
+        if (v != null) {
+            v.setPassenger(null);
+            teleport(loc);
+            v.teleport(loc);
+            v.setPassenger(getDelegate());
+        }else{
+            getDelegate().teleport(loc);
+        }
+    }
 }
