@@ -78,27 +78,6 @@ public class BytecraftBlockListener implements Listener
     }
     
     @EventHandler
-    public void onPlaceHopper(BlockPlaceEvent event)
-    {
-        if(event.getBlockPlaced().getType() != Material.HOPPER)return;
-        Block block = event.getBlockPlaced();
-        Block up = block.getRelative(0, 1, 0);
-        Block down = block.getRelative(0, -1, 0);
-        if(down.getType() != Material.CHEST && up.getType() != Material.CHEST)return;
-        BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
-        try(IContext ctx = plugin.createContext()){
-            IBlessDAO dao = ctx.getBlessDAO();
-            if(dao.isBlessed(down) || dao.isBlessed(up)){
-                player.sendMessage(ChatColor.RED + "You are not allowed to place hoppers above/beneath blessed chests");
-                event.setBuild(false);
-                event.setCancelled(true);
-            }
-        }catch(DAOException e){
-            throw new RuntimeException(e);
-        }
-    }
-
-    @EventHandler
     public void onExplode(EntityExplodeEvent event)
     {
         if (event.getEntity() instanceof Creeper) {
