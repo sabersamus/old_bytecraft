@@ -22,6 +22,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.World.Environment;
+import org.bukkit.WorldCreator;
+import org.bukkit.WorldType;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
@@ -40,14 +43,17 @@ public class Bytecraft extends JavaPlugin
     
     private List<String> deathMessages;
     private List<String> quitMessages;
-    private List<String> swordNames;
-    private Map<String, List<String>> armorNames;
+    //private List<String> swordNames;
+    //private Map<String, List<String>> armorNames;
     private Map<Location, String> blessedBlocks;
     
     private LookupService lookup = null;
     
     private Map<String, ZoneWorld> worlds;
     private Map<String, Zone> zones;
+    private Map<Location, SaleSign> saleSigns;
+    
+    private World rolePlayWorld;
     
     public void onLoad()
     {
@@ -74,28 +80,6 @@ public class Bytecraft extends JavaPlugin
         }catch(IOException e){
             getLogger().warning("Could not find GeoIPCity.dat, is it in the correct folder?");
         }
-        
-        try(IContext ctx = createContext())
-        {
-            IMessageDAO dao = ctx.getMessageDAO();
-            IBlessDAO bDao = ctx.getBlessDAO();
-            this.deathMessages = dao.loadDeathMessages();
-            this.quitMessages = dao.loadQuitMessages();
-            
-            this.blessedBlocks = bDao.getBlessedBlocks();
-                        
-            ILoreDAO lore  = ctx.getLoreDAO();
-            
-            this.swordNames = lore.getSwordNames();
-            this.armorNames = Maps.newHashMap();
-            armorNames.put("HELMET", lore.getArmorNames("HELMET"));
-            armorNames.put("CHESTPLATE", lore.getArmorNames("CHESTPLATE"));
-            armorNames.put("BOOTS", lore.getArmorNames("BOOTS"));
-            armorNames.put("LEGGINGS", lore.getArmorNames("LEGGINGS"));
-            
-        }catch(DAOException e){
-            throw new RuntimeException(e);
-        }
     }
 
     public void onEnable()
@@ -105,6 +89,20 @@ public class Bytecraft extends JavaPlugin
             try {
                 addPlayer(delegate, delegate.getAddress().getAddress());
             } catch (PlayerBannedException e) {}
+        }
+        
+        try(IContext ctx = createContext()){
+            IBlessDAO bless = ctx.getBlessDAO();
+            this.blessedBlocks = bless.getBlessedBlocks();
+            
+            ISaleSignDAO saleDao = ctx.getSaleSignDAO();
+            this.saleSigns = saleDao.loadSaleSigns();
+            
+            IMessageDAO messages = ctx.getMessageDAO();
+            this.deathMessages = messages.loadDeathMessages();
+            this.quitMessages = messages.loadQuitMessages();
+        }catch(DAOException e){
+            
         }
 
         registerEvents();
@@ -162,6 +160,11 @@ public class Bytecraft extends JavaPlugin
         getCommand("who").setExecutor(new WhoCommand(this));
         getCommand("zone").setExecutor(new ZoneCommand(this));
         
+        WorldCreator albion = new WorldCreator("albion");
+        albion.environment(Environment.NORMAL);
+        albion.type(WorldType.AMPLIFIED);
+        this.rolePlayWorld = albion.createWorld();
+        
         PluginDescriptionFile pdf = getDescription();
         
         String version = pdf.getVersion();
@@ -172,19 +175,11 @@ public class Bytecraft extends JavaPlugin
     
     public void onDisable()
     {
+        getServer().getScheduler().cancelTasks(this);
+        
         for(BytecraftPlayer player: getOnlinePlayers()){
             this.removePlayer(player);
         }
-        
-        this.armorNames = null;
-        this.deathMessages = null;
-        this.lookup = null;
-        this.players = null;
-        this.quitMessages = null;
-        this.swordNames = null;
-        this.zones = null;
-        this.contextFactory = null; 
-        this.blessedBlocks = null;
     }
     
     public IContextFactory getContextFactory()
@@ -213,8 +208,10 @@ public class Bytecraft extends JavaPlugin
         pm.registerEvents(new ItemFrameListener(this), this);
         pm.registerEvents(new PlayerLookupListener(this), this);
         pm.registerEvents(new PlayerPromotionListener(this), this);
+        pm.registerEvents(new SaleSignListener(this), this);
         pm.registerEvents(new SelectListener(this), this);
         pm.registerEvents(new SignColorListener(), this);
+        pm.registerEvents(new WorldPortalListener(this), this);
         pm.registerEvents(new ZoneListener(this), this);
         
         //rare drop
@@ -515,6 +512,11 @@ public class Bytecraft extends JavaPlugin
         }
     }
     
+    public Map<Location, SaleSign> getSaleSigns()
+    {
+        return saleSigns;
+    }
+    
 
     // ========================================================
     // ===================== Other ============================
@@ -547,6 +549,11 @@ public class Bytecraft extends JavaPlugin
         default:
             return 1;
         }
+    }
+    
+    public World getRolePlayWorld()
+    {
+        return this.rolePlayWorld;
     }
     
     public Location getWorldSpawn(String name)
@@ -598,7 +605,7 @@ public class Bytecraft extends JavaPlugin
         return this.deathMessages;
     }
 
-    public List<String> getSwordNames()
+    /*public List<String> getSwordNames()
     {
         return swordNames;
     }
@@ -606,7 +613,7 @@ public class Bytecraft extends JavaPlugin
     public List<String> getArmorNames(String type)
     {
         return this.armorNames.get(type);
-    }
+    }*/
     
     public static int locationChecksum(Location loc)
     {
