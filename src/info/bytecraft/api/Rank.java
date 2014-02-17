@@ -76,7 +76,7 @@ public enum Rank
     
     public boolean canCreateZones()
     {
-        return (this == ELDER || this == PRINCESS);
+        return (this == ADMIN || this == ELDER || this == PRINCESS);
     }
     
     public boolean canEditZones()
