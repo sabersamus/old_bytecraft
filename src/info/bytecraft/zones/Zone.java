@@ -193,6 +193,9 @@ public class Zone
     
     public void addPermissions(String name, Permission perm)
     {
+        if(this.permissions == null){
+            permissions = Maps.newHashMap();
+        }
         this.permissions.put(name, perm);
     }
     
