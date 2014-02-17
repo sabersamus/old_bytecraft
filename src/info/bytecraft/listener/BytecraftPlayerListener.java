@@ -79,11 +79,13 @@ public class BytecraftPlayerListener implements Listener
         if (player.getRank() == Rank.NEWCOMER) {
             player.sendMessage(ChatColor.AQUA
                     + plugin.getConfig().getString("motd.new"));
-            for (BytecraftPlayer other : plugin.getOnlinePlayers()) {
-                if (other.getRank().canMentor()) {
-                    other.sendMessage(player.getDisplayName()
-                            + ChatColor.AQUA
-                            + " has joined as a newcomer, you should help them out!");
+            if(!player.hasFlag(Flag.HARDWARNED) && !player.hasFlag(Flag.SOFTWARNED)){
+                for (BytecraftPlayer other : plugin.getOnlinePlayers()) {
+                    if (other.getRank().canMentor()) {
+                        other.sendMessage(player.getDisplayName()
+                                + ChatColor.AQUA
+                                + " has joined as a newcomer, you should help them out!");
+                    }
                 }
             }
         }
@@ -375,6 +377,9 @@ public class BytecraftPlayerListener implements Listener
     {
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
         if(player == null)return;
+        if(!event.isFlying()){
+            return;
+        }
         if(player.getRank().canFly()){
             if(player.hasFlag(Flag.CAN_FLY)){
                 event.setCancelled(false);
@@ -406,7 +411,7 @@ public class BytecraftPlayerListener implements Listener
 
         World world = player.getWorld();
 
-        if (player.getRank() == Rank.NOBLE) {
+        if (player.getRank().ordinal() >= Rank.LORD.ordinal()) {
 
             float pitch = event.getPlayer().getLocation().getPitch();
             float yaw = event.getPlayer().getLocation().getYaw();
@@ -443,7 +448,7 @@ public class BytecraftPlayerListener implements Listener
                 }
             }
         }
-        else if (player.getRank().ordinal() >= Rank.LORD.ordinal()) {//this is very bad practice
+        else if (player.getRank() == Rank.NOBLE) {//this is very bad practice
 
             Block target = player.getDelegate().getTargetBlock(null, 300);
             int top = world.getHighestBlockYAt(target.getLocation());
