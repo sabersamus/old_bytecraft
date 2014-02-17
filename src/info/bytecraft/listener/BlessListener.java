@@ -1,20 +1,28 @@
 package info.bytecraft.listener;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.api.Notification;
+import info.bytecraft.database.DAOException;
+import info.bytecraft.database.IContext;
+import info.bytecraft.database.IPlayerDAO;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.util.Vector;
 
 public class BlessListener implements Listener
 {
@@ -62,6 +70,17 @@ public class BlessListener implements Listener
             if (target == null) {
                 player.sendMessage(ChatColor.RED + "Use /bless [name] first");
                 return;
+            }
+            
+            if(target.getId() == player.getId()){
+                player.sendMessage(ChatColor.AQUA + "5000 bytes have been taken from your wallet");
+                try(IContext ctx = plugin.createContext()){
+                    IPlayerDAO dao = ctx.getPlayerDAO();
+                    
+                    dao.take(player, 5000);
+                }catch(DAOException e){
+                    throw new RuntimeException(e);
+                }
             }
 
             Location loc = event.getClickedBlock().getLocation();
@@ -122,6 +141,47 @@ public class BlessListener implements Listener
                 player.sendMessage(ChatColor.RED + "You can not destroy blessed blocks.");
                 event.setCancelled(true);
                 player.setFireTicks(20);
+            }
+        }
+    }
+    
+    @EventHandler
+    public void onBlockPlace(BlockPlaceEvent event)
+    {
+        Block block = event.getBlockPlaced();
+        Map<Location, String> blessedBlocks = plugin.getBlessedBlocks();
+        if (block.getType() == Material.CHEST) {
+            Player player = event.getPlayer();
+
+            Location loc = block.getLocation();
+            Location loc1 = loc.add(new Vector(1, 0, 0));
+            Location loc2 = loc.subtract(new Vector(1, 0, 0));
+            Location loc3 = loc.add(new Vector(0, 0, 1));
+            Location loc4 = loc.subtract(new Vector(0, 0, 1));
+
+            if (blessedBlocks.containsKey(loc1)
+                    || blessedBlocks.containsKey(loc2)
+                    || blessedBlocks.containsKey(loc3)
+                    || blessedBlocks.containsKey(loc4)) {
+
+                player.sendMessage(ChatColor.RED
+                        + "You can't place a chest next to one that is already blessed.");
+                event.setCancelled(true);
+                return;
+            }
+        }
+        else if (block.getType() == Material.HOPPER) {
+            BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
+
+            Location loc = block.getLocation();
+            Location loc1 = loc.subtract(new Vector(0, 1, 0));
+
+            if (blessedBlocks.containsKey(loc)
+                    || blessedBlocks.containsKey(loc1)) {
+
+                player.sendMessage(ChatColor.RED
+                        + "You can't place a hopper under a blessed chest.");
+                event.setCancelled(true);
             }
         }
     }
