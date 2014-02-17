@@ -68,6 +68,10 @@ public class CreateMobCommand extends AbstractCommand
                 if (!mobType.isAlive()) {
                     continue;
                 }
+                
+                if(mobType == EntityType.ENDER_DRAGON){
+                    break;
+                }
 
                 LivingEntity ent = (LivingEntity) world.spawnEntity(loc, mobType);
                 if (args.length == 3) {
