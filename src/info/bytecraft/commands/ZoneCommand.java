@@ -1,9 +1,12 @@
 package info.bytecraft.commands;
 
 import java.util.Collection;
+import java.util.HashMap;
 
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
+
+import com.google.common.collect.Maps;
 
 import static org.bukkit.ChatColor.*;
 import info.bytecraft.Bytecraft;
@@ -51,7 +54,7 @@ public class ZoneCommand extends AbstractCommand
             }
             else if ("delete".equalsIgnoreCase(args[0])) {
                 if (player.getRank().canCreateZones()) {
-                    if (!zoneExists(args[1])) {
+                    if (!zoneExists(player, args[1])) {
                         player.sendMessage(ChatColor.RED + "Zone " + args[1]
                                 + " doesn't exist");
                     }
@@ -63,11 +66,12 @@ public class ZoneCommand extends AbstractCommand
                     return true;
                 }
             }else if("info".equalsIgnoreCase(args[0])){
-                if(!zoneExists(args[1])){
-                    player.sendMessage(ChatColor.RED + "Zone " + args[0] + " not found");
+                if(!zoneExists(player, args[1])){
+                    player.sendMessage(ChatColor.RED + "Zone " + args[1] + " not found");
                     return true;
                 }
-                Zone zone = plugin.getZone(args[1]);
+                ZoneWorld world = plugin.getWorld(player.getWorld());
+                Zone zone = world.getZone(args[1]);
                 
                 this.infoZone(player, zone, false);
                 
@@ -75,11 +79,12 @@ public class ZoneCommand extends AbstractCommand
             }
         } else if (args.length == 3){ //zone deluser zone player
             if("deluser".equalsIgnoreCase(args[0])){
-                if(!zoneExists(args[1])){
+                if(!zoneExists(player, args[1])){
                     player.sendMessage(ChatColor.RED + "Zone not found");
                     return true;
                 }
-                Zone zone = plugin.getZone(args[1]);
+                ZoneWorld world = plugin.getWorld(player.getWorld());
+                Zone zone = world.getZone(args[1]);
                 Permission p = zone.getUser(player);
                 if ((p != null && p == Permission.OWNER) || player.getRank().canEditZones()) {
                     BytecraftPlayer target = plugin.getPlayerOffline(args[2]);
@@ -93,25 +98,26 @@ public class ZoneCommand extends AbstractCommand
                 }
             }else if("info".equalsIgnoreCase(args[0])){
                 if("perm".equalsIgnoreCase(args[2])){
-                    if(!zoneExists(args[1])){
+                    if(!zoneExists(player, args[1])){
                         player.sendMessage(ChatColor.RED + "Zone not found");
                         return true;
                     }
-                    
-                    Zone zone = plugin.getZone(args[1]);
+                    ZoneWorld world = plugin.getWorld(player.getWorld());
+                    Zone zone = world.getZone(args[1]);
                     
                     this.infoZone(player, zone, true);
                 }
             }
         } else if (args.length == 4) {
             if ("adduser".equalsIgnoreCase(args[0])) {
-                if (!zoneExists(args[1])) {
+                if (!zoneExists(player, args[1])) {
                     player.sendMessage(ChatColor.RED + "Zone " + args[1]
                             + " not found");
                     return true;
                 } 
+                ZoneWorld world = plugin.getWorld(player.getWorld());
+                Zone zone = world.getZone(args[1]);
                 
-                Zone zone = plugin.getZone(args[1]);
                 Permission p = zone.getUser(player);
                 if ((p != null && p == Permission.OWNER) || player.getRank().canEditZones()) {
                     
@@ -130,11 +136,14 @@ public class ZoneCommand extends AbstractCommand
                     }
                 }
             }else if(args[0].equalsIgnoreCase("flag")){
-                if(!zoneExists(args[1])){
+                if(!zoneExists(player, args[1])){
                     player.sendMessage(ChatColor.RED + "Zone " + args[1] + " not found");
                     return true;
                 }//zone flag zone flag_name value
-                Zone zone = plugin.getZone(args[1]);
+                ZoneWorld world = plugin.getWorld(player.getWorld());
+                
+                Zone zone = world.getZone(args[1]);
+                
                 Permission p = zone.getUser(player);
                 if ((p != null && p == Permission.OWNER) || player.getRank().canEditZones()) {
                     Flag flag = Flag.valueOf(args[2].toUpperCase());
@@ -154,6 +163,7 @@ public class ZoneCommand extends AbstractCommand
                         this.changeSetting(zone, flag, message);
                         player.sendMessage(ChatColor.RED + "[" + zone.getName()
                                 + "] Changed " + flag.name().toLowerCase() + " to " + message);
+                        return true;
                     }
 
                     boolean value = Boolean.parseBoolean(args[3]);
@@ -198,7 +208,7 @@ public class ZoneCommand extends AbstractCommand
         zone.setWorld(world.getName());
         zone.setName(name);
         zone.setRectangle(rect);
-
+        zone.setPermissions(new HashMap<String, Permission>());
         zone.setEnterMessage("Welcome to " + name + "!");
         zone.setExitMessage("Now leaving " + name + ".");
         zone.addPermissions(player.getName(), Permission.OWNER);
@@ -219,6 +229,7 @@ public class ZoneCommand extends AbstractCommand
             IZoneDAO dao = ctx.getZoneDAO();
             dao.createZone(zone, player);
             dao.addUser(zone, player.getName(), Permission.OWNER);
+            zone.addPermissions(name, Permission.OWNER);
         } catch (DAOException e) {
             throw new RuntimeException(e);
         }
@@ -256,9 +267,10 @@ public class ZoneCommand extends AbstractCommand
         }
     }
 
-    private boolean zoneExists(String name)
+    private boolean zoneExists(BytecraftPlayer player, String name)
     {
-        return plugin.getZone(name) != null;
+        ZoneWorld world = plugin.getWorld(player.getWorld());
+        return world.zoneExists(name);
     }
 
     private void changeSetting(Zone zone, Flag flag, String value)
