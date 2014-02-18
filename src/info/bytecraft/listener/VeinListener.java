@@ -105,6 +105,7 @@ public class VeinListener implements Listener
                 if(b.getType().equals(Material.GOLD_ORE)) item = new ItemStack(Material.GOLD_ORE, 1, b.getData());
                 if(b.getType().equals(Material.EMERALD_ORE)) item = new ItemStack(Material.EMERALD_ORE, 1, b.getData());
                 if(b.getType().equals(Material.COAL_ORE)) item = new ItemStack(Material.COAL_ORE, 1, b.getData());
+                if(b.getType().equals(Material.OBSIDIAN)) item = new ItemStack(Material.OBSIDIAN, 1, b.getData());
                 if(b.getType().equals(Material.LAPIS_ORE)) item = new ItemStack(Material.LAPIS_ORE, 1, b.getData());
                 if(b.getType().equals(Material.REDSTONE_ORE)) item = new ItemStack(Material.REDSTONE_ORE, 1, b.getData());
 
@@ -132,6 +133,7 @@ public class VeinListener implements Listener
                 if(b.getType().equals(Material.GOLD_ORE)) item = new ItemStack(Material.GOLD_ORE, (1 * multiplyer), b.getData());
                 if(b.getType().equals(Material.EMERALD_ORE)) item = new ItemStack(Material.EMERALD, (1 * multiplyer), b.getData());
                 if(b.getType().equals(Material.COAL_ORE)) item = new ItemStack(Material.COAL, (1 * multiplyer), b.getData());
+                if(b.getType().equals(Material.OBSIDIAN)) item = new ItemStack(Material.OBSIDIAN, (1 * multiplyer), b.getData());
                 if(b.getType().equals(Material.LAPIS_ORE)) item = new ItemStack(Material.INK_SACK, (fortuneRandomiser(4, 8) * multiplyer), (byte) 4);
                 if(b.getType().equals(Material.REDSTONE_ORE)) item = new ItemStack(Material.REDSTONE, (fortuneRandomiser(4, 5) * multiplyer), b.getData());
 
@@ -142,6 +144,7 @@ public class VeinListener implements Listener
                 if(b.getType().equals(Material.GOLD_ORE)) item = new ItemStack(Material.GOLD_ORE, 1, b.getData());
                 if(b.getType().equals(Material.EMERALD_ORE)) item = new ItemStack(Material.EMERALD, 1, b.getData());
                 if(b.getType().equals(Material.COAL_ORE)) item = new ItemStack(Material.COAL, 1, b.getData());
+                if(b.getType().equals(Material.OBSIDIAN)) item = new ItemStack(Material.OBSIDIAN, 1, b.getData());
                 if(b.getType().equals(Material.LAPIS_ORE)) item = new ItemStack(Material.INK_SACK, fortuneRandomiser(4, 8), (byte) 4);
                 if(b.getType().equals(Material.REDSTONE_ORE)) item = new ItemStack(Material.REDSTONE, fortuneRandomiser(4, 5), b.getData());
 
