@@ -24,9 +24,6 @@ public class Distance
      */
     public static double calc2d(Location loc1, Location loc2)
     {
-        if(!loc1.getWorld().getName().equalsIgnoreCase(loc2.getWorld().getName())){
-            return Double.MAX_VALUE;
-        }
         double x = Math.pow(loc1.getX() - loc2.getX(), 2);
         double z = Math.pow(loc1.getZ() - loc2.getZ(), 2);
         return Math.sqrt(x + z);

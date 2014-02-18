@@ -1,6 +1,7 @@
 package info.bytecraft;
 
 import info.bytecraft.api.*;
+import info.bytecraft.tools.ToolRegistry;
 import info.bytecraft.zones.Lot;
 import info.bytecraft.zones.Zone;
 import info.bytecraft.zones.Zone.Permission;
@@ -27,6 +28,7 @@ import org.bukkit.WorldCreator;
 import org.bukkit.WorldType;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
@@ -104,7 +106,9 @@ public class Bytecraft extends JavaPlugin
         }catch(DAOException e){
             
         }
-
+        
+        ToolRegistry.registerRecipes(getServer());
+        
         registerEvents();
 
         getCommand("back").setExecutor(new BackCommand(this));
@@ -211,6 +215,8 @@ public class Bytecraft extends JavaPlugin
         pm.registerEvents(new SaleSignListener(this), this);
         pm.registerEvents(new SelectListener(this), this);
         pm.registerEvents(new SignColorListener(), this);
+        pm.registerEvents(new ToolListener(), this);
+        pm.registerEvents(new VeinListener(this), this);
         pm.registerEvents(new WorldPortalListener(this), this);
         pm.registerEvents(new ZoneListener(this), this);
         

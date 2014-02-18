@@ -2,7 +2,7 @@ Bytecraft
 =========
 
 This is the plugin for the minecraft server Bytecraft (mc.bytecraft.info)    
-We have a [forum] (http://www.bytecraft.info/index.php) we use to comminucate with players.
+We have a [forum] (http://www.bytecraft.info/index.php) we use to communicate with players.
 
 Index
 -----

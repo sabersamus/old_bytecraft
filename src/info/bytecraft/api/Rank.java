@@ -41,6 +41,11 @@ public enum Rank
         return Rank.NEWCOMER;
     }
     
+    public boolean canSpawnTools()
+    {
+        return (this == ADMIN || this == ARCHITECT || isElder());
+    }
+    
     public boolean canBuild()
     {
         return (this != NEWCOMER);
