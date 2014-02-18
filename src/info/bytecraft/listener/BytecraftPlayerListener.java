@@ -202,7 +202,7 @@ public class BytecraftPlayerListener implements Listener
             event.setCancelled(true);
             return;
         }else{
-            event.setCancelled(player.getRank().isImmortal());
+            event.setCancelled(player.getRank().isImmortal() && player.hasFlag(Flag.IMMORTAL));
             return;
         }
     }

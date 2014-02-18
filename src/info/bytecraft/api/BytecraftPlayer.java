@@ -19,9 +19,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Horse;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Vehicle;
 
 public class BytecraftPlayer extends PlayerDelegate
 {
@@ -35,7 +33,8 @@ public class BytecraftPlayer extends PlayerDelegate
         INVISIBLE,
         TPBLOCK,
         CAN_FLY,
-        CHEST_LOG;
+        CHEST_LOG,
+        IMMORTAL;
     }
     
     public static enum ChatState{
@@ -463,7 +462,7 @@ public class BytecraftPlayer extends PlayerDelegate
     public void teleportWithHorse(Location loc)
     {
         Entity v = getVehicle();
-        if (v != null) {
+        if (v != null && v.getType().isAlive()) {
             v.setPassenger(null);
             teleport(loc);
             v.teleport(loc);

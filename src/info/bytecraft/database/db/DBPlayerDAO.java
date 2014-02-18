@@ -123,7 +123,7 @@ public class DBPlayerDAO implements IPlayerDAO
     public void createFlags(BytecraftPlayer player) throws DAOException
     {
         String sql = "INSERT INTO player_property (player_id, player_name, invisible, tpblock, "
-                + "hidden_location, silent_join, can_fly, god_color)"
+                + "hidden_location, silent_join, can_fly, immortal, god_color)"
                 + "VALUES (? ,?, ?, ?, ?, ?, ?, ?)";
         try(PreparedStatement stm = conn.prepareStatement(sql)){
             stm.setInt(1, player.getId());
@@ -132,8 +132,9 @@ public class DBPlayerDAO implements IPlayerDAO
             stm.setString(4, "false");
             stm.setString(5, "false");
             stm.setString(6, "false");
-            stm.setString(7, "false");
-            stm.setString(8, "red");
+            stm.setString(7, "true");
+            stm.setString(8, "true");
+            stm.setString(9, "red");
             stm.execute();
         } catch (SQLException e) {
             throw new DAOException(sql, e);
@@ -155,12 +156,14 @@ public class DBPlayerDAO implements IPlayerDAO
                     boolean hiddenLoc = Boolean.valueOf(rs.getString("hidden_location"));
                     boolean silentJoin = Boolean.valueOf(rs.getString("silent_join"));
                     boolean canFly = Boolean.valueOf(rs.getString("can_fly"));
+                    boolean immortal = Boolean.valueOf(rs.getString("immortal"));
                     
                     player.setFlag(Flag.TPBLOCK, tpb);
                     player.setFlag(Flag.INVISIBLE, invisible);
                     player.setFlag(Flag.CAN_FLY, canFly);
                     player.setFlag(Flag.HIDDEN_LOCATION, hiddenLoc);
                     player.setFlag(Flag.SILENT_JOIN, silentJoin);
+                    player.setFlag(Flag.IMMORTAL, immortal);
 
                 }
             }
