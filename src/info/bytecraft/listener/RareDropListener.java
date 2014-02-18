@@ -254,7 +254,7 @@ public class RareDropListener implements Listener
         boolean sword = material.name().contains("SWORD");
         
         if(sword){
-            meta.setDisplayName(material(stack) + this.randomSwordName());
+            //meta.setDisplayName(material(stack) + this.randomSwordName());
             
             int damage = random.nextInt(50) + 1;
             //Rare sword always has bonus damage.
@@ -268,7 +268,7 @@ public class RareDropListener implements Listener
             }
             
         }else{
-            meta.setDisplayName(material(stack) + this.randomArmorName(material));
+            //meta.setDisplayName(material(stack) + this.randomArmorName(material));
             //do armor stuff
             
             int armor = random.nextInt(30) + 1;
@@ -310,7 +310,7 @@ public class RareDropListener implements Listener
         return ChatColor.AQUA + WordUtils.capitalizeFully(args[0]) + " ";
     }
     
-    public String randomSwordName()
+    /*public String randomSwordName()
     {
 
         List<String> names = plugin.getSwordNames();
@@ -327,7 +327,7 @@ public class RareDropListener implements Listener
         int size = names.size();
 
         return names.get(new Random().nextInt(size - 1));
-    }
+    }*/
 
     public List<String> getBookLore()
     {
