@@ -39,9 +39,9 @@ public class KickCommand extends AbstractCommand
 
         BytecraftPlayer target = cantidates.get(0);
         target.kickPlayer(ChatColor.RED + "You were kicked by "
-                + player.getDisplayName());
-        Bukkit.broadcastMessage(target.getDisplayName() + ChatColor.RED
-                + " was kicked by " + player.getDisplayName());
+                + player.getTemporaryChatName());
+        Bukkit.broadcastMessage(target.getTemporaryChatName() + ChatColor.RED
+                + " was kicked by " + player.getTemporaryChatName());
 
         try (IContext ctx = plugin.createContext()) {
             PlayerReport report = new PlayerReport();
@@ -85,7 +85,7 @@ public class KickCommand extends AbstractCommand
 
         target.kickPlayer(ChatColor.RED + "You were kicked by "
                 + ChatColor.BLUE + "GOD");
-        Bukkit.broadcastMessage(target.getDisplayName() + ChatColor.RED
+        Bukkit.broadcastMessage(target.getTemporaryChatName() + ChatColor.RED
                 + " was kicked by " + ChatColor.BLUE + "GOD");
         return true;
     }

@@ -1,14 +1,5 @@
 package info.bytecraft.api;
 
-import info.bytecraft.Bytecraft;
-import info.bytecraft.zones.Lot;
-import info.bytecraft.zones.Zone;
-import info.bytecraft.zones.Zone.Permission;
-import info.bytecraft.zones.ZoneWorld;
-import info.bytecraft.database.DAOException;
-import info.bytecraft.database.IContext;
-import info.bytecraft.database.IPlayerDAO;
-
 import java.text.NumberFormat;
 import java.util.Date;
 import java.util.EnumSet;
@@ -20,6 +11,16 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+
+import info.bytecraft.Bytecraft;
+import info.bytecraft.api.event.PlayerChangeRankEvent;
+import info.bytecraft.database.DAOException;
+import info.bytecraft.database.IContext;
+import info.bytecraft.database.IPlayerDAO;
+import info.bytecraft.zones.Lot;
+import info.bytecraft.zones.Zone;
+import info.bytecraft.zones.Zone.Permission;
+import info.bytecraft.zones.ZoneWorld;
 
 public class BytecraftPlayer extends PlayerDelegate
 {
@@ -77,6 +78,8 @@ public class BytecraftPlayer extends PlayerDelegate
     private HashMap<Badge, Integer> badges;
     
     private Date loginTime;
+    
+    private String temporaryChatName;
 
     public BytecraftPlayer(Player player, Bytecraft plugin)
     {
@@ -102,6 +105,10 @@ public class BytecraftPlayer extends PlayerDelegate
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
     
+    public String getTemporaryChatName() {  return temporaryChatName; }
+    public void setTemporaryChatName(String temporaryChatName) { this.temporaryChatName = temporaryChatName; }
+
+
     public ChatColor getNameColor()
     {
         try(IContext ctx = plugin.createContext()){
@@ -127,7 +134,21 @@ public class BytecraftPlayer extends PlayerDelegate
     
     public Rank getRank() { return this.rank; }
     
-    public void setRank(Rank rank) { this.rank = rank; }
+    public void setRank(Rank rank) 
+    { 
+        //dont fire event if first time setting rank
+        if(this.rank == null){
+            setTemporaryChatName(rank.getColor() + name);
+            this.rank = rank;
+            return;
+        }
+        
+        PlayerChangeRankEvent event = new PlayerChangeRankEvent(this, getRank(), rank);
+        
+        plugin.getServer().getPluginManager().callEvent(event);
+        
+        this.rank = event.getNewRank();
+    }
     
     public long getBalance()
     {
@@ -438,27 +459,6 @@ public class BytecraftPlayer extends PlayerDelegate
         return false; // If they don't fit into any of that. Return false
     }
     
-    //org.bukkit.entity.Player override
-    @Override
-    public boolean teleport(Entity player)
-    {
-        this.teleportWithHorse(player.getLocation());
-        return true;
-    }
-    
-    @Override
-    public boolean teleport(Location location)
-    {
-        this.teleportWithHorse(location);
-        return true;
-    }
-    
-    public boolean teleport(BytecraftPlayer player)
-    {
-        return this.teleport(player.getDelegate());
-    }
-
-
     public void teleportWithHorse(Location loc)
     {
         Entity v = getVehicle();
@@ -468,7 +468,12 @@ public class BytecraftPlayer extends PlayerDelegate
             v.teleport(loc);
             v.setPassenger(getDelegate());
         }else{
-            getDelegate().teleport(loc);
+            teleport(loc);
         }
+    }
+    
+    public String toString()
+    {
+        return String.format("BytecraftPlayer{name=%s, id=%d, rank=%s}", getName(), getId(), getRank().name().toLowerCase());
     }
 }

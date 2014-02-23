@@ -7,8 +7,8 @@ import java.util.List;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.api.PlayerReport;
 import info.bytecraft.api.BytecraftPlayer.Flag;
+import info.bytecraft.api.PlayerReport;
 import info.bytecraft.api.PlayerReport.ReportTime;
 import info.bytecraft.database.DAOException;
 import info.bytecraft.database.IContext;
@@ -41,7 +41,7 @@ public class MuteCommand extends AbstractCommand
         if(args.length == 1){
             int i = 10;
             ReportTime time = ReportTime.MINUTES;
-            player.sendMessage(RED + "You have muted " + target.getDisplayName() + RED + " for " + 
+            player.sendMessage(RED + "You have muted " + target.getTemporaryChatName() + RED + " for " + 
                     i + " " + time.name().toLowerCase());
             target.sendMessage(RED + "You have been muted for " + i + " " + time.name().toLowerCase());
             target.setFlag(Flag.MUTE, true);
@@ -78,7 +78,7 @@ public class MuteCommand extends AbstractCommand
                 time = ReportTime.MINUTES;
             }
 
-            player.sendMessage(RED + "You have muted " + target.getDisplayName() + RED + " for " + 
+            player.sendMessage(RED + "You have muted " + target.getTemporaryChatName() + RED + " for " + 
                     i + " " + time.name().toLowerCase());
             target.sendMessage(RED + "You have been muted for " + i + " " + time.name().toLowerCase());
             target.setFlag(Flag.MUTE, true);

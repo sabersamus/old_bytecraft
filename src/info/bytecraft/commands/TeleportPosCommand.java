@@ -36,7 +36,7 @@ public class TeleportPosCommand extends AbstractCommand
         }catch(NumberFormatException e){
             z = player.getLocation().getBlockZ();
         }
-        player.teleport(new Location(player.getWorld(), x, y, z));
+        player.teleportWithHorse(new Location(player.getWorld(), x, y, z));
         return true;
     }
 

@@ -31,6 +31,9 @@ commands:
     cmob:
         description: Create a new mob
         usage: /<command> <mob> [amount] [name]
+    cname:
+        description: change yo name
+        usage: /<command> <color> <name>
     creative:
         description: Change your gamemode to creative
         usage: /<command>

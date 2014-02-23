@@ -19,7 +19,7 @@ public class ActionCommand extends AbstractCommand
     {
         if(args.length != 0){
             if(!player.hasFlag(Flag.MUTE)){
-                Bukkit.broadcastMessage("* " + player.getDisplayName() + ChatColor.WHITE + " " + messageFromString(args));
+                Bukkit.broadcastMessage("* " + player.getTemporaryChatName() + ChatColor.WHITE + " " + messageFromString(args));
             }else{
                 player.sendMessage(ChatColor.RED + "You are currently muted.");
             }

@@ -1,16 +1,18 @@
 package info.bytecraft.listener;
 
-import info.bytecraft.Bytecraft;
-import info.bytecraft.api.Badge;
-import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.api.Rank;
-import info.bytecraft.database.*;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+
+import info.bytecraft.Bytecraft;
+import info.bytecraft.api.Badge;
+import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.Rank;
+import info.bytecraft.database.DAOException;
+import info.bytecraft.database.IContext;
+import info.bytecraft.database.IPlayerDAO;
 
 public class PlayerPromotionListener implements Listener
 {
@@ -61,7 +63,7 @@ public class PlayerPromotionListener implements Listener
                 player.addBadge(badge, 1);
                 
                 player.sendMessage(ChatColor.GOLD + "Congratulations! You are now a veteran!");
-                Bukkit.broadcastMessage(player.getDisplayName() + ChatColor.AQUA + "Just received the badge " + badge.getName());
+                Bukkit.broadcastMessage(player.getTemporaryChatName() + ChatColor.AQUA + "Just received the badge " + badge.getName());
             }catch(DAOException e){
                 throw new RuntimeException(e);
             }

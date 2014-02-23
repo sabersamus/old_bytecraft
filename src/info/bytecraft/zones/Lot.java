@@ -1,24 +1,34 @@
 package info.bytecraft.zones;
 
-import info.bytecraft.api.BytecraftPlayer;
-import info.tregmine.quadtree.Rectangle;
-
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import info.bytecraft.api.BytecraftPlayer;
+
+import info.tregmine.quadtree.Rectangle;
+
 public class Lot
 {
+    
+    public static enum Flag{
+        CREATIVE,
+        PRIVATE;
+    }
+    
     private int id;
     private String zoneName;
     private String name;
     private Rectangle rect;
     private Set<String> owners;
+    private Set<Flag> flags;
     private Zone zone;
 
     public Lot()
     {
         this.owners = new HashSet<String>();
+        this.flags = EnumSet.noneOf(Flag.class);
     }
 
     public int getId()
@@ -103,5 +113,27 @@ public class Lot
         }
         
         return this.rect.intersects(other.rect);
+    }
+    
+    public boolean hasFlag(Flag flag)
+    {
+        if(this.flags == null){
+            return false;
+        }
+        
+        return flags.contains(flag);
+    }
+    
+    public void setFlag(Flag flag, boolean value)
+    {
+        if(flags == null){
+            this.flags = EnumSet.noneOf(Flag.class);
+        }
+        
+        if(value){
+            this.flags.add(flag);
+        }else{
+            this.flags.remove(flag);
+        }
     }
 }

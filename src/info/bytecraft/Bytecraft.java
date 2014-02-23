@@ -1,23 +1,15 @@
 package info.bytecraft;
 
-import info.bytecraft.api.*;
-import info.bytecraft.tools.ToolRegistry;
-import info.bytecraft.zones.Lot;
-import info.bytecraft.zones.Zone;
-import info.bytecraft.zones.Zone.Permission;
-import info.bytecraft.zones.ZoneWorld;
-import info.bytecraft.api.BytecraftPlayer.Flag;
-import info.bytecraft.api.event.CallEventListener;
-import info.bytecraft.commands.*;
-import info.bytecraft.database.*;
-import info.bytecraft.database.db.DBContextFactory;
-import info.bytecraft.listener.*;
-import info.tregmine.quadtree.IntersectionException;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -28,7 +20,6 @@ import org.bukkit.WorldCreator;
 import org.bukkit.WorldType;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.conversations.ConversationFactory;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
@@ -37,6 +28,95 @@ import org.bukkit.plugin.java.JavaPlugin;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.maxmind.geoip.LookupService;
+
+import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.BytecraftPlayer.Flag;
+import info.bytecraft.api.PlayerBannedException;
+import info.bytecraft.api.PlayerReport;
+import info.bytecraft.api.SaleSign;
+import info.bytecraft.api.event.CallEventListener;
+import info.bytecraft.commands.ActionCommand;
+import info.bytecraft.commands.BackCommand;
+import info.bytecraft.commands.BanCommand;
+import info.bytecraft.commands.BlessCommand;
+import info.bytecraft.commands.BrushCommand;
+import info.bytecraft.commands.ChangeNameCommand;
+import info.bytecraft.commands.ChannelCommand;
+import info.bytecraft.commands.ChestLogCommand;
+import info.bytecraft.commands.ClearCommand;
+import info.bytecraft.commands.CreateMobCommand;
+import info.bytecraft.commands.FillCommand;
+import info.bytecraft.commands.ForceCommand;
+import info.bytecraft.commands.GameModeCommand;
+import info.bytecraft.commands.GiveCommand;
+import info.bytecraft.commands.HeadCommand;
+import info.bytecraft.commands.HomeCommand;
+import info.bytecraft.commands.InventoryCommand;
+import info.bytecraft.commands.ItemCommand;
+import info.bytecraft.commands.KickCommand;
+import info.bytecraft.commands.KillCommand;
+import info.bytecraft.commands.LotCommand;
+import info.bytecraft.commands.MessageCommand;
+import info.bytecraft.commands.MuteCommand;
+import info.bytecraft.commands.NukeCommand;
+import info.bytecraft.commands.PositionCommand;
+import info.bytecraft.commands.RideCommand;
+import info.bytecraft.commands.SayCommand;
+import info.bytecraft.commands.SellCommand;
+import info.bytecraft.commands.SmiteCommand;
+import info.bytecraft.commands.SpawnCommand;
+import info.bytecraft.commands.SummonCommand;
+import info.bytecraft.commands.TeleportBlockCommand;
+import info.bytecraft.commands.TeleportCommand;
+import info.bytecraft.commands.TeleportPosCommand;
+import info.bytecraft.commands.TimeCommand;
+import info.bytecraft.commands.ToolCommand;
+import info.bytecraft.commands.TownCommand;
+import info.bytecraft.commands.UserCommand;
+import info.bytecraft.commands.VanishCommand;
+import info.bytecraft.commands.WalletCommand;
+import info.bytecraft.commands.WarnCommand;
+import info.bytecraft.commands.WarpCommand;
+import info.bytecraft.commands.WarpCreateCommand;
+import info.bytecraft.commands.WhoCommand;
+import info.bytecraft.commands.ZoneCommand;
+import info.bytecraft.database.DAOException;
+import info.bytecraft.database.IBlessDAO;
+import info.bytecraft.database.IContext;
+import info.bytecraft.database.IContextFactory;
+import info.bytecraft.database.ILogDAO;
+import info.bytecraft.database.IMessageDAO;
+import info.bytecraft.database.IPlayerDAO;
+import info.bytecraft.database.IReportDAO;
+import info.bytecraft.database.ISaleSignDAO;
+import info.bytecraft.database.IZoneDAO;
+import info.bytecraft.database.db.DBContextFactory;
+import info.bytecraft.listener.BlessListener;
+import info.bytecraft.listener.BookShelfListener;
+import info.bytecraft.listener.ButtonListener;
+import info.bytecraft.listener.BytecraftBlockListener;
+import info.bytecraft.listener.BytecraftPlayerListener;
+import info.bytecraft.listener.ChatListener;
+import info.bytecraft.listener.DamageListener;
+import info.bytecraft.listener.ElevatorListener;
+import info.bytecraft.listener.FillListener;
+import info.bytecraft.listener.InventoryListener;
+import info.bytecraft.listener.ItemFrameListener;
+import info.bytecraft.listener.PlayerLookupListener;
+import info.bytecraft.listener.PlayerPromotionListener;
+import info.bytecraft.listener.SaleSignListener;
+import info.bytecraft.listener.SelectListener;
+import info.bytecraft.listener.SignColorListener;
+import info.bytecraft.listener.ToolListener;
+import info.bytecraft.listener.VeinListener;
+import info.bytecraft.listener.WorldPortalListener;
+import info.bytecraft.listener.ZoneListener;
+import info.bytecraft.tools.ToolRegistry;
+import info.bytecraft.zones.Lot;
+import info.bytecraft.zones.Zone;
+import info.bytecraft.zones.ZoneWorld;
+
+import info.tregmine.quadtree.IntersectionException;
 
 public class Bytecraft extends JavaPlugin
 {
@@ -117,6 +197,7 @@ public class Bytecraft extends JavaPlugin
         getCommand("brush").setExecutor(new BrushCommand(this));
         getCommand("clear").setExecutor(new ClearCommand(this));
         getCommand("cmob").setExecutor(new CreateMobCommand(this));
+        getCommand("cname").setExecutor(new ChangeNameCommand(this));
         getCommand("creative").setExecutor(new GameModeCommand(this, "creative"));
         getCommand("channel").setExecutor(new ChannelCommand(this));
         getCommand("chestlog").setExecutor(new ChestLogCommand(this));
@@ -168,13 +249,14 @@ public class Bytecraft extends JavaPlugin
         albion.environment(Environment.NORMAL);
         albion.type(WorldType.AMPLIFIED);
         this.rolePlayWorld = albion.createWorld();
-        
+
         PluginDescriptionFile pdf = getDescription();
         
         String version = pdf.getVersion();
         
         Bukkit.broadcastMessage(ChatColor.GREEN + "Successfuly loaded Bytecraft " 
         + ChatColor.GOLD + "v" + version + ChatColor.GREEN + "!");
+        
     }
     
     public void onDisable()
@@ -207,6 +289,7 @@ public class Bytecraft extends JavaPlugin
         pm.registerEvents(new BytecraftBlockListener(this), this);
         pm.registerEvents(new CallEventListener(this), this);
         pm.registerEvents(new ChatListener(this), this);
+        pm.registerEvents(new ElevatorListener(this), this);
         pm.registerEvents(new FillListener(this), this);
         pm.registerEvents(new InventoryListener(this), this);
         pm.registerEvents(new ItemFrameListener(this), this);
@@ -341,6 +424,7 @@ public class Bytecraft extends JavaPlugin
                 player.setPlayerListName(name);
             }
             
+            player.setTemporaryChatName(name);
             player.setIp(addr.getHostAddress());
             player.setHost(addr.getCanonicalHostName());
             
@@ -356,28 +440,6 @@ public class Bytecraft extends JavaPlugin
             logs.insertLogin(player, "login");
             
             players.put(player.getName(), player);
-            
-            Location loc = player.getLocation();
-            
-            if(loc != null){
-               Zone zone = this.getWorld(loc.getWorld()).findZone(loc);
-               if(zone != null){
-                   player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] "
-                           + zone.getEnterMessage());
-
-                   if (zone.hasFlag(Zone.Flag.PVP)) {
-                       player.sendMessage(ChatColor.RED
-                               + "[" + zone.getName() + "] "
-                               + "Warning! This is a PVP zone! Other players can damage or kill you here.");
-                   }
-                   Permission perm  = zone.getUser(player);
-                   if (perm != null) {
-                       String permNotification = perm.getPermNotification();
-                       player.sendMessage(ChatColor.RED + "[" + zone.getName()
-                               + "] " + permNotification);
-                   }
-               }
-            }
             
             return player;
         }catch(DAOException e){
@@ -451,6 +513,7 @@ public class Bytecraft extends JavaPlugin
                         getLogger().warning("Failed to load zone " + zone.getName()
                                 + " with id " + zone.getId() + ".");
                     }
+                    
                 }
 
                 List<Lot> lots = dao.getLots(world.getName());

@@ -43,12 +43,12 @@ public class SayCommand extends AbstractCommand
         }
         for(BytecraftPlayer other: plugin.getOnlinePlayers()){
             if(other.getRank().canUseGod()){
-                other.sendMessage(ChatColor.AQUA + "/say used by " + player.getDisplayName());
+                other.sendMessage(ChatColor.AQUA + "/say used by " + player.getTemporaryChatName());
             }
             other.sendNotification(Notification.SERVER_MESSAGE, null);
         }
         plugin.getLogger().info(player.getGodColor() + "<GOD> " + ChatColor.LIGHT_PURPLE + argsToMessage(args));
-        plugin.getLogger().info(ChatColor.AQUA + "/say used by " + player.getDisplayName());
+        plugin.getLogger().info(ChatColor.AQUA + "/say used by " + player.getTemporaryChatName());
         return true;
     }
 

@@ -6,10 +6,9 @@ import org.bukkit.ChatColor;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.BytecraftPlayer.Flag;
 import info.bytecraft.api.Notification;
 import info.bytecraft.api.Rank;
-import info.bytecraft.api.BytecraftPlayer.Flag;
-import info.bytecraft.commands.AbstractCommand;
 import info.bytecraft.database.DAOException;
 import info.bytecraft.database.IContext;
 
@@ -57,17 +56,17 @@ public class MessageCommand extends AbstractCommand
     private void sendMessage(BytecraftPlayer player, BytecraftPlayer target, String message)
     {
         target.sendNotification(Notification.MESSAGE, ChatColor.GREEN
-                + "<msg> " + player.getDisplayName() + ": "
+                + "<msg> " + player.getTemporaryChatName() + ": "
                 + ChatColor.GREEN + message);
         if(target.hasFlag(Flag.INVISIBLE)){
             if(player.getRank() == Rank.ELDER || player.getRank() == Rank.PRINCESS){
                 player.sendMessage(ChatColor.GREEN + "<To> "
-                        + target.getDisplayName() + ": " + ChatColor.GREEN
+                        + target.getTemporaryChatName() + ": " + ChatColor.GREEN
                         + message);
             }
         }else{
             player.sendMessage(ChatColor.GREEN + "<To> "
-                    + target.getDisplayName() + ": " + ChatColor.GREEN
+                    + target.getTemporaryChatName() + ": " + ChatColor.GREEN
                     + message);
         }
         target.setLastMessager(player);

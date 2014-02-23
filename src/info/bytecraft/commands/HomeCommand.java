@@ -134,7 +134,7 @@ public class HomeCommand extends AbstractCommand
             
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable(){
                 public void run(){
-                    player.teleport(newLoc);
+                            player.teleportWithHorse(newLoc);
                 }
             }, 3 * 20L);
             
@@ -165,7 +165,7 @@ public class HomeCommand extends AbstractCommand
 
                         public void run()
                         {
-                            player.teleport(loc);
+                            player.teleportWithHorse(loc);
                         }
 
                     }, 20 * 3L);

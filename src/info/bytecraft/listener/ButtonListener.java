@@ -1,12 +1,7 @@
 package info.bytecraft.listener;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import info.bytecraft.Bytecraft;
-import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.database.DAOException;
-import info.bytecraft.database.IContext;
-import info.bytecraft.database.IPlayerDAO;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -17,6 +12,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.meta.ItemMeta;
+
+import info.bytecraft.Bytecraft;
+import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.database.DAOException;
+import info.bytecraft.database.IContext;
+import info.bytecraft.database.IPlayerDAO;
 
 public class ButtonListener implements Listener
 {
@@ -87,19 +90,27 @@ public class ButtonListener implements Listener
     
     private void givePaper(BytecraftPlayer player, Block block)
     {
-        if(block.getType() != Material.STONE_BUTTON)return;
-        
         try(IContext ctx = plugin.createContext()){
             IPlayerDAO dao = ctx.getPlayerDAO();
             
-            if(dao.take(player, 500)){
-                player.sendMessage(ChatColor.AQUA + "500 bytes has been taken from your wallet");
-                player.getInventory().addItem(new ItemStack(Material.PAPER, 1));
-                player.updateInventory();
-                return;
-            }else{
-                player.sendMessage(ChatColor.RED + "You dont have enough bytes to afford that!");
-                return;
+            if (dao.take(player, 25000)) {
+                ItemStack item = new ItemStack(Material.PAPER, 1);
+                PlayerInventory inventory = player.getInventory();
+                ItemMeta meta = item.getItemMeta();
+                List<String> lore = new ArrayList<String>();
+                lore.add(ChatColor.AQUA + "Purchased");
+                lore.add(ChatColor.WHITE + "By: " + player.getTemporaryChatName());
+                lore.add(ChatColor.WHITE + "Value: 25,000 bytes");
+                meta.setLore(lore);
+                meta.setDisplayName(ChatColor.GREEN + "DIRT -> SPONGE Coupon");
+                item.setItemMeta(meta);
+                inventory.addItem(item);
+                player.sendMessage(ChatColor.AQUA
+                        + "You received 1 coupon for 25,000 bytes.");
+            }
+            else {
+                player.sendMessage(ChatColor.RED
+                        + "You need at least 25,000 bytes for this button!");
             }
             
         }catch(DAOException e){

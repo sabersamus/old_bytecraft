@@ -34,7 +34,7 @@ public class UserCommand extends AbstractCommand
                 }
                 BytecraftPlayer target = cantidates.get(0);
                 refreshPlayer(target);
-                player.sendMessage(ChatColor.AQUA + "You refreshed " + target.getDisplayName() + ChatColor.AQUA + "'s permissions");
+                player.sendMessage(ChatColor.AQUA + "You refreshed " + target.getTemporaryChatName() + ChatColor.AQUA + "'s permissions");
             }
             return true;
         }
@@ -49,17 +49,17 @@ public class UserCommand extends AbstractCommand
                 
                 if("settler".equalsIgnoreCase(args[1])){
                     this.makeSettler(target, player);
-                    player.sendMessage(ChatColor.AQUA + "You have promoted " + target.getDisplayName() 
+                    player.sendMessage(ChatColor.AQUA + "You have promoted " + target.getTemporaryChatName() 
                             + ChatColor.AQUA + " to settler");
                     return true;
                 }else if("member".equalsIgnoreCase(args[1])){
                     this.makeMember(target);
-                    player.sendMessage(ChatColor.AQUA + "You have promoted " + target.getDisplayName() + ChatColor.AQUA
+                    player.sendMessage(ChatColor.AQUA + "You have promoted " + target.getTemporaryChatName() + ChatColor.AQUA
                             + " to member");
                     return true;
                 }else if("child".equalsIgnoreCase(args[1])){
                     this.makeChild(target);
-                    player.sendMessage(ChatColor.AQUA + "You have made " + target.getDisplayName() + " a child");
+                    player.sendMessage(ChatColor.AQUA + "You have made " + target.getTemporaryChatName() + " a child");
                 }
             }
         }
@@ -76,7 +76,7 @@ public class UserCommand extends AbstractCommand
                 }
                 BytecraftPlayer target = cantidates.get(0);
                 refreshPlayer(target);
-                plugin.getLogger().info(ChatColor.AQUA + "You refreshed " + target.getDisplayName() + ChatColor.AQUA + "'s permissions");
+                plugin.getLogger().info(ChatColor.AQUA + "You refreshed " + target.getTemporaryChatName() + ChatColor.AQUA + "'s permissions");
             }
             return true;
         }
@@ -91,15 +91,15 @@ public class UserCommand extends AbstractCommand
                 
                 if("settler".equalsIgnoreCase(args[1])){
                     this.makeSettler(target, null);
-                    plugin.sendMessage(ChatColor.AQUA + "You have promoted " + target.getDisplayName() + " to settler");
+                    plugin.sendMessage(ChatColor.AQUA + "You have promoted " + target.getTemporaryChatName() + " to settler");
                     return true;
                 }else if("member".equalsIgnoreCase(args[1])){
                     this.makeMember(target);
-                    plugin.sendMessage(ChatColor.AQUA + "You have promoted " + target.getDisplayName() + " to member");
+                    plugin.sendMessage(ChatColor.AQUA + "You have promoted " + target.getTemporaryChatName() + " to member");
                     return true;
                 }else if("child".equalsIgnoreCase(args[1])){
                     this.makeChild(target);
-                    plugin.sendMessage(ChatColor.AQUA + "You have made " + target.getDisplayName() + " a child");
+                    plugin.sendMessage(ChatColor.AQUA + "You have made " + target.getTemporaryChatName() + " a child");
                 }
             }
         }
@@ -124,7 +124,7 @@ public class UserCommand extends AbstractCommand
             }else{
                 player.setPlayerListName(name);
             }
-            String mentorName = mentor == null ? ChatColor.BLUE  + "God" : mentor.getDisplayName();
+            String mentorName = mentor == null ? ChatColor.BLUE  + "God" : mentor.getTemporaryChatName();
             player.sendMessage(ChatColor.AQUA + "You have been made a settler by " + mentorName);
             dao.updatePermissions(player);
         }catch(DAOException e){

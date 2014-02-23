@@ -1,25 +1,25 @@
 package info.bytecraft.listener;
 
-import info.bytecraft.Bytecraft;
-import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.api.PlayerReport;
-import info.bytecraft.api.BytecraftPlayer.Flag;
-import info.bytecraft.api.PlayerReport.Action;
-import info.bytecraft.database.DAOException;
-import info.bytecraft.database.IContext;
-import info.bytecraft.database.ILogDAO;
-import info.bytecraft.database.IReportDAO;
-
-import java.util.Set;
-import java.util.Date;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+
+import info.bytecraft.Bytecraft;
+import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.BytecraftPlayer.Flag;
+import info.bytecraft.api.PlayerReport;
+import info.bytecraft.api.PlayerReport.Action;
+import info.bytecraft.database.DAOException;
+import info.bytecraft.database.IContext;
+import info.bytecraft.database.ILogDAO;
+import info.bytecraft.database.IReportDAO;
 
 public class PlayerLookupListener implements Listener
 {
@@ -72,13 +72,13 @@ public class PlayerLookupListener implements Listener
                     && !player.hasFlag(Flag.HIDDEN_LOCATION)) {
                 plugin.getServer().broadcastMessage(
                         ChatColor.DARK_AQUA + "Welcome "
-                                + player.getDisplayName() + ChatColor.DARK_AQUA
+                                + player.getTemporaryChatName() + ChatColor.DARK_AQUA
                                 + " from " + player.getCountry() + "!");
             }
             else {
                 plugin.getServer().broadcastMessage(
                         ChatColor.DARK_AQUA + "Welcome "
-                                + player.getDisplayName());
+                                + player.getTemporaryChatName());
             }
         }
 
@@ -125,7 +125,7 @@ public class PlayerLookupListener implements Listener
                 if (!current.getRank().canVanish()) {
                 } else {
                     if(current.getId() != player.getId()){
-                        current.sendMessage(player.getDisplayName() + ChatColor.AQUA + " has joined invisible");
+                        current.sendMessage(player.getTemporaryChatName() + ChatColor.AQUA + " has joined invisible");
                     }
                 }
             }

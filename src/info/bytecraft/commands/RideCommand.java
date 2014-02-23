@@ -61,15 +61,15 @@ public class RideCommand extends AbstractCommand
     private void rideMe(BytecraftPlayer player, BytecraftPlayer target)
     {
         player.getDelegate().setPassenger(target.getDelegate());
-        player.sendMessage(target.getDisplayName() + ChatColor.AQUA + " is now riding you :3");
-        target.sendMessage(ChatColor.AQUA + "You are now riding " + player.getDisplayName());
+        player.sendMessage(target.getTemporaryChatName() + ChatColor.AQUA + " is now riding you :3");
+        target.sendMessage(ChatColor.AQUA + "You are now riding " + player.getTemporaryChatName());
     }
     
     private void rideOther(BytecraftPlayer player, BytecraftPlayer target)
     {
         target.getDelegate().setPassenger(player.getDelegate());
-        player.sendMessage(ChatColor.AQUA + "You are now riding " + target.getDisplayName());
-        target.sendMessage(player.getDisplayName() + ChatColor.AQUA + " is now riding you :3");
+        player.sendMessage(ChatColor.AQUA + "You are now riding " + target.getTemporaryChatName());
+        target.sendMessage(player.getTemporaryChatName() + ChatColor.AQUA + " is now riding you :3");
     }
     
 }

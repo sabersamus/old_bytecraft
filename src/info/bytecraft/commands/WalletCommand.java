@@ -30,7 +30,7 @@ public class WalletCommand extends AbstractCommand
                         + player.getFormattedBalance());
             }
             else if (args[0].equalsIgnoreCase("tell")) {
-                Bukkit.broadcastMessage(player.getDisplayName()
+                Bukkit.broadcastMessage(player.getTemporaryChatName()
                         + ChatColor.AQUA + " has "
                         + player.getFormattedBalance());
             }
@@ -58,10 +58,10 @@ public class WalletCommand extends AbstractCommand
                                 if (!target.hasFlag(Flag.INVISIBLE)) {
                                     player.sendMessage(ChatColor.AQUA
                                             + "You gave "
-                                            + target.getDisplayName() + " "
+                                            + target.getTemporaryChatName() + " "
                                             + formatCurrency(amount));
                                 }
-                                target.sendMessage(player.getDisplayName()
+                                target.sendMessage(player.getTemporaryChatName()
                                         + ChatColor.AQUA + " gave you "
                                         + formatCurrency(amount));
                                 dbLog.insertTransactionLog(player.getName(), target,

@@ -30,7 +30,7 @@ public class BlessCommand extends AbstractCommand
 
         BytecraftPlayer target = cantidates.get(0);
         player.setBlessTarget(target);
-        player.sendMessage(ChatColor.AQUA + "Preparing to bless a block for " + target.getDisplayName());
+        player.sendMessage(ChatColor.AQUA + "Preparing to bless a block for " + target.getTemporaryChatName());
         return true;
     }
 }

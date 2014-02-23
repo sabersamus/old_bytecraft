@@ -30,16 +30,16 @@
 
 package info.bytecraft.zones;
 
-import info.tregmine.quadtree.IntersectionException;
-import info.tregmine.quadtree.Point;
-import info.tregmine.quadtree.QuadTree;
-
 import java.util.Comparator;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.bukkit.World;
 import org.bukkit.Location;
+import org.bukkit.World;
+
+import info.tregmine.quadtree.IntersectionException;
+import info.tregmine.quadtree.Point;
+import info.tregmine.quadtree.QuadTree;
 
 public class ZoneWorld
 {
@@ -164,5 +164,10 @@ public class ZoneWorld
                 throw new RuntimeException(e);
             }
         }
+    }
+    
+    public QuadTree<Zone> getQuadTree()
+    {
+        return this.zonesLookup;
     }
 }

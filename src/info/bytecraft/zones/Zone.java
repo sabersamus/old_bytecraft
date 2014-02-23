@@ -1,17 +1,17 @@
 package info.bytecraft.zones;
 
-import info.bytecraft.api.BytecraftPlayer;
-import info.tregmine.quadtree.Point;
-import info.tregmine.quadtree.Rectangle;
-
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Location;
 
 import com.google.common.collect.Maps;
+
+import info.bytecraft.api.BytecraftPlayer;
+
+import info.tregmine.quadtree.Point;
+import info.tregmine.quadtree.Rectangle;
 
 public class Zone
 {
@@ -330,6 +330,11 @@ public class Zone
             }
         }
         return null;
+    }
+    
+    public String toString()
+    {
+        return String.format("Zone{name=%s, id=%s}", getName(), getId());
     }
 
 }

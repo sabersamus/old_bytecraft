@@ -20,8 +20,8 @@ import com.google.common.collect.Maps;
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.Badge;
 import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.api.Rank;
 import info.bytecraft.api.BytecraftPlayer.Flag;
+import info.bytecraft.api.Rank;
 import info.bytecraft.database.DAOException;
 import info.bytecraft.database.IPlayerDAO;
 
@@ -124,7 +124,7 @@ public class DBPlayerDAO implements IPlayerDAO
     {
         String sql = "INSERT INTO player_property (player_id, player_name, invisible, tpblock, "
                 + "hidden_location, silent_join, can_fly, immortal, god_color)"
-                + "VALUES (? ,?, ?, ?, ?, ?, ?, ?)";
+                        + "VALUES (? ,?, ?, ?, ?, ?, ?, ?, ?)";
         try(PreparedStatement stm = conn.prepareStatement(sql)){
             stm.setInt(1, player.getId());
             stm.setString(2, player.getName());
@@ -392,7 +392,8 @@ public class DBPlayerDAO implements IPlayerDAO
 
     public void updatePlayTime(BytecraftPlayer player) throws DAOException
     {
-        if(player.getRank() == Rank.NEWCOMER)return;
+        if (player.getRank() == null || player.getRank() == Rank.NEWCOMER)
+            return;
         String sql =
                 "UPDATE player SET player_playtime = ? WHERE player_name = ?";
         int playTime = player.getPlayTime() + player.getOnlineTime();

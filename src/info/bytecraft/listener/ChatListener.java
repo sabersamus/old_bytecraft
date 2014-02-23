@@ -2,21 +2,24 @@ package info.bytecraft.listener;
 
 import java.util.Date;
 
-import info.bytecraft.Bytecraft;
-import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.api.PlayerReport;
-import info.bytecraft.api.BytecraftPlayer.ChatState;
-import info.bytecraft.api.Rank;
-import info.bytecraft.api.BytecraftPlayer.Flag;
-import info.bytecraft.api.PlayerReport.Action;
-import info.bytecraft.database.*;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+
+import info.bytecraft.Bytecraft;
+import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.BytecraftPlayer.ChatState;
+import info.bytecraft.api.BytecraftPlayer.Flag;
+import info.bytecraft.api.PlayerReport;
+import info.bytecraft.api.PlayerReport.Action;
+import info.bytecraft.api.Rank;
+import info.bytecraft.database.DAOException;
+import info.bytecraft.database.IContext;
+import info.bytecraft.database.ILogDAO;
+import info.bytecraft.database.IReportDAO;
 
 public class ChatListener implements Listener
 {
@@ -33,7 +36,10 @@ public class ChatListener implements Listener
         String message = event.getMessage();
         
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
-        if(player.getChatState() != ChatState.CHAT)return;
+        if(player.getChatState() != ChatState.CHAT){
+            event.setCancelled(true);
+            return;
+        }
         if(player.hasFlag(Flag.MUTE)){
             try(IContext ctx = plugin.createContext()){
                 IReportDAO dao = ctx.getReportDAO();
@@ -71,21 +77,15 @@ public class ChatListener implements Listener
                 color = ChatColor.WHITE;
             }
             
-            ChatColor nameColor = player.getRank().getColor();
-            if(player.hasFlag(Flag.HARDWARNED) || player.hasFlag(Flag.SOFTWARNED)){
-                nameColor = ChatColor.GRAY;
-            }
-            
             if(player.getRank().canUseColoredChat()){
                 message = ChatColor.translateAlternateColorCodes('&', message);
             }
             
-            String coloredMessage = "<" + nameColor + player.getName() + ChatColor.WHITE + "> " + color + message;
+            String coloredMessage = "<" + player.getTemporaryChatName() + ChatColor.WHITE + "> " + color + message;
             
             if (player.getRank() == Rank.LORD) {
                 coloredMessage =
-                        "<" + ChatColor.GREEN + "[Lord]" + nameColor
-                                + player.getName() + ChatColor.WHITE + "> "
+                        "<" + ChatColor.GREEN + "[Lord]" + player.getTemporaryChatName() + ChatColor.WHITE + "> "
                                 + color + message;
             }
             

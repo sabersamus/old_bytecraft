@@ -7,6 +7,7 @@ import org.bukkit.ChatColor;
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.api.BytecraftPlayer.Flag;
+
 import info.tregmine.api.math.Distance;
 
 public class TeleportCommand extends AbstractCommand
@@ -26,11 +27,11 @@ public class TeleportCommand extends AbstractCommand
         @Override
         public void run()
         {
-            player.teleport(target.getLocation().add(0, 0.5, 0));
+            player.teleportWithHorse(target.getLocation().add(0, 0.5, 0));
 
             player.setNoDamageTicks(1000);
             if (!player.getRank().canTeleportSilently()) {
-                target.sendMessage(player.getDisplayName() + ChatColor.AQUA
+                target.sendMessage(player.getTemporaryChatName() + ChatColor.AQUA
                         + " has teleported to you");
             }
         }
@@ -60,9 +61,9 @@ public class TeleportCommand extends AbstractCommand
         else {
             if (target.hasFlag(Flag.TPBLOCK)) {// teleport block
                 if (!player.getRank().canOverrideTeleportBlock()) {// not admin
-                    player.sendMessage(target.getDisplayName() + ChatColor.RED
+                    player.sendMessage(target.getTemporaryChatName() + ChatColor.RED
                             + " is not accepting teleports right now");
-                    target.sendMessage(player.getDisplayName() + ChatColor.RED
+                    target.sendMessage(player.getTemporaryChatName() + ChatColor.RED
                             + " failed at teleporting to you");
                     return true;
                 }
@@ -73,7 +74,7 @@ public class TeleportCommand extends AbstractCommand
                             .scheduleSyncDelayedTask(plugin, task,
                                     player.getRank().getTeleportTimeout());
                     player.sendMessage(ChatColor.AQUA + "Teleporting to "
-                            + target.getDisplayName());
+                            + target.getTemporaryChatName());
                     return true;
                 }
             }
@@ -84,7 +85,7 @@ public class TeleportCommand extends AbstractCommand
                         .scheduleSyncDelayedTask(plugin, task,
                                 player.getRank().getTeleportTimeout());
                 player.sendMessage(ChatColor.AQUA + "Teleporting to "
-                        + target.getDisplayName());
+                        + target.getTemporaryChatName());
                 return true;
             }
         }

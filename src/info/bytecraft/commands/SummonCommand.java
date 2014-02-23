@@ -29,10 +29,10 @@ public class SummonCommand extends AbstractCommand
         }
 
         BytecraftPlayer target = cantidates.get(0);
-        target.teleport(player.getLocation());
+        target.teleportWithHorse(player.getLocation());
         player.sendMessage(ChatColor.AQUA + "You summoned "
-                + target.getDisplayName() + ChatColor.AQUA + " to you");
-        target.sendMessage(player.getDisplayName() + ChatColor.AQUA
+                + target.getTemporaryChatName() + ChatColor.AQUA + " to you");
+        target.sendMessage(player.getTemporaryChatName() + ChatColor.AQUA
                 + " summoned you");
         return true;
     }

@@ -35,7 +35,7 @@ public class WarpCommand extends AbstractCommand
 
         public void run()
         {
-            player.teleport(loc);
+            player.teleportWithHorse(loc);
             player.sendMessage(ChatColor.AQUA + "Successfully teleported to " + name);
         }
 

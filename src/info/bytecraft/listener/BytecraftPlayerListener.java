@@ -1,27 +1,14 @@
 package info.bytecraft.listener;
 
+import static org.bukkit.ChatColor.DARK_AQUA;
+import static org.bukkit.ChatColor.WHITE;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
-import info.bytecraft.Bytecraft;
-import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.api.PaperLog;
-import info.bytecraft.api.PlayerBannedException;
-import info.bytecraft.api.Rank;
-import info.bytecraft.api.BytecraftPlayer.Flag;
-import info.bytecraft.database.DAOException;
-import info.bytecraft.database.IBlessDAO;
-import info.bytecraft.database.IContext;
-import info.bytecraft.database.ILogDAO;
-import info.bytecraft.zones.Zone;
-import info.bytecraft.zones.ZoneWorld;
-import info.bytecraft.api.TargetBlock;
-
 import org.apache.commons.lang.WordUtils;
-
-import static org.bukkit.ChatColor.*;
-
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -35,6 +22,7 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -47,15 +35,36 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.event.player.PlayerLoginEvent.Result;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Score;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.ScoreboardManager;
 
 import com.google.common.collect.Maps;
+
+import info.bytecraft.Bytecraft;
+import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.BytecraftPlayer.Flag;
+import info.bytecraft.api.PaperLog;
+import info.bytecraft.api.PlayerBannedException;
+import info.bytecraft.api.Rank;
+import info.bytecraft.api.ScoreboardClearTask;
+import info.bytecraft.api.TargetBlock;
+import info.bytecraft.api.event.PlayerChangeRankEvent;
+import info.bytecraft.database.DAOException;
+import info.bytecraft.database.IBlessDAO;
+import info.bytecraft.database.IContext;
+import info.bytecraft.database.ILogDAO;
+import info.bytecraft.zones.Zone;
+import info.bytecraft.zones.ZoneWorld;
 
 public class BytecraftPlayerListener implements Listener
 {
@@ -66,7 +75,7 @@ public class BytecraftPlayerListener implements Listener
         this.plugin = bytecraft;
     }
 
-    @EventHandler
+    @EventHandler(priority=EventPriority.LOW)
     public void onJoin(PlayerJoinEvent event)
     {
         event.setJoinMessage(null);
@@ -82,7 +91,7 @@ public class BytecraftPlayerListener implements Listener
             if(!player.hasFlag(Flag.HARDWARNED) && !player.hasFlag(Flag.SOFTWARNED)){
                 for (BytecraftPlayer other : plugin.getOnlinePlayers()) {
                     if (other.getRank().canMentor()) {
-                        other.sendMessage(player.getDisplayName()
+                        other.sendMessage(player.getTemporaryChatName()
                                 + ChatColor.AQUA
                                 + " has joined as a newcomer, you should help them out!");
                     }
@@ -126,8 +135,35 @@ public class BytecraftPlayerListener implements Listener
             }
         }
         
-    }
+        if (player.isOnline()) {
 
+            ScoreboardManager manager = Bukkit.getScoreboardManager();
+            Scoreboard board = manager.getNewScoreboard();
+
+            Objective objective = board.registerNewObjective("1", "2");
+            objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+            objective.setDisplayName(ChatColor.BLUE + "Welcome to Bytecraft!");
+
+            Objective health =
+                    board.registerNewObjective("showhealth", "health");
+            health.setDisplaySlot(DisplaySlot.BELOW_NAME);
+            health.setDisplayName("/ 20");
+            String desc = ChatColor.AQUA + "Your balance:";
+            Score score = objective.getScore(Bukkit.getOfflinePlayer(desc));
+            Score healthScore =
+                    health.getScore(Bukkit.getOfflinePlayer(player.getName()));
+            score.setScore((int) player.getBalance());
+            healthScore.setScore((int) player.getHealth());
+            try {
+                player.setScoreboard(board);
+                player.setHealth(player.getHealth() - 0.0001);
+                ScoreboardClearTask.start(plugin, player);
+            } catch (IllegalStateException e) {
+                // ignore
+            }
+        }
+    }
+    
     @EventHandler
     public void onLogin(PlayerLoginEvent event)
     {
@@ -162,7 +198,7 @@ public class BytecraftPlayerListener implements Listener
                                 .get(new Random().nextInt(messages.size() - 1))
                                 .replace(
                                         "%s",
-                                        player.getDisplayName()
+                                        player.getTemporaryChatName()
                                                 + ChatColor.GRAY)
                                 .replaceAll("(?i)&([a-f0-9])", "\u00A7$1");
         
@@ -200,11 +236,12 @@ public class BytecraftPlayerListener implements Listener
         
         if(event.getCause() == DamageCause.FALL){
             event.setCancelled(true);
-            return;
         }else{
             event.setCancelled(player.getRank().isImmortal() && player.hasFlag(Flag.IMMORTAL));
+            player.setHealth(player.getHealth());
             return;
         }
+
     }
 
     @EventHandler
@@ -268,9 +305,9 @@ public class BytecraftPlayerListener implements Listener
             player.sendMessage(ChatColor.YELLOW + "You got " + ChatColor.GOLD
                     + stack.getAmount() + " "
                     + stack.getType().toString().toLowerCase()
-                    + ChatColor.YELLOW + " from " + from.getDisplayName() + ".");
+                    + ChatColor.YELLOW + " from " + from.getTemporaryChatName() + ".");
             from.sendMessage(ChatColor.YELLOW + "You gave "
-                    + player.getDisplayName() + ChatColor.GOLD + " "
+                    + player.getTemporaryChatName() + ChatColor.GOLD + " "
                     + stack.getAmount() + " "
                     + stack.getType().name().toLowerCase().replace("_", " "));
             droppedItems.remove(event.getItem());
@@ -285,10 +322,10 @@ public class BytecraftPlayerListener implements Listener
         List<String> deathMessages = plugin.getDeathMessages();
         String message = "";
         if(deathMessages.isEmpty()){
-            message = ChatColor.GRAY + "- death - " + player.getDisplayName() + ChatColor.GRAY + " has died!";
+            message = ChatColor.GRAY + "- death - " + player.getTemporaryChatName() + ChatColor.GRAY + " has died!";
         }else{
             message = ChatColor.GRAY + "- death - " + deathMessages.get(
-                    new Random().nextInt(deathMessages.size() - 1)).replace("%s", player.getDisplayName() + ChatColor.GRAY)
+                    new Random().nextInt(deathMessages.size() - 1)).replace("%s", player.getTemporaryChatName() + ChatColor.GRAY)
                     .replaceAll("(?i)&([a-f0-9])", "\u00A7$1");
         }
         event.setDeathMessage(message);
@@ -505,6 +542,13 @@ public class BytecraftPlayerListener implements Listener
 
             }
         }
+    }
+    
+    @EventHandler
+    public void onRankChange(PlayerChangeRankEvent event)
+    {
+        BytecraftPlayer player = event.getPlayer();
+        player.setTemporaryChatName(event.getNewRank().getColor() + player.getName());
     }
     
 }

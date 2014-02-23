@@ -1,6 +1,9 @@
 package info.bytecraft.commands;
 
-import static org.bukkit.ChatColor.*;
+import static org.bukkit.ChatColor.DARK_GRAY;
+import static org.bukkit.ChatColor.DARK_PURPLE;
+import static org.bukkit.ChatColor.GOLD;
+import static org.bukkit.ChatColor.GRAY;
 
 import java.util.List;
 
@@ -34,7 +37,7 @@ public class WhoCommand extends AbstractCommand
                     }
                 }
                 sb.append(delim);
-                sb.append(other.getDisplayName());
+                sb.append(other.getTemporaryChatName());
                 delim = ChatColor.WHITE + ", ";
                 playerCounter++;
             }
@@ -67,7 +70,7 @@ public class WhoCommand extends AbstractCommand
             int playerCounter = 0;
             for (BytecraftPlayer other : plugin.getOnlinePlayers()) {
                 sb.append(delim);
-                sb.append(other.getDisplayName());
+                sb.append(other.getTemporaryChatName());
                 delim = ChatColor.WHITE + ", ";
                 playerCounter++;
             }
@@ -98,7 +101,7 @@ public class WhoCommand extends AbstractCommand
         player.sendMessage(DARK_GRAY + "******************** " + DARK_PURPLE
                 + "PLAYER INFO" + DARK_GRAY + " ********************");
         player.sendMessage(GOLD + "Player: " + GRAY
-                + whoPlayer.getDisplayName());
+                + whoPlayer.getTemporaryChatName());
         player.sendMessage(GOLD + "ID: " + GRAY + whoPlayer.getId());
         player.sendMessage(GOLD + "World: " + GRAY
                 + whoPlayer.getWorld().getName());

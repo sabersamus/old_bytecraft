@@ -4,13 +4,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import info.bytecraft.Bytecraft;
-import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.api.Notification;
-import info.bytecraft.database.DAOException;
-import info.bytecraft.database.IContext;
-import info.bytecraft.database.IPlayerDAO;
-
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -23,6 +16,13 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.util.Vector;
+
+import info.bytecraft.Bytecraft;
+import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.Notification;
+import info.bytecraft.database.DAOException;
+import info.bytecraft.database.IContext;
+import info.bytecraft.database.IPlayerDAO;
 
 public class BlessListener implements Listener
 {
@@ -90,7 +90,7 @@ public class BlessListener implements Listener
                         + "Your god has blessed a block in your name!");
                 player.sendMessage(ChatColor.AQUA
                         + "You have blessed a block for "
-                        + target.getDisplayName());
+                        + target.getTemporaryChatName());
                 event.setCancelled(true);
                 return;
             }else{

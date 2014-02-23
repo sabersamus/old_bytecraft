@@ -91,7 +91,7 @@ public class Main
             throw new RuntimeException(ex);
         }
         
-        Connection conn = DriverManager.getConnection("");
+        Connection conn = DriverManager.getConnection("jdbc:mysql://panel48.mcstartup.net/server_27", "server_27", "devotion34");
 
         // Find source world
         File srcDir;

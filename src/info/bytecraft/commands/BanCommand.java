@@ -35,9 +35,9 @@ public class BanCommand extends AbstractCommand
         
         BytecraftPlayer target = cantidates.get(0);
         target.kickPlayer(ChatColor.RED + "You have been banned by "
-                + player.getDisplayName());
-        Bukkit.broadcastMessage(target.getDisplayName() + ChatColor.RED
-                + " has been banned by " + player.getDisplayName());
+                + player.getTemporaryChatName());
+        Bukkit.broadcastMessage(target.getTemporaryChatName() + ChatColor.RED
+                + " has been banned by " + player.getTemporaryChatName());
 
         try (IContext ctx = plugin.createContext()) {
             IPlayerDAO dao = ctx.getPlayerDAO();
@@ -61,7 +61,7 @@ public class BanCommand extends AbstractCommand
 
         target.kickPlayer(ChatColor.RED + "You have been banned by "
                 + ChatColor.BLUE + "GOD");
-        Bukkit.broadcastMessage(target.getDisplayName() + ChatColor.RED
+        Bukkit.broadcastMessage(target.getTemporaryChatName() + ChatColor.RED
                 + " has been banned by " + ChatColor.BLUE + "GOD");
         try (IContext ctx = plugin.createContext()) {
             IPlayerDAO dao = ctx.getPlayerDAO();
