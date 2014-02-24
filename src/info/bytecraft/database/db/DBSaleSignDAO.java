@@ -197,7 +197,7 @@ public class DBSaleSignDAO implements ISaleSignDAO
 
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setInt(1, block.getId());
-                stmt.setInt(2, player.getId());
+                stmt.setString(2, player.getName());
                 stmt.setString(3, type.toString());
                 stmt.setInt(4, amount);
                 stmt.setInt(5, block.getCost());

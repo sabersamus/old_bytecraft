@@ -1,12 +1,13 @@
 package info.bytecraft.commands;
 
+import static org.bukkit.ChatColor.RED;
+import static org.bukkit.ChatColor.YELLOW;
+
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 
-import static org.bukkit.ChatColor.RED;
-import static org.bukkit.ChatColor.YELLOW;
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
 
