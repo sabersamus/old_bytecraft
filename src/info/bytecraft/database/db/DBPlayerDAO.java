@@ -92,6 +92,13 @@ public class DBPlayerDAO implements IPlayerDAO
 
                 player.setId(rs.getInt("player_id"));
                 player.setRank(Rank.getRank(rs.getString("player_rank")));
+                
+                if (rs.getString("player_inventory") == null) {
+                    player.setCurrentInventory("survival");
+                } else {
+                    player.setCurrentInventory(rs.getString("player_inventory"));
+                }
+                
             }
         } catch (SQLException e) {
             throw new DAOException(sql, e);
@@ -499,6 +506,20 @@ public class DBPlayerDAO implements IPlayerDAO
             stm.setString(3, badge.getName().toLowerCase());
             stm.execute();
         }catch(SQLException e){
+            throw new DAOException(sql, e);
+        }
+    }
+
+    @Override
+    public void updatePlayerInventory(BytecraftPlayer player)
+            throws DAOException
+    {
+        String sql = "UPDATE player SET player_inventory = ? WHERE player_name = ?";
+        try(PreparedStatement stm = conn.prepareStatement(sql)){
+            stm.setString(1, player.getCurrentInventory());
+            stm.setString(2, player.getName());
+            stm.execute();
+        } catch (SQLException e) {
             throw new DAOException(sql, e);
         }
     }

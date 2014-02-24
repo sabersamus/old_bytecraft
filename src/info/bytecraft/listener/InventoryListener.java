@@ -1,16 +1,5 @@
 package info.bytecraft.listener;
 
-import info.bytecraft.Bytecraft;
-import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.api.Rank;
-import info.bytecraft.api.BytecraftPlayer.Flag;
-import info.bytecraft.api.InventoryAccess;
-import info.bytecraft.database.DAOException;
-import info.bytecraft.database.IContext;
-import info.bytecraft.database.IInventoryDAO;
-import info.bytecraft.database.IInventoryDAO.ChangeType;
-import info.bytecraft.database.IInventoryDAO.InventoryType;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,6 +21,15 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import info.bytecraft.Bytecraft;
+import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.BytecraftPlayer.Flag;
+import info.bytecraft.api.InventoryAccess;
+import info.bytecraft.api.Rank;
+import info.bytecraft.database.*;
+import info.bytecraft.database.IInventoryDAO.ChangeType;
+import info.bytecraft.database.IInventoryDAO.InventoryType;
 
 public class InventoryListener implements Listener
 {
@@ -201,7 +199,16 @@ public class InventoryListener implements Listener
         }
 
         openInventories.remove(loc);
-
+    }
+    
+    @EventHandler
+    public void saveInventory(InventoryCloseEvent event)
+    {
+        if(!(event.getPlayer() instanceof Player))return;
+        BytecraftPlayer player = plugin.getPlayer((Player)event.getPlayer());
+        if (player.getCurrentInventory() != null) {
+            player.saveInventory(player.getCurrentInventory());
+        }
     }
     
     @EventHandler

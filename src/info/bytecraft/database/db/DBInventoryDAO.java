@@ -1,10 +1,5 @@
 package info.bytecraft.database.db;
 
-import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.api.InventoryAccess;
-import info.bytecraft.database.DAOException;
-import info.bytecraft.database.IInventoryDAO;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -20,6 +15,11 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+
+import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.InventoryAccess;
+import info.bytecraft.database.DAOException;
+import info.bytecraft.database.IInventoryDAO;
 
 public class DBInventoryDAO implements IInventoryDAO
 {
@@ -431,6 +431,7 @@ public class DBInventoryDAO implements IInventoryDAO
                        }
                    }
                }
+               player.updateInventory();
            } catch (SQLException e) {
                throw new DAOException(sql, e);
            } catch (InvalidConfigurationException e) {

@@ -1,5 +1,16 @@
 package info.bytecraft.database.db;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
 import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.database.DAOException;
 import info.bytecraft.database.IZoneDAO;
@@ -7,15 +18,8 @@ import info.bytecraft.zones.Lot;
 import info.bytecraft.zones.Zone;
 import info.bytecraft.zones.Zone.Flag;
 import info.bytecraft.zones.Zone.Permission;
+
 import info.tregmine.quadtree.Rectangle;
-
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 public class DBZoneDAO implements IZoneDAO
 {
@@ -46,6 +50,7 @@ public class DBZoneDAO implements IZoneDAO
                     zone.setFlag(Flag.HOSTILES, Boolean.parseBoolean(rs.getString("zone_hostile")));
                     zone.setFlag(Flag.WHITELIST, Boolean.parseBoolean(rs.getString("zone_whitelist")));
                     zone.setFlag(Flag.CREATIVE, Boolean.parseBoolean(rs.getString("zone_creative")));
+                    zone.setFlag(Flag.INVENTORY, Boolean.parseBoolean(rs.getString("zone_inventory")));
                     zone.setWorld(rs.getString("zone_world"));
                     zone.setRectangle(getRect(zone));
                     zone.setPermissions(getPermissions(zone));
@@ -80,6 +85,7 @@ public class DBZoneDAO implements IZoneDAO
                     zone.setFlag(Flag.HOSTILES, Boolean.parseBoolean(rs.getString("zone_hostile")));
                     zone.setFlag(Flag.WHITELIST, Boolean.parseBoolean(rs.getString("zone_whitelist")));
                     zone.setFlag(Flag.CREATIVE, Boolean.parseBoolean(rs.getString("zone_creative")));
+                    zone.setFlag(Flag.INVENTORY, Boolean.parseBoolean(rs.getString("zone_inventory")));
                     zone.setWorld(rs.getString("zone_world"));
                     zone.setRectangle(getRect(zone));
                     zone.setPermissions(getPermissions(zone));
@@ -129,6 +135,7 @@ public class DBZoneDAO implements IZoneDAO
                         zone.setFlag(Flag.HOSTILES, Boolean.parseBoolean(rs.getString("zone_hostile")));
                         zone.setFlag(Flag.WHITELIST, Boolean.parseBoolean(rs.getString("zone_whitelist")));
                         zone.setFlag(Flag.CREATIVE, Boolean.parseBoolean(rs.getString("zone_creative")));
+                        zone.setFlag(Flag.INVENTORY, Boolean.parseBoolean(rs.getString("zone_inventory")));
                         zone.setWorld(rs.getString("zone_world"));
                         zone.setRectangle(getRect(zone));
                         zone.setPermissions(getPermissions(zone));
@@ -160,6 +167,8 @@ public class DBZoneDAO implements IZoneDAO
                 zone.setFlag(Flag.BUILD, Boolean.parseBoolean(rs.getString("zone_build")));
                 zone.setFlag(Flag.HOSTILES, Boolean.parseBoolean(rs.getString("zone_hostile")));
                 zone.setFlag(Flag.WHITELIST, Boolean.parseBoolean(rs.getString("zone_whitelist")));
+                zone.setFlag(Flag.CREATIVE, Boolean.parseBoolean(rs.getString("zone_creative")));
+                zone.setFlag(Flag.INVENTORY, Boolean.parseBoolean(rs.getString("zone_inventory")));
                 zone.setWorld(rs.getString("zone_world"));
                 zone.setRectangle(getRect(zone));
                 zone.setPermissions(getPermissions(zone));
@@ -277,6 +286,9 @@ public class DBZoneDAO implements IZoneDAO
         case EXITMSG: sql = "UPDATE zone SET zone_exitmsg = ? WHERE zone_name = ?";
             break;
         case CREATIVE: sql = "UPDATE zone SET zone_creative = ? WHERE zone_name = ?";
+            break;
+        case INVENTORY: sql = "UPDATE zone SET zone_inventory = ? WHERE zone_name = ?";
+            break;
         }
         try(PreparedStatement stm = conn.prepareStatement(sql)){
             stm.setString(1, value);

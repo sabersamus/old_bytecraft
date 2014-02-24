@@ -1,16 +1,9 @@
 package info.bytecraft.listener;
 
+import static org.bukkit.entity.EntityType.*;
+
 import java.util.EnumSet;
 import java.util.Set;
-
-import info.bytecraft.Bytecraft;
-import info.bytecraft.api.BooleanStringReturn;
-import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.api.event.PlayerChangeZoneEvent;
-import info.bytecraft.zones.Zone;
-import info.bytecraft.zones.ZoneWorld;
-import info.bytecraft.zones.Zone.Flag;
-import info.bytecraft.zones.Zone.Permission;
 
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -18,10 +11,8 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-
-import static org.bukkit.entity.EntityType.*;
-
-import org.bukkit.event.*;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.CreatureSpawnEvent;
@@ -30,6 +21,15 @@ import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.util.Vector;
+
+import info.bytecraft.Bytecraft;
+import info.bytecraft.api.BooleanStringReturn;
+import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.event.PlayerChangeZoneEvent;
+import info.bytecraft.zones.Zone;
+import info.bytecraft.zones.Zone.Flag;
+import info.bytecraft.zones.Zone.Permission;
+import info.bytecraft.zones.ZoneWorld;
 
 public class ZoneListener implements Listener
 {
@@ -56,6 +56,18 @@ public class ZoneListener implements Listener
         if(zone == null)return;
         
         this.welcomeMessage(zone, player, zone.getUser(player));
+        
+        if(zone.hasFlag(Flag.CREATIVE)){
+            player.loadInventory(zone.getName(), false);
+            player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] This is a creative zone. "
+                    + "Your inventory will be saved when you leave.");
+            return;
+        }
+        
+        if(zone.hasFlag(Flag.INVENTORY)){
+            player.loadInventory(zone.getName(), true);
+            return;
+        }
     }
     
     @EventHandler
@@ -67,12 +79,14 @@ public class ZoneListener implements Listener
             Zone zone = event.getOldZone();
             
             if(zone.hasFlag(Flag.CREATIVE)){
-                if(!player.getRank().canKeepItems()){
-                    player.getInventory().clear();
-                    player.updateInventory();
-                }
+                player.loadInventory("survival", false);
                 player.setGameMode(GameMode.SURVIVAL);
             }
+            
+            if(zone.hasFlag(Flag.INVENTORY)){
+                player.loadInventory("survival", true);
+            }
+            
             player.sendMessage(ChatColor.RED + "[" + event.getOldZone().getName()
                     + "] " + event.getOldZone().getExitMessage());
         }
@@ -95,8 +109,14 @@ public class ZoneListener implements Listener
         
         if(zone.hasFlag(Flag.CREATIVE)){
             player.setGameMode(GameMode.CREATIVE);
+            player.loadInventory(zone.getName(), true);
             player.sendMessage(ChatColor.RED + "[" + zone.getName() + "] This is a creative zone. "
-                    + "You will lose all of your inventory when you leave");
+                    + "Your inventory will be saved when you leave.");
+            return;
+        }
+        
+        if(zone.hasFlag(Flag.INVENTORY)){
+            player.loadInventory(zone.getName(), true);
         }
     }
 

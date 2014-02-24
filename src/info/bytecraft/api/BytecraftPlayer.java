@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -16,6 +17,7 @@ import info.bytecraft.Bytecraft;
 import info.bytecraft.api.event.PlayerChangeRankEvent;
 import info.bytecraft.database.DAOException;
 import info.bytecraft.database.IContext;
+import info.bytecraft.database.IInventoryDAO;
 import info.bytecraft.database.IPlayerDAO;
 import info.bytecraft.zones.Lot;
 import info.bytecraft.zones.Zone;
@@ -50,6 +52,7 @@ public class BytecraftPlayer extends PlayerDelegate
     private String name;
     private int id = 0;
     private Rank rank;
+    private String currentInventory;
 
     private String chatChannel = "GLOBAL";
     private ChatState chatState = ChatState.CHAT;
@@ -461,6 +464,9 @@ public class BytecraftPlayer extends PlayerDelegate
     
     public void teleportWithHorse(Location loc)
     {
+        World cWorld = loc.getWorld();
+        String[] worldNamePortions = cWorld.getName().split("_");
+        
         Entity v = getVehicle();
         if (v != null && v.getType().isAlive()) {
             v.setPassenger(null);
@@ -470,10 +476,125 @@ public class BytecraftPlayer extends PlayerDelegate
         }else{
             teleport(loc);
         }
+        
+        if (worldNamePortions[0].equalsIgnoreCase("world")) {
+            this.loadInventory("survival", true);
+        } else {
+            this.loadInventory(worldNamePortions[0], true);
+        }
     }
     
+    @Override
     public String toString()
     {
         return String.format("BytecraftPlayer{name=%s, id=%d, rank=%s}", getName(), getId(), getRank().name().toLowerCase());
+    }
+    
+    @Override
+    public int hashCode()
+    {
+        return getId();
+    }
+    
+    @Override
+    public boolean equals(Object other)
+    {
+        if(other instanceof BytecraftPlayer){
+            return false;
+        }
+        
+        return ((BytecraftPlayer)other).getId() == getId();
+    }
+    
+    public String getCurrentInventory() { return currentInventory; }
+    public void setCurrentInventory(String inv) { this.currentInventory = inv; }
+    
+    public void loadInventory(String name, boolean save)
+    {
+        try (IContext ctx = plugin.createContext()) {
+            IInventoryDAO dao = ctx.getInventoryDAO();
+
+            if (save) {
+                this.saveInventory(currentInventory);
+            }
+
+            boolean firstTime = false;
+
+            int id3;
+            id3 = dao.fetchInventory(this, name, "main");
+            while (id3 == -1) {
+                dao.createInventory(this, name, "main");
+                id3 = dao.fetchInventory(this, name, "main");
+                firstTime = true;
+            }
+
+            int id4;
+            id4 = dao.fetchInventory(this, name, "armour");
+            while (id4 == -1) {
+                dao.createInventory(this, name, "armour");
+                id4 = dao.fetchInventory(this, name, "armour");
+                firstTime = true;
+            }
+            
+            if (firstTime) {
+                this.saveInventory(name);
+            }
+
+            this.getInventory().clear();
+            updateInventory();
+            this.getInventory().setHelmet(null);
+            this.getInventory().setChestplate(null);
+            this.getInventory().setLeggings(null);
+            this.getInventory().setBoots(null);
+
+            dao.loadInventory(this, id3, "main");
+
+            dao.loadInventory(this, id4, "armour");
+            
+            updateInventory();
+            
+            this.currentInventory = name;
+            IPlayerDAO playerDAO = ctx.getPlayerDAO();
+            playerDAO.updatePlayerInventory(this);
+            
+        } catch (DAOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /*
+     * Save the inventory specified, if null - saves current inventory.
+     * @param name - Name of the new inventory
+     */
+    public void saveInventory(String name)
+    {
+        String inventory = name;
+        if (name == null) {
+            inventory = this.currentInventory;
+        }
+
+        try (IContext ctx = plugin.createContext()) {
+            IInventoryDAO dao = ctx.getInventoryDAO();
+
+            int id;
+            id = dao.fetchInventory(this, inventory, "main");
+            while (id == -1) {
+                dao.createInventory(this, inventory, "main");
+                id = dao.fetchInventory(this, inventory, "main");
+            }
+
+            dao.saveInventory(this, id, "main");
+
+            int id2;
+            id2 = dao.fetchInventory(this, inventory, "armour");
+            while (id2 == -1) {
+                dao.createInventory(this, inventory, "armour");
+                id2 = dao.fetchInventory(this, inventory, "armour");
+            }
+
+            dao.saveInventory(this, id2, "armour");
+        } catch (DAOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

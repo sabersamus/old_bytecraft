@@ -8,13 +8,7 @@ import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.lang.WordUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.SkullType;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Skull;
@@ -29,35 +23,16 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.PlayerDeathEvent;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerGameModeChangeEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerKickEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.event.player.PlayerLoginEvent.Result;
-import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerPickupItemEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.event.player.PlayerToggleFlightEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scoreboard.DisplaySlot;
-import org.bukkit.scoreboard.Objective;
-import org.bukkit.scoreboard.Score;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.ScoreboardManager;
+import org.bukkit.scoreboard.*;
 
 import com.google.common.collect.Maps;
 
 import info.bytecraft.Bytecraft;
-import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.*;
 import info.bytecraft.api.BytecraftPlayer.Flag;
-import info.bytecraft.api.PaperLog;
-import info.bytecraft.api.PlayerBannedException;
-import info.bytecraft.api.Rank;
-import info.bytecraft.api.ScoreboardClearTask;
-import info.bytecraft.api.TargetBlock;
 import info.bytecraft.api.event.PlayerChangeRankEvent;
 import info.bytecraft.database.DAOException;
 import info.bytecraft.database.IBlessDAO;
@@ -109,6 +84,16 @@ public class BytecraftPlayerListener implements Listener
             player.setGameMode(GameMode.SURVIVAL);
         }
         
+        World cWorld = player.getWorld();
+        String[] worldNamePortions = cWorld.getName().split("_");
+
+        if (worldNamePortions[0].equalsIgnoreCase("world")) {
+            player.loadInventory("survival", false);
+        } else {
+            player.loadInventory(worldNamePortions[0], false);
+        }
+        
+        
         List<BytecraftPlayer> players = plugin.getOnlinePlayers();
         if (player.hasFlag(Flag.INVISIBLE)) {
             player.sendMessage(ChatColor.YELLOW + "You have joined invisible");
@@ -156,11 +141,31 @@ public class BytecraftPlayerListener implements Listener
             healthScore.setScore((int) player.getHealth());
             try {
                 player.setScoreboard(board);
-                player.setHealth(player.getHealth() - 0.0001);
+                player.setHealth(player.getHealth() - 0.001);
                 ScoreboardClearTask.start(plugin, player);
             } catch (IllegalStateException e) {
                 // ignore
             }
+        }
+    }
+    
+    @EventHandler
+    public void onPlayerChangedWorld(PlayerChangedWorldEvent event)
+    {
+        BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
+        World cWorld = player.getWorld();
+        
+        if(cWorld.getName().equalsIgnoreCase("albion")){
+            player.loadInventory("albion", true);
+            return;
+        }
+        
+        String[] worldNamePortions = cWorld.getName().split("_");
+
+        if (worldNamePortions[0].equalsIgnoreCase("world")) {
+            player.loadInventory("survival", true);
+        } else {
+            player.loadInventory(worldNamePortions[0], true);
         }
     }
     
@@ -183,6 +188,8 @@ public class BytecraftPlayerListener implements Listener
             event.setQuitMessage(null);
             return;
         }
+        
+        player.saveInventory(player.getCurrentInventory());
         
         if(player.getRank().canVanish() && player.hasFlag(Flag.INVISIBLE)){
             event.setQuitMessage(null);
@@ -334,6 +341,8 @@ public class BytecraftPlayerListener implements Listener
     @EventHandler
     public void onRespawn(PlayerRespawnEvent event)
     {
+        BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
+        player.saveInventory(player.getCurrentInventory());
         event.setRespawnLocation(plugin.getWorldSpawn(event.getPlayer().getWorld().getName()));
     }
 

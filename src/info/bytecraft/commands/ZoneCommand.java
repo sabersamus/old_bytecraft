@@ -1,23 +1,25 @@
 package info.bytecraft.commands;
 
+import static org.bukkit.ChatColor.GOLD;
+import static org.bukkit.ChatColor.RED;
+import static org.bukkit.ChatColor.WHITE;
+
 import java.util.Collection;
 import java.util.HashMap;
 
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 
-import com.google.common.collect.Maps;
-
-import static org.bukkit.ChatColor.*;
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.database.DAOException;
+import info.bytecraft.database.IContext;
+import info.bytecraft.database.IZoneDAO;
 import info.bytecraft.zones.Zone;
 import info.bytecraft.zones.Zone.Flag;
 import info.bytecraft.zones.Zone.Permission;
 import info.bytecraft.zones.ZoneWorld;
-import info.bytecraft.database.DAOException;
-import info.bytecraft.database.IContext;
-import info.bytecraft.database.IZoneDAO;
+
 import info.tregmine.quadtree.IntersectionException;
 import info.tregmine.quadtree.Rectangle;
 
@@ -376,6 +378,8 @@ public class ZoneCommand extends AbstractCommand
                             : "Only makers (false)"));
             player.sendMessage(GOLD + "PVP: " + WHITE + zone.hasFlag(Flag.PVP));
             player.sendMessage(GOLD + "Hostiles: " + WHITE + zone.hasFlag(Flag.HOSTILES));
+            player.sendMessage(GOLD + "Seperate inventory: " + WHITE + zone.hasFlag(Flag.INVENTORY));
+            player.sendMessage(GOLD + "Creative: " + WHITE + zone.hasFlag(Flag.CREATIVE));
             player.sendMessage(GOLD + "Enter message: " + WHITE + zone.getEnterMessage());
             player.sendMessage(GOLD + "Exit Message: " + WHITE + zone.getExitMessage());
         }else{

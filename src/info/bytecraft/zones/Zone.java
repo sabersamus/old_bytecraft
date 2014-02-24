@@ -122,7 +122,8 @@ public class Zone
         BUILD,
         HOSTILES,
         ENTERMSG,
-        EXITMSG;
+        EXITMSG,
+        INVENTORY;
 
         public static Flag fromString(String string)
         {

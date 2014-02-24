@@ -13,9 +13,10 @@ import info.bytecraft.database.DAOException;
 import info.bytecraft.database.IContext;
 import info.bytecraft.database.IZoneDAO;
 import info.bytecraft.zones.Zone;
-import info.bytecraft.zones.ZoneWorld;
 import info.bytecraft.zones.Zone.Flag;
 import info.bytecraft.zones.Zone.Permission;
+import info.bytecraft.zones.ZoneWorld;
+
 import info.tregmine.quadtree.Rectangle;
 
 public class TownCommand extends AbstractCommand
@@ -150,6 +151,8 @@ public class TownCommand extends AbstractCommand
                             : "Only makers (false)"));
             player.sendMessage(GOLD + "PVP: " + WHITE + zone.hasFlag(Flag.PVP));
             player.sendMessage(GOLD + "Hostiles: " + WHITE + zone.hasFlag(Flag.HOSTILES));
+            player.sendMessage(GOLD + "Seperate inventory: " + WHITE + zone.hasFlag(Flag.INVENTORY));
+            player.sendMessage(GOLD + "Creative: " + WHITE + zone.hasFlag(Flag.CREATIVE));
             player.sendMessage(GOLD + "Enter message: " + WHITE + zone.getEnterMessage());
             player.sendMessage(GOLD + "Exit Message: " + WHITE + zone.getExitMessage());
         }else{
