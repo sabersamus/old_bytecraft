@@ -27,6 +27,8 @@ import org.bukkit.event.player.*;
 import org.bukkit.event.player.PlayerLoginEvent.Result;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scoreboard.*;
+import org.kitteh.tag.AsyncPlayerReceiveNameTagEvent;
+import org.kitteh.tag.TagAPI;
 
 import com.google.common.collect.Maps;
 
@@ -120,6 +122,8 @@ public class BytecraftPlayerListener implements Listener
             }
         }
         
+        TagAPI.refreshPlayer(player.getDelegate());
+        
         if (player.isOnline()) {
 
             ScoreboardManager manager = Bukkit.getScoreboardManager();
@@ -147,6 +151,13 @@ public class BytecraftPlayerListener implements Listener
                 // ignore
             }
         }
+    }
+    
+    @EventHandler
+    public void onChange(AsyncPlayerReceiveNameTagEvent event)
+    {
+        BytecraftPlayer player = plugin.getPlayer(event.getNamedPlayer());
+        event.setTag(player.getNameColor() + player.getName());
     }
     
     @EventHandler
