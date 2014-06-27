@@ -13,6 +13,7 @@ import info.bytecraft.api.Rank;
 
 public interface IPlayerDAO
 {
+    public BytecraftPlayer getPlayerOffline(String name) throws DAOException;
     public BytecraftPlayer getPlayer(Player player) throws DAOException;
     public BytecraftPlayer getPlayer(String name) throws DAOException;
     public BytecraftPlayer getPlayer(String name, Player wrap) throws DAOException;

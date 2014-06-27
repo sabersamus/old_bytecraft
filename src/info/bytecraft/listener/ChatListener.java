@@ -10,12 +10,10 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import info.bytecraft.Bytecraft;
-import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.*;
 import info.bytecraft.api.BytecraftPlayer.ChatState;
 import info.bytecraft.api.BytecraftPlayer.Flag;
-import info.bytecraft.api.PlayerReport;
 import info.bytecraft.api.PlayerReport.Action;
-import info.bytecraft.api.Rank;
 import info.bytecraft.database.DAOException;
 import info.bytecraft.database.IContext;
 import info.bytecraft.database.ILogDAO;
@@ -36,6 +34,13 @@ public class ChatListener implements Listener
         String message = event.getMessage();
         
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
+        
+        if(player.getChatState() == null){
+            player.setChatState(ChatState.CHAT);
+            event.setCancelled(true);
+            return;
+        }
+        
         if(player.getChatState() != ChatState.CHAT){
             event.setCancelled(true);
             return;

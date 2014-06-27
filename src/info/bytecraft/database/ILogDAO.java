@@ -9,7 +9,6 @@ import org.bukkit.block.Block;
 
 import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.api.PaperLog;
-import info.bytecraft.blockfill.AbstractFiller;
 
 public interface ILogDAO
 {

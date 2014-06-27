@@ -1,24 +1,21 @@
 package info.bytecraft.listener;
 
-import info.bytecraft.Bytecraft;
-import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.api.BytecraftPlayer.Flag;
-import info.bytecraft.database.*;
-
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockBurnEvent;
-import org.bukkit.event.block.BlockIgniteEvent;
-import org.bukkit.event.block.BlockPhysicsEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntityExplodeEvent;
+
+import info.bytecraft.Bytecraft;
+import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.BytecraftPlayer.Flag;
+import info.bytecraft.database.DAOException;
+import info.bytecraft.database.IContext;
+import info.bytecraft.database.ILogDAO;
+import info.bytecraft.database.IPlayerDAO;
 
 public class BytecraftBlockListener implements Listener
 {

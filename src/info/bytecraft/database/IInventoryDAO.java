@@ -1,12 +1,12 @@
 package info.bytecraft.database;
 
-import info.bytecraft.api.InventoryAccess;
-import info.bytecraft.api.BytecraftPlayer;
-
 import java.util.List;
 
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
+
+import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.InventoryAccess;
 
 public interface IInventoryDAO
 {
@@ -23,8 +23,7 @@ public interface IInventoryDAO
         REMOVE;
     };
 
-    public int getInventoryId(String playerName,
-                              InventoryType type) throws DAOException;
+    public int getInventoryId(int playerId, InventoryType type) throws DAOException;
 
     public int getInventoryId(Location loc) throws DAOException;
 
@@ -66,5 +65,6 @@ public interface IInventoryDAO
     public void createInventory(BytecraftPlayer player,
                                 String inventoryName,
                                 String type) throws DAOException;
+
     
 }

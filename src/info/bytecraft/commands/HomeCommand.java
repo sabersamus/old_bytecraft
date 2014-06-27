@@ -2,11 +2,7 @@ package info.bytecraft.commands;
 
 import java.util.List;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
@@ -92,7 +88,7 @@ public class HomeCommand extends AbstractCommand
             IHomeDAO dao = ctx.getHomeDAO();
             
             
-            List<String> homes = dao.getHomeNames(player.getName());
+            List<String> homes = dao.getHomeNames(player);
             int limit = player.getRank().getMaxHomes();
             if(homes.size() > limit){
                 player.sendMessage(ChatColor.RED + "You can't have more than " + limit + " homes!");
@@ -150,10 +146,10 @@ public class HomeCommand extends AbstractCommand
     {
         try (IContext ctx = plugin.createContext()) {
             IHomeDAO dao = ctx.getHomeDAO();
-            if (dao.getHome(toName, homeName) == null) return false;
+            if (dao.getHome(plugin.getPlayer(toName), homeName) == null) return false;
             player.sendMessage(ChatColor.AQUA + "Initiating teleport to "
                     + toName + "'s home!");
-            final Location loc = dao.getHome(toName, homeName);
+            final Location loc = dao.getHome(plugin.getPlayer(toName), homeName);
             
             World world = loc.getWorld();
             Chunk chunk = world.getChunkAt(loc);
@@ -180,7 +176,7 @@ public class HomeCommand extends AbstractCommand
         try(IContext ctx = plugin.createContext()){
             IHomeDAO dao = ctx.getHomeDAO();
             
-            if(dao.getHomeNames(player.getName()).contains(name)){
+            if(dao.getHomeNames(player).contains(name)){
                 dao.deleteHome(player, name);
                 player.sendMessage(ChatColor.RED + "Deleted home " + name);
                 return;

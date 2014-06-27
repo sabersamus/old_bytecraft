@@ -45,6 +45,9 @@ commands:
             /<command> copy
             /<command> paste [rotation]
             /<command> undo
+    flag:
+        description: See your flags
+        usage: /<command>
     force:
         description: Force a player into a channel
         usage: /<command> <player> <channel> 
@@ -103,6 +106,9 @@ commands:
     mute:
         description: Mute a spammer
         usage: /<command> <player> x [minutes hours days weeks months years]
+    newspawn:
+        description: Set the spawn
+        usage: /<command>
     nuke:
         description: Nuke mobs
         usage: /<command> [distance]

@@ -18,9 +18,8 @@ public interface IHomeDAO
     public void updateHome(BytecraftPlayer player) throws DAOException;
     
     public Location getHome(BytecraftPlayer player, String name) throws DAOException;
-    public Location getHome(String player, String name) throws DAOException;
     public void setHome(BytecraftPlayer player, String name) throws DAOException;
     public void updateHome(BytecraftPlayer player, String name) throws DAOException;
     public void deleteHome(BytecraftPlayer player, String name) throws DAOException;
-    public List<String> getHomeNames(String playerName) throws DAOException;
+    public List<String> getHomeNames(BytecraftPlayer player) throws DAOException;
 }

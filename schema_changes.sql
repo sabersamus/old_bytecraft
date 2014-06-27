@@ -21,3 +21,8 @@ CREATE TABLE IF NOT EXISTS `playerinventory_item` (
   PRIMARY KEY (`item_id`),
   INDEX idx_inv (playerinventory_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+ALTER TABLE `player` ADD COLUMN `player_inventory` varchar(32) DEFAULT NULL AFTER `player_name`;
+ALTER TABLE `player` ADD COLUMN `player_uuid` char(52) NOT NULL AFTER `player_name`;
+
+ALTER TABLE playerinventory_item ADD COLUMN item_durability INT;

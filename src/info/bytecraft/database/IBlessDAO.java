@@ -2,10 +2,10 @@ package info.bytecraft.database;
 
 import java.util.Map;
 
-import info.bytecraft.api.BytecraftPlayer;
-
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+
+import info.bytecraft.api.BytecraftPlayer;
 
 public interface IBlessDAO
 {

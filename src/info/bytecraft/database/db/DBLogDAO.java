@@ -1,27 +1,22 @@
 package info.bytecraft.database.db;
 
-import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.api.PaperLog;
-import info.bytecraft.blockfill.AbstractFiller;
-import info.bytecraft.database.DAOException;
-import info.bytecraft.database.ILogDAO;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 
 import com.google.common.collect.Lists;
+
+import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.PaperLog;
+import info.bytecraft.database.DAOException;
+import info.bytecraft.database.ILogDAO;
 
 public class DBLogDAO implements ILogDAO
 {
@@ -105,7 +100,7 @@ public class DBLogDAO implements ILogDAO
     public boolean isLegal(Block block) throws DAOException
     {
         String sql =
-                "SELECT * FROM paper_log WHERE block_x = ? AND block_y = ? AND block_Z = ? AND block_world = ?";
+                "SELECT * FROM paper_log WHERE block_x = ? AND block_y = ? AND block_z = ? AND block_world = ?";
         try (PreparedStatement stm = conn.prepareStatement(sql)) {
             stm.setInt(1, block.getX());
             stm.setInt(2, block.getY());
@@ -136,12 +131,12 @@ public class DBLogDAO implements ILogDAO
             
             try(ResultSet rs = stm.getResultSet()){
                 while (rs.next()) {
-                    String player = rs.getString("player_name");
+                    String name = rs.getString("player_name");
                     Date date = new Date(rs.getInt("paper_time") * 1000L);
                     String action = rs.getString("action");
                     String material = rs.getString("block_type");
                     PaperLog log =
-                            new PaperLog(player, format.format(date), action,
+                            new PaperLog(name, format.format(date), action,
                                     material);
                     logs.add(log);
                 }

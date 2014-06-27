@@ -10,7 +10,6 @@ import org.bukkit.World.Environment;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -41,6 +40,7 @@ public class Bytecraft extends JavaPlugin
     private List<String> quitMessages;
     //private List<String> swordNames;
     //private Map<String, List<String>> armorNames;
+    
     private Map<Location, String> blessedBlocks;
     
     private LookupService lookup = null;
@@ -98,7 +98,7 @@ public class Bytecraft extends JavaPlugin
             this.deathMessages = messages.loadDeathMessages();
             this.quitMessages = messages.loadQuitMessages();
         }catch(DAOException e){
-            
+            throw new RuntimeException(e);
         }
         
         ToolRegistry.registerRecipes(getServer());
@@ -116,6 +116,7 @@ public class Bytecraft extends JavaPlugin
         getCommand("channel").setExecutor(new ChannelCommand(this));
         getCommand("chestlog").setExecutor(new ChestLogCommand(this));
         getCommand("fill").setExecutor(new FillCommand(this, "fill"));
+        getCommand("flag").setExecutor(new FlagCommand(this));
         getCommand("force").setExecutor(new ForceCommand(this));
         getCommand("gamemode").setExecutor(new GameModeCommand(this, "gamemode"));
         getCommand("give").setExecutor(new GiveCommand(this));
@@ -132,6 +133,7 @@ public class Bytecraft extends JavaPlugin
         getCommand("me").setExecutor(new ActionCommand(this));
         getCommand("message").setExecutor(new MessageCommand(this, "message"));
         getCommand("mute").setExecutor(new MuteCommand(this));
+        getCommand("newspawn").setExecutor(new NewSpawnCommand(this));
         getCommand("nuke").setExecutor(new NukeCommand(this));
         getCommand("pos").setExecutor(new PositionCommand(this));
         getCommand("reply").setExecutor(new MessageCommand(this, "reply"));
@@ -163,14 +165,6 @@ public class Bytecraft extends JavaPlugin
         albion.environment(Environment.NORMAL);
         albion.type(WorldType.AMPLIFIED);
         this.rolePlayWorld = albion.createWorld();
-
-        PluginDescriptionFile pdf = getDescription();
-        
-        String version = pdf.getVersion();
-        
-        Bukkit.broadcastMessage(ChatColor.GREEN + "Successfuly loaded Bytecraft " 
-        + ChatColor.GOLD + "v" + version + ChatColor.GREEN + "!");
-        
     }
     
     public void onDisable()
@@ -221,6 +215,10 @@ public class Bytecraft extends JavaPlugin
         //rare drop
         //pm.registerEvents(new RareDropListener(this), this);
         pm.registerEvents(new DamageListener(this), this);
+        
+        //rpg
+        //pm.registerEvents(new PlayerListener(this), this);
+        
     }
     
     // ========================================================
@@ -269,17 +267,19 @@ public class Bytecraft extends JavaPlugin
     
     public BytecraftPlayer getPlayerOffline(String name)
     {
-        if(this.players.containsKey(name)){
+        if(players.containsKey(name)){
             return players.get(name);
         }
+        
         try(IContext ctx = createContext()){
             IPlayerDAO dao = ctx.getPlayerDAO();
-            return dao.getPlayer(name);
-        }catch(DAOException e){
-            throw new RuntimeException(e);
+            return dao.getPlayerOffline(name);
+        }catch(DAOException ex){
+            throw new RuntimeException(ex);
         }
     }
-
+    
+    //this method should be okay
     public BytecraftPlayer addPlayer(Player srcPlayer,  InetAddress addr)
             throws PlayerBannedException
     {
@@ -289,12 +289,15 @@ public class Bytecraft extends JavaPlugin
         
         try (IContext ctx = createContext()){
             IPlayerDAO dao = ctx.getPlayerDAO();
+            //as long as this one is changed
             BytecraftPlayer player = dao.getPlayer(srcPlayer);
             
             if(player == null){
+                //and this one
                 player = dao.createPlayer(srcPlayer);
             }
             
+            //and this one
             if(dao.isBanned(player)){
                 throw new PlayerBannedException(ChatColor.RED + "You are not allowed on this server");
             }
@@ -304,6 +307,7 @@ public class Bytecraft extends JavaPlugin
             player.setFlag(Flag.MUTE, false);
             
             IReportDAO reportDao = ctx.getReportDAO();
+            //and this one
             List<PlayerReport> reports = reportDao.getReports(player);
             for(PlayerReport report: reports){
                 Date validUntil = report.getValidUntil();
@@ -351,6 +355,8 @@ public class Bytecraft extends JavaPlugin
                 }
             }
             
+            
+            
             ILogDAO logs = ctx.getLogDAO();
             logs.insertLogin(player, "login");
             
@@ -394,18 +400,6 @@ public class Bytecraft extends JavaPlugin
         return players;
     }
     
-    public BytecraftPlayer getBytecraftPlayerOffline(String name)
-    {
-        if(players.containsKey(name)){
-            return players.get(name);
-        }
-        try(IContext ctx = createContext()){
-            return ctx.getPlayerDAO().getPlayer(name);
-        }catch(DAOException e){
-            throw new RuntimeException(e);
-        }
-    }
-
     // ========================================================
     // ======================= Zones ==========================
     // ========================================================

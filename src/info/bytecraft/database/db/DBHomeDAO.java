@@ -1,9 +1,5 @@
 package info.bytecraft.database.db;
 
-import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.database.DAOException;
-import info.bytecraft.database.IHomeDAO;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,6 +12,10 @@ import org.bukkit.World;
 
 import com.google.common.collect.Lists;
 
+import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.database.DAOException;
+import info.bytecraft.database.IHomeDAO;
+
 public class DBHomeDAO implements IHomeDAO
 {
     private Connection conn;
@@ -26,12 +26,14 @@ public class DBHomeDAO implements IHomeDAO
     }
     
     
+    @Deprecated
     public Location getHome(BytecraftPlayer player)
     throws DAOException
     {
         return getHome(player.getName());
     }
     
+    @Deprecated
     public Location getHome(String player)
     throws DAOException
     {
@@ -60,6 +62,7 @@ public class DBHomeDAO implements IHomeDAO
         return null;
     }
     
+    @Deprecated
     public void setHome(BytecraftPlayer player)
     throws DAOException
     {
@@ -90,6 +93,7 @@ public class DBHomeDAO implements IHomeDAO
         }
     }
     
+    @Deprecated
     public void updateHome(BytecraftPlayer player)
     throws DAOException
     {
@@ -115,38 +119,9 @@ public class DBHomeDAO implements IHomeDAO
     public Location getHome(BytecraftPlayer player, String name)
             throws DAOException
     {
-        return this.getHome(player.getName(), name);
+        return this.getHome(player, name);
     }
 
-
-    @Override
-    public Location getHome(String player, String name) throws DAOException
-    {
-        String sql = "SELECT * FROM player_home WHERE player_name = ? AND home_name = ?";
-        try(PreparedStatement stm = conn.prepareStatement(sql)){
-            stm.setString(1, player);
-            stm.setString(2, name);
-            stm.execute();
-            
-            try(ResultSet rs = stm.getResultSet()){
-                Location loc = null;
-                if(rs.next()){
-                    double x = rs.getDouble("home_x");
-                    double y = rs.getDouble("home_y");
-                    double z = rs.getDouble("home_z");
-                    float pitch = rs.getFloat("home_pitch");
-                    float yaw = rs.getFloat("home_yaw");
-                    World world = Bukkit.getWorld(rs.getString("home_world"));
-                    loc = new Location(world, x, y, z, yaw, pitch);
-                    return loc;
-                }
-            }
-            
-        }catch(SQLException e){
-            throw new DAOException(sql, e);
-        }
-        return null;
-    }
 
 
     @Override
@@ -212,12 +187,12 @@ public class DBHomeDAO implements IHomeDAO
 
 
     @Override
-    public List<String> getHomeNames(String playerName) throws DAOException
+    public List<String> getHomeNames(BytecraftPlayer player) throws DAOException
     {
         List<String> names = Lists.newArrayList();
         String sql = "SELECT * FROM player_home WHERE player_name = ?";
         try(PreparedStatement stm = conn.prepareStatement(sql)){
-            stm.setString(1, playerName);
+            stm.setString(1, player.getName());
             stm.execute();
             
             try(ResultSet rs = stm.getResultSet()){

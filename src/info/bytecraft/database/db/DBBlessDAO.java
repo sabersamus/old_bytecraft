@@ -1,9 +1,5 @@
 package info.bytecraft.database.db;
 
-import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.database.DAOException;
-import info.bytecraft.database.IBlessDAO;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,6 +11,10 @@ import org.bukkit.Location;
 import org.bukkit.block.Block;
 
 import com.google.common.collect.Maps;
+
+import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.database.DAOException;
+import info.bytecraft.database.IBlessDAO;
 
 public class DBBlessDAO implements IBlessDAO
 {

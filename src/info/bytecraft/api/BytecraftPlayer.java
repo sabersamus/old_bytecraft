@@ -1,17 +1,17 @@
 package info.bytecraft.api;
 
 import java.text.NumberFormat;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Set;
+import java.util.*;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+
+import com.google.common.collect.Maps;
 
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.event.PlayerChangeRankEvent;
@@ -43,15 +43,17 @@ public class BytecraftPlayer extends PlayerDelegate
     public static enum ChatState{
         CHAT,
         SELL,
+        COMMAND,
         SALESIGN_BUY,
         SALESIGN_WITHDRAW,
-        SALESIGN_SETUP;
+        SALESIGN_SETUP,
+        NPC_SPEECH;
     }
 
     private Bytecraft plugin;
     private String name;
     private int id = 0;
-    private Rank rank;
+    private Rank rank = Rank.NEWCOMER;
     private String currentInventory;
 
     private String chatChannel = "GLOBAL";
@@ -83,15 +85,18 @@ public class BytecraftPlayer extends PlayerDelegate
     private Date loginTime;
     
     private String temporaryChatName;
-
+    
+    
+    private UUID storeUuid;
+    
     public BytecraftPlayer(Player player, Bytecraft plugin)
     {
         super(player);
         this.setName(player.getName());
-        loginTime = new Date();
-        flags = EnumSet.noneOf(Flag.class);
+        this.loginTime = new Date();
+        this.flags = EnumSet.noneOf(Flag.class);
         this.plugin = plugin;
-        badges = new HashMap<>();
+        this.badges = Maps.newHashMap();
     }
 
 
@@ -99,9 +104,18 @@ public class BytecraftPlayer extends PlayerDelegate
     {
         super(null);
         this.setName(name);
-        loginTime = new Date();
-        flags = EnumSet.noneOf(Flag.class);
+        this.flags = EnumSet.noneOf(Flag.class);
         this.plugin = plugin;
+        this.badges = Maps.newHashMap();
+    }
+
+
+    public BytecraftPlayer(UUID uuid, Bytecraft plugin)
+    {
+        super(Bukkit.getOfflinePlayer(uuid).getPlayer());
+        this.flags = EnumSet.noneOf(Flag.class);
+        this.plugin = plugin;
+        this.badges = Maps.newHashMap();
     }
 
 
@@ -110,7 +124,6 @@ public class BytecraftPlayer extends PlayerDelegate
     
     public String getTemporaryChatName() {  return temporaryChatName; }
     public void setTemporaryChatName(String temporaryChatName) { this.temporaryChatName = temporaryChatName; }
-
 
     public ChatColor getNameColor()
     {
@@ -135,6 +148,18 @@ public class BytecraftPlayer extends PlayerDelegate
 
     public void setId(int id) { this.id = id; }
     
+    public UUID getStoreUuid()
+    {
+        return storeUuid;
+    }
+
+
+    public void setStoreUuid(UUID storeUuid)
+    {
+        this.storeUuid = storeUuid;
+    }
+
+
     public Rank getRank() { return this.rank; }
     
     public void setRank(Rank rank) 
@@ -597,4 +622,5 @@ public class BytecraftPlayer extends PlayerDelegate
             throw new RuntimeException(e);
         }
     }
+   
 }

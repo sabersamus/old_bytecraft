@@ -27,8 +27,6 @@ import org.bukkit.event.player.*;
 import org.bukkit.event.player.PlayerLoginEvent.Result;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scoreboard.*;
-import org.kitteh.tag.AsyncPlayerReceiveNameTagEvent;
-import org.kitteh.tag.TagAPI;
 
 import com.google.common.collect.Maps;
 
@@ -46,26 +44,28 @@ import info.bytecraft.zones.ZoneWorld;
 public class BytecraftPlayerListener implements Listener
 {
     private Bytecraft plugin;
-    
+
     public BytecraftPlayerListener(Bytecraft bytecraft)
     {
         this.plugin = bytecraft;
     }
 
-    @EventHandler(priority=EventPriority.LOW)
+    @EventHandler(priority = EventPriority.LOW)
     public void onJoin(PlayerJoinEvent event)
     {
         event.setJoinMessage(null);
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
-        if(player == null)return;
-            if (!player.hasPlayedBefore()) {
-                player.teleport(plugin.getWorldSpawn("world"));
-            }
+        if (player == null)
+            return;
+        if (!player.hasPlayedBefore()) {
+            player.teleport(plugin.getWorldSpawn("world"));
+        }
 
         if (player.getRank() == Rank.NEWCOMER) {
             player.sendMessage(ChatColor.AQUA
                     + plugin.getConfig().getString("motd.new"));
-            if(!player.hasFlag(Flag.HARDWARNED) && !player.hasFlag(Flag.SOFTWARNED)){
+            if (!player.hasFlag(Flag.HARDWARNED)
+                    && !player.hasFlag(Flag.SOFTWARNED)) {
                 for (BytecraftPlayer other : plugin.getOnlinePlayers()) {
                     if (other.getRank().canMentor()) {
                         other.sendMessage(player.getTemporaryChatName()
@@ -79,23 +79,24 @@ public class BytecraftPlayerListener implements Listener
             player.sendMessage(ChatColor.AQUA
                     + plugin.getConfig().getString("motd.normal"));
         }
-        
+
         player.setAllowFlight(player.getRank().canFly());
-        
-        if(player.getGameMode() != GameMode.SURVIVAL && !player.getRank().canFill()){
+
+        if (player.getGameMode() != GameMode.SURVIVAL
+                && !player.getRank().canFill()) {
             player.setGameMode(GameMode.SURVIVAL);
         }
-        
+
         World cWorld = player.getWorld();
         String[] worldNamePortions = cWorld.getName().split("_");
 
         if (worldNamePortions[0].equalsIgnoreCase("world")) {
             player.loadInventory("survival", false);
-        } else {
+        }
+        else {
             player.loadInventory(worldNamePortions[0], false);
         }
-        
-        
+
         List<BytecraftPlayer> players = plugin.getOnlinePlayers();
         if (player.hasFlag(Flag.INVISIBLE)) {
             player.sendMessage(ChatColor.YELLOW + "You have joined invisible");
@@ -104,16 +105,18 @@ public class BytecraftPlayerListener implements Listener
             for (BytecraftPlayer current : players) {
                 if (!current.getRank().canVanish()) {
                     current.hidePlayer(player.getDelegate());
-                } else {
+                }
+                else {
                     current.showPlayer(player.getDelegate());
                 }
             }
         }
-        
+
         for (BytecraftPlayer current : players) {
             if (current.hasFlag(Flag.INVISIBLE)) {
                 player.hidePlayer(current.getDelegate());
-            } else {
+            }
+            else {
                 player.showPlayer(current.getDelegate());
             }
 
@@ -121,9 +124,7 @@ public class BytecraftPlayerListener implements Listener
                 player.showPlayer(current.getDelegate());
             }
         }
-        
-        TagAPI.refreshPlayer(player.getDelegate());
-        
+
         if (player.isOnline()) {
 
             ScoreboardManager manager = Bukkit.getScoreboardManager();
@@ -151,35 +152,30 @@ public class BytecraftPlayerListener implements Listener
                 // ignore
             }
         }
+
     }
-    
-    @EventHandler
-    public void onChange(AsyncPlayerReceiveNameTagEvent event)
-    {
-        BytecraftPlayer player = plugin.getPlayer(event.getNamedPlayer());
-        event.setTag(player.getNameColor() + player.getName());
-    }
-    
+
     @EventHandler
     public void onPlayerChangedWorld(PlayerChangedWorldEvent event)
     {
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
         World cWorld = player.getWorld();
-        
-        if(cWorld.getName().equalsIgnoreCase("albion")){
+
+        if (cWorld.getName().equalsIgnoreCase("albion")) {
             player.loadInventory("albion", true);
             return;
         }
-        
+
         String[] worldNamePortions = cWorld.getName().split("_");
 
         if (worldNamePortions[0].equalsIgnoreCase("world")) {
             player.loadInventory("survival", true);
-        } else {
+        }
+        else {
             player.loadInventory(worldNamePortions[0], true);
         }
     }
-    
+
     @EventHandler
     public void onLogin(PlayerLoginEvent event)
     {
@@ -194,20 +190,20 @@ public class BytecraftPlayerListener implements Listener
     public void onQuit(PlayerQuitEvent event)
     {
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
-        
-        if(player == null){
+
+        if (player == null) {
             event.setQuitMessage(null);
             return;
         }
-        
+
         player.saveInventory(player.getCurrentInventory());
-        
-        if(player.getRank().canVanish() && player.hasFlag(Flag.INVISIBLE)){
+
+        if (player.getRank().canVanish() && player.hasFlag(Flag.INVISIBLE)) {
             event.setQuitMessage(null);
             plugin.removePlayer(player);
             return;
         }
-        
+
         List<String> messages = plugin.getQuitMessages();
         String mess =
                 ChatColor.AQUA
@@ -219,45 +215,51 @@ public class BytecraftPlayerListener implements Listener
                                         player.getTemporaryChatName()
                                                 + ChatColor.GRAY)
                                 .replaceAll("(?i)&([a-f0-9])", "\u00A7$1");
-        
-        
+
         event.setQuitMessage(mess);
         plugin.removePlayer(player);
     }
-    
+
     @EventHandler
     public void onFly(PlayerMoveEvent event)
     {
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
-        if(player == null){
+        if (player == null) {
             event.getPlayer().kickPlayer("Something went wrong!");
         }
-        if(player.isFlying()){
-            if(player.isSprinting()){
-                if(player.getRank().canFlyFast()){
+        if (player.isFlying()) {
+            if (player.isSprinting()) {
+                if (player.getRank().canFlyFast()) {
                     player.setFlySpeed(0.4F);
-                }else{
+                }
+                else {
                     player.setFlySpeed(0.2F);
                 }
-            }else{
+            }
+            else {
                 player.setFlySpeed(0.2F);
             }
         }
     }
-    
+
     @EventHandler
     public void onDamage(EntityDamageEvent event)
     {
         if (!(event.getEntity() instanceof Player))
             return;
+
         BytecraftPlayer player = plugin.getPlayer((Player) event.getEntity());
-        
-        if(event.getCause() == DamageCause.FALL){
-            event.setCancelled(true);
-        }else{
-            event.setCancelled(player.getRank().isImmortal() && player.hasFlag(Flag.IMMORTAL));
-            player.setHealth(player.getHealth());
+
+        if (event.getCause() == DamageCause.FALL) {
+            event.setCancelled(false);
             return;
+        }
+
+        if (player.getRank().isImmortal()) {
+            if (!player.hasFlag(Flag.IMMORTAL)) {
+                return;
+            }
+            event.setCancelled(true);
         }
 
     }
@@ -266,9 +268,11 @@ public class BytecraftPlayerListener implements Listener
     public void onPvp(EntityDamageByEntityEvent event)
     {
         if (event.getDamager() instanceof Player) {
-            BytecraftPlayer player = plugin.getPlayer((Player) event.getDamager());
+            BytecraftPlayer player =
+                    plugin.getPlayer((Player) event.getDamager());
             if (event.getEntity() instanceof Player) {
-                BytecraftPlayer victim = plugin.getPlayer((Player)event.getEntity());
+                BytecraftPlayer victim =
+                        plugin.getPlayer((Player) event.getEntity());
                 Location loc = victim.getLocation();
                 ZoneWorld world = plugin.getWorld(loc.getWorld());
                 Zone zone = world.findZone(loc);
@@ -278,16 +282,19 @@ public class BytecraftPlayerListener implements Listener
                     player.sendMessage(ChatColor.RED
                             + "You are not in a pvp zone.");
                     return;
-                }else{
-                   if(player.getRank() == Rank.NEWCOMER || victim.getRank() == Rank.NEWCOMER){
-                       event.setCancelled(true);
-                       event.setDamage(0);
-                       player.sendMessage(ChatColor.RED
-                               + "Newcomers can't use pvp!");
-                       return;
-                   }
                 }
-            }else{
+                else {
+                    if (player.getRank() == Rank.NEWCOMER
+                            || victim.getRank() == Rank.NEWCOMER) {
+                        event.setCancelled(true);
+                        event.setDamage(0);
+                        player.sendMessage(ChatColor.RED
+                                + "Newcomers can't use pvp!");
+                        return;
+                    }
+                }
+            }
+            else {
                 event.setCancelled(player.getRank() == Rank.NEWCOMER);
             }
         }
@@ -323,7 +330,8 @@ public class BytecraftPlayerListener implements Listener
             player.sendMessage(ChatColor.YELLOW + "You got " + ChatColor.GOLD
                     + stack.getAmount() + " "
                     + stack.getType().toString().toLowerCase()
-                    + ChatColor.YELLOW + " from " + from.getTemporaryChatName() + ".");
+                    + ChatColor.YELLOW + " from " + from.getTemporaryChatName()
+                    + ".");
             from.sendMessage(ChatColor.YELLOW + "You gave "
                     + player.getTemporaryChatName() + ChatColor.GOLD + " "
                     + stack.getAmount() + " "
@@ -336,15 +344,28 @@ public class BytecraftPlayerListener implements Listener
     public void onDeath(PlayerDeathEvent event)
     {
         BytecraftPlayer player = plugin.getPlayer(event.getEntity());
-        if(player == null)return;
+        if (player == null)
+            return;
         List<String> deathMessages = plugin.getDeathMessages();
         String message = "";
-        if(deathMessages.isEmpty()){
-            message = ChatColor.GRAY + "- death - " + player.getTemporaryChatName() + ChatColor.GRAY + " has died!";
-        }else{
-            message = ChatColor.GRAY + "- death - " + deathMessages.get(
-                    new Random().nextInt(deathMessages.size() - 1)).replace("%s", player.getTemporaryChatName() + ChatColor.GRAY)
-                    .replaceAll("(?i)&([a-f0-9])", "\u00A7$1");
+        if (deathMessages.isEmpty()) {
+            message =
+                    ChatColor.GRAY + "- death - "
+                            + player.getTemporaryChatName() + ChatColor.GRAY
+                            + " has died!";
+        }
+        else {
+            message =
+                    ChatColor.GRAY
+                            + "- death - "
+                            + deathMessages
+                                    .get(new Random().nextInt(deathMessages
+                                            .size() - 1))
+                                    .replace(
+                                            "%s",
+                                            player.getTemporaryChatName()
+                                                    + ChatColor.GRAY)
+                                    .replaceAll("(?i)&([a-f0-9])", "\u00A7$1");
         }
         event.setDeathMessage(message);
     }
@@ -354,13 +375,15 @@ public class BytecraftPlayerListener implements Listener
     {
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
         player.saveInventory(player.getCurrentInventory());
-        event.setRespawnLocation(plugin.getWorldSpawn(event.getPlayer().getWorld().getName()));
+        event.setRespawnLocation(plugin.getWorldSpawn(event.getPlayer()
+                .getWorld().getName()));
     }
 
     @EventHandler
     public void onCheck(PlayerInteractEvent event)
     {
-        if(event.isCancelled())return;
+        if (event.isCancelled())
+            return;
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
         if (player.getItemInHand().getType() != Material.PAPER)
             return;
@@ -370,10 +393,11 @@ public class BytecraftPlayerListener implements Listener
         try (IContext ctx = plugin.createContext()) {
             ILogDAO dao = ctx.getLogDAO();
             for (PaperLog log : dao.getLogs(block)) {
-                BytecraftPlayer other = plugin.getPlayerOffline(log.getPlayerName());
+                BytecraftPlayer other =
+                        plugin.getPlayer(log.getPlayerName());
                 String name = other.getNameColor() + other.getName();
-                player.sendMessage(name + " "
-                        + ChatColor.AQUA + log.getAction() + " " + ChatColor.GOLD
+                player.sendMessage(name + " " + ChatColor.AQUA
+                        + log.getAction() + " " + ChatColor.GOLD
                         + log.getMaterial() + ChatColor.GREEN + " at "
                         + log.getDate());
             }
@@ -387,38 +411,43 @@ public class BytecraftPlayerListener implements Listener
     @EventHandler
     public void onCheckBlock(PlayerInteractEvent event)
     {
-        if(event.getAction() != Action.RIGHT_CLICK_BLOCK)return;
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK)
+            return;
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
-        if(player.getItemInHand().getType() != Material.BOOK)return;
-        
+        if (player.getItemInHand().getType() != Material.BOOK)
+            return;
+
         Block block = event.getClickedBlock();
-        
+
         int x = block.getX();
         int y = block.getY();
         int z = block.getZ();
         String world = block.getWorld().getName();
-        String biome = WordUtils.capitalize(block.getBiome().name().replaceAll("_", " "));
+        String biome =
+                WordUtils.capitalize(block.getBiome().name()
+                        .replaceAll("_", " "));
         BytecraftPlayer owner = null;
         int blessId = 0;
-        try(IContext ctx = plugin.createContext()){
+        try (IContext ctx = plugin.createContext()) {
             IBlessDAO dao = ctx.getBlessDAO();
-            if(dao.isBlessed(block)){
-                owner = plugin.getPlayerOffline(dao.getOwner(block));
+            if (dao.isBlessed(block)) {
+                owner = plugin.getPlayer(dao.getOwner(block));
                 blessId = dao.getBlessId(block);
             }
-        }catch(DAOException e){
+        } catch (DAOException e) {
             throw new RuntimeException(e);
         }
-        
+
         player.sendMessage(DARK_AQUA + "========= Block Information =========");
         player.sendMessage(DARK_AQUA + "X: " + WHITE + x);
         player.sendMessage(DARK_AQUA + "Y: " + WHITE + y);
         player.sendMessage(DARK_AQUA + "Z: " + WHITE + z);
         player.sendMessage(DARK_AQUA + "World: " + WHITE + world);
-        player.sendMessage(DARK_AQUA + "Checksum: " + WHITE + Bytecraft.locationChecksum(block.getLocation()));
-        
+        player.sendMessage(DARK_AQUA + "Checksum: " + WHITE
+                + Bytecraft.locationChecksum(block.getLocation()));
+
         player.sendMessage(DARK_AQUA + "Biome: " + WHITE + biome);
-        if(owner != null){
+        if (owner != null) {
             String name = owner.getRank().getColor() + owner.getName() + WHITE;
             player.sendMessage(DARK_AQUA + "Bless ID: " + WHITE + blessId);
             player.sendMessage(DARK_AQUA + "Owner: " + name);
@@ -428,35 +457,39 @@ public class BytecraftPlayerListener implements Listener
         event.setUseInteractedBlock(Event.Result.DENY);
         return;
     }
-    
+
     @EventHandler
     public void onFlight(PlayerToggleFlightEvent event)
     {
         BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
-        if(player == null)return;
-        if(!event.isFlying()){
+        if (player == null)
+            return;
+        if (!event.isFlying()) {
             return;
         }
-        if(player.getRank().canFly()){
-            if(player.hasFlag(Flag.CAN_FLY)){
+        if (player.getRank().canFly()) {
+            if (player.hasFlag(Flag.CAN_FLY)) {
                 event.setCancelled(false);
-            }else{
+            }
+            else {
                 event.setCancelled(true);
             }
-        }else{
+        }
+        else {
             event.setCancelled(true);
         }
-        
-        if(player.hasFlag(Flag.SOFTWARNED) || player.hasFlag(Flag.HARDWARNED)){
+
+        if (player.hasFlag(Flag.SOFTWARNED) || player.hasFlag(Flag.HARDWARNED)) {
             event.setCancelled(true);
         }
-        
+
     }
-    
+
     @EventHandler
     public void onCompass(PlayerInteractEvent event)
     {
-        if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) {
+        if (event.getAction() != Action.RIGHT_CLICK_AIR
+                && event.getAction() != Action.RIGHT_CLICK_BLOCK) {
             return;
         }
 
@@ -475,7 +508,7 @@ public class BytecraftPlayerListener implements Listener
 
             TargetBlock targetCalc = new TargetBlock(event.getPlayer());
             Block target = targetCalc.getTargetBlock();
-            
+
             if (target != null) {
 
                 for (int i = 0; i < 100; i++) {
@@ -505,7 +538,7 @@ public class BytecraftPlayerListener implements Listener
                 }
             }
         }
-        else if (player.getRank() == Rank.NOBLE) {//this is very bad practice
+        else if (player.getRank() == Rank.NOBLE) {// this is very bad practice
 
             Block target = player.getDelegate().getTargetBlock(null, 300);
             int top = world.getHighestBlockYAt(target.getLocation());
@@ -516,29 +549,32 @@ public class BytecraftPlayerListener implements Listener
             player.teleport(loc);
         }
     }
-    
+
     @EventHandler
     public void onChange(PlayerGameModeChangeEvent event)
     {
-        if(event.getNewGameMode() == GameMode.SURVIVAL){
+        if (event.getNewGameMode() == GameMode.SURVIVAL) {
             BytecraftPlayer player = plugin.getPlayer(event.getPlayer());
-            if(player.getRank().canFly()){
-                if(player.hasFlag(Flag.CAN_FLY)){
+            if (player.getRank().canFly()) {
+                if (player.hasFlag(Flag.CAN_FLY)) {
                     player.setAllowFlight(true);
-                }else{
+                }
+                else {
                     player.setAllowFlight(false);
                 }
-            }else{
+            }
+            else {
                 player.setAllowFlight(false);
             }
-            
-            if(player.hasFlag(Flag.SOFTWARNED) || player.hasFlag(Flag.HARDWARNED)){
+
+            if (player.hasFlag(Flag.SOFTWARNED)
+                    || player.hasFlag(Flag.HARDWARNED)) {
                 player.setAllowFlight(false);
             }
-            
+
         }
     }
-    
+
     @EventHandler
     public void onPlayerClick(PlayerInteractEvent event)
     {
@@ -554,21 +590,25 @@ public class BytecraftPlayerListener implements Listener
             }
             String owner = skull.getOwner();
             BytecraftPlayer skullowner = plugin.getPlayerOffline(owner);
-            if (skullowner != null){
+            if (skullowner != null) {
                 ChatColor C = skullowner.getNameColor();
-                player.sendMessage(ChatColor.AQUA + "This is " + C + owner + "'s " + ChatColor.AQUA + "head!");
-            }else{
-                player.sendMessage(ChatColor.AQUA + "This is " + ChatColor.WHITE + owner + ChatColor.AQUA + "'s head!");
+                player.sendMessage(ChatColor.AQUA + "This is " + C + owner
+                        + "'s " + ChatColor.AQUA + "head!");
+            }
+            else {
+                player.sendMessage(ChatColor.AQUA + "This is "
+                        + ChatColor.WHITE + owner + ChatColor.AQUA + "'s head!");
 
             }
         }
     }
-    
+
     @EventHandler
     public void onRankChange(PlayerChangeRankEvent event)
     {
         BytecraftPlayer player = event.getPlayer();
-        player.setTemporaryChatName(event.getNewRank().getColor() + player.getName());
+        player.setTemporaryChatName(event.getNewRank().getColor()
+                + player.getName());
     }
-    
+
 }
