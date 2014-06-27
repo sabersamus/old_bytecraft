@@ -64,50 +64,6 @@ public class DBPlayerDAO implements IPlayerDAO
         return getPlayer(player.getName(), player);
     }
 
-    public BytecraftPlayer getPlayer(String name) throws DAOException
-    {
-        return getPlayer(name, null);
-    }
-
-    public BytecraftPlayer getPlayer(String name, Player wrap)
-            throws DAOException
-    {
-        BytecraftPlayer player;
-        if (wrap != null) {
-            player = new BytecraftPlayer(wrap, plugin);
-        }
-        else {
-            player = new BytecraftPlayer(name, plugin);
-        }
-
-        String sql = "SELECT * FROM player WHERE player_name = ?";
-        try (PreparedStatement stm = conn.prepareStatement(sql)) {
-            stm.setString(1, name);
-            stm.execute();
-
-            try (ResultSet rs = stm.getResultSet()) {
-                if (!rs.next()) {
-                    return null;
-                }
-
-                player.setId(rs.getInt("player_id"));
-                player.setRank(Rank.getRank(rs.getString("player_rank")));
-                
-                if (rs.getString("player_inventory") == null) {
-                    player.setCurrentInventory("survival");
-                } else {
-                    player.setCurrentInventory(rs.getString("player_inventory"));
-                }
-                
-            }
-        } catch (SQLException e) {
-            throw new DAOException(sql, e);
-        }
-        loadFlags(player);
-        player.setBadges(this.getBadges(player));
-        return player;
-    }
-    
     public List<BytecraftPlayer> getRichestPlayers() 
             throws DAOException
     {
@@ -118,7 +74,7 @@ public class DBPlayerDAO implements IPlayerDAO
             stm.execute();
             try(ResultSet rs = stm.getResultSet()){
                 while(rs.next()){
-                    players.add(this.getPlayer(rs.getString("player_name")));
+                    players.add(getPlayer(rs.getString("player_name")));
                 }
             }
         } catch (SQLException e) {
@@ -171,6 +127,7 @@ public class DBPlayerDAO implements IPlayerDAO
                     player.setFlag(Flag.HIDDEN_LOCATION, hiddenLoc);
                     player.setFlag(Flag.SILENT_JOIN, silentJoin);
                     player.setFlag(Flag.IMMORTAL, immortal);
+                    
 
                 }
             }
@@ -182,9 +139,10 @@ public class DBPlayerDAO implements IPlayerDAO
     public BytecraftPlayer createPlayer(Player wrap) throws DAOException
     {
         BytecraftPlayer player = new BytecraftPlayer(wrap, plugin);
-        String sql = "INSERT INTO player (player_name) VALUE (?)";
+        String sql = "INSERT INTO player (player_name, player_uuid) VALUE (?, ?)";
         try (PreparedStatement stm = conn.prepareStatement(sql)) {
             stm.setString(1, player.getName());
+            stm.setString(2, player.getUniqueId().toString());
             stm.execute();
 
             stm.executeQuery("SELECT LAST_INSERT_ID()");
@@ -196,6 +154,7 @@ public class DBPlayerDAO implements IPlayerDAO
 
                 player.setId(rs.getInt(1));
                 player.setRank(Rank.NEWCOMER);
+                
             }
         } catch (SQLException e) {
             throw new DAOException(sql, e);
@@ -261,7 +220,7 @@ public class DBPlayerDAO implements IPlayerDAO
             throw new RuntimeException("Player can not be null");
         }
 
-        String sql = "SELECT * FROM player WHERE `player_id`=?";
+        String sql = "SELECT * FROM player WHERE player_id=?";
 
         try (PreparedStatement stm = conn.prepareStatement(sql)) {
             stm.setInt(1, player.getId());
@@ -522,5 +481,108 @@ public class DBPlayerDAO implements IPlayerDAO
         } catch (SQLException e) {
             throw new DAOException(sql, e);
         }
+    }
+
+    @Override
+    public BytecraftPlayer getPlayer(String name) throws DAOException
+    {
+        String sql = "SELECT * FROM player WHERE player_name = ?";
+        BytecraftPlayer player;
+        try(PreparedStatement stm = conn.prepareStatement(sql)){
+            stm.setString(1, name);
+            stm.execute();
+            
+            try(ResultSet rs = stm.getResultSet()){
+                if(!rs.next()){
+                    return null;
+                }
+                player = new BytecraftPlayer(name, plugin);
+                
+                player.setId(rs.getInt("player_id"));
+                player.setRank(Rank.getRank(rs.getString("player_rank")));
+                
+                if (rs.getString("player_inventory") == null) {
+                    player.setCurrentInventory("survival");
+                } else {
+                    player.setCurrentInventory(rs.getString("player_inventory"));
+                }
+                
+            }
+            
+        }catch(SQLException e){
+            throw new DAOException(sql, e);
+        }
+        loadFlags(player);
+        return player;
+    }
+
+    @Override
+    public BytecraftPlayer getPlayer(String name, Player wrap)
+            throws DAOException
+    {
+        BytecraftPlayer player;
+        if(wrap != null){
+            player = new BytecraftPlayer(wrap, plugin);
+        }else{
+            player = new BytecraftPlayer(name, plugin);
+        }
+        
+        String sql = "SELECT * FROM player WHERE player_name = ?";
+        try (PreparedStatement stm = conn.prepareStatement(sql)) {
+            stm.setString(1, player.getName());
+            stm.execute();
+            try (ResultSet rs = stm.getResultSet()) {
+                if (!rs.next()) {
+                    return null;
+                }
+                
+                player.setId(rs.getInt("player_id"));
+                player.setRank(Rank.getRank(rs.getString("player_rank")));
+                
+                if (rs.getString("player_inventory") == null) {
+                    player.setCurrentInventory("survival");
+                } else {
+                    player.setCurrentInventory(rs.getString("player_inventory"));
+                }
+                
+            }
+        } catch (SQLException e) {
+            throw new DAOException(sql, e);
+        }
+        loadFlags(player);
+        player.setBadges(getBadges(player));
+        return player;
+    }
+    
+    @Override
+    public BytecraftPlayer getPlayerOffline(String name) throws DAOException
+    {
+        BytecraftPlayer player = new BytecraftPlayer(name, plugin);
+        
+        String sql = "SELECT * FROM player WHERE player_name = ?";
+        try (PreparedStatement stm = conn.prepareStatement(sql)) {
+            stm.setString(1, name);
+            stm.execute();
+            try (ResultSet rs = stm.getResultSet()) {
+                if (!rs.next()) {
+                    return null;
+                }
+
+                player.setId(rs.getInt("player_id"));
+                player.setRank(Rank.getRank(rs.getString("player_rank")));
+                
+                if (rs.getString("player_inventory") == null) {
+                    player.setCurrentInventory("survival");
+                } else {
+                    player.setCurrentInventory(rs.getString("player_inventory"));
+                }
+                
+            }
+        } catch (SQLException e) {
+            throw new DAOException(sql, e);
+        }
+        loadFlags(player);
+        player.setBadges(getBadges(player));
+        return player;
     }
 }
