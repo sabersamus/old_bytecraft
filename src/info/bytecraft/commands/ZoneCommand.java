@@ -230,7 +230,7 @@ public class ZoneCommand extends AbstractCommand
         try (IContext ctx = plugin.createContext()) {
             IZoneDAO dao = ctx.getZoneDAO();
             dao.createZone(zone, player);
-            dao.addUser(zone, player.getName(), Permission.OWNER);
+            dao.addUser(zone, player, Permission.OWNER);
             zone.addPermissions(name, Permission.OWNER);
         } catch (DAOException e) {
             throw new RuntimeException(e);
@@ -310,7 +310,7 @@ public class ZoneCommand extends AbstractCommand
                 target2.sendMessage(ChatColor.RED + "[" + zone.getName() + "] "
                         + String.format(addNotif, zone.getName()));
             }
-            dao.addUser(zone, target.getName(), p);
+            dao.addUser(zone, target, p);
             zone.addPermissions(target.getName(), p);
         } catch (DAOException e) {
             throw new RuntimeException(e);
@@ -341,7 +341,7 @@ public class ZoneCommand extends AbstractCommand
             }
             
             zone.removePermission(target.getName());
-            return dao.deleteUser(zone, target.getName());
+            return dao.deleteUser(zone, target);
         } catch (DAOException e) {
             throw new RuntimeException(e);
         }

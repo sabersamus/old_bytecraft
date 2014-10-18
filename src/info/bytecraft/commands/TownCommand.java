@@ -187,7 +187,7 @@ public class TownCommand extends AbstractCommand
                         + String.format(addNotif, zone.getName()));
             }
             
-            dao.addUser(zone, target.getName(), p);
+            dao.addUser(zone, target, p);
             zone.addPermissions(target.getName(), p);
         } catch (DAOException e) {
             throw new RuntimeException(e);
@@ -218,7 +218,7 @@ public class TownCommand extends AbstractCommand
             }
             
             zone.removePermission(target.getName());
-            return dao.deleteUser(zone, target.getName());
+            return dao.deleteUser(zone, target);
         } catch (DAOException e) {
             throw new RuntimeException(e);
         }

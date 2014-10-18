@@ -23,8 +23,6 @@ import info.bytecraft.blockfill.SavedBlocks;
 import info.bytecraft.blockfill.TestFiller;
 import info.bytecraft.blockfill.TestReplacer;
 import info.bytecraft.blockfill.Undo;
-import info.bytecraft.database.DAOException;
-import info.bytecraft.database.IContext;
 
 @SuppressWarnings("deprecation")
 public class FillCommand extends AbstractCommand

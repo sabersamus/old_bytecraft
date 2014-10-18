@@ -13,6 +13,7 @@ import org.bukkit.block.Block;
 
 import com.google.common.collect.Lists;
 
+import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.api.PaperLog;
 import info.bytecraft.database.DAOException;
@@ -24,18 +25,20 @@ public class DBLogDAO implements ILogDAO
     private Connection conn;
     private final SimpleDateFormat format = new SimpleDateFormat(
             "MM/dd/YY hh:mm:ss a");
+    private Bytecraft plugin;
 
-    public DBLogDAO(Connection conn)
+    public DBLogDAO(Connection conn, Bytecraft plugin)
     {
         this.conn = conn;
+        this.plugin = plugin;
     }
 
     public void insertChatMessage(BytecraftPlayer player, String channel, String message) throws DAOException
     {
         String sql =
-                "INSERT INTO player_chatlog (player_name, chatlog_channel, chatlog_message) VALUES (?, ?, ?)";
+                "INSERT INTO player_chatlog (player_id, chatlog_channel, chatlog_message) VALUES (?, ?, ?)";
         try (PreparedStatement stm = conn.prepareStatement(sql)) {
-            stm.setString(1, player.getName());
+            stm.setInt(1, player.getId());
             stm.setString(2, channel);
             stm.setString(3, message);
             stm.execute();
@@ -48,9 +51,9 @@ public class DBLogDAO implements ILogDAO
     public void insertPrivateMessage(BytecraftPlayer player, BytecraftPlayer recipient, String message)
     throws DAOException
     {
-        String sql = "INSERT INTO player_messages (player_name, recipient_name, message) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO player_messages (player_id, recipient_name, message) VALUES (?, ?, ?)";
         try(PreparedStatement stm = conn.prepareStatement(sql)){
-            stm.setString(1, player.getName());
+            stm.setInt(1, player.getId());
             stm.setString(2, recipient.getName());
             stm.setString(3, message);
             stm.execute();
@@ -59,13 +62,14 @@ public class DBLogDAO implements ILogDAO
         }
     }
 
-    public void insertTransactionLog(String giver,
+    @Override
+    public void insertTransactionLog(BytecraftPlayer giver,
             BytecraftPlayer reciever, long amount) throws DAOException
     {
         String sql =
-                "INSERT INTO transaction_log (sender_name, reciever_name, amount) VALUES (?, ?, ?)";
+                "INSERT INTO transaction_log (sender_id, reciever_name, amount) VALUES (?, ?, ?)";
         try (PreparedStatement stm = conn.prepareStatement(sql)) {
-            stm.setString(1, giver);
+            stm.setInt(1, giver.getId());
             stm.setString(2, reciever.getName());
             stm.setLong(3, amount);
             stm.execute();
@@ -78,11 +82,11 @@ public class DBLogDAO implements ILogDAO
             Material mat, String action) throws DAOException
     {
         String sql =
-                "INSERT INTO paper_log (player_name, block_x, block_y, block_z, "
+                "INSERT INTO paper_log (player_id, block_x, block_y, block_z, "
                         + "block_type, paper_time, block_world, action) "
                         + "VALUES (?, ?, ?, ?, ?, unix_timestamp(), ?, ?)";
         try (PreparedStatement stm = conn.prepareStatement(sql)) {
-            stm.setString(1, player.getName());
+            stm.setInt(1, player.getId());
             stm.setInt(2, loc.getBlockX());
             stm.setInt(3, loc.getBlockY());
             stm.setInt(4, loc.getBlockZ());
@@ -131,7 +135,7 @@ public class DBLogDAO implements ILogDAO
             
             try(ResultSet rs = stm.getResultSet()){
                 while (rs.next()) {
-                    String name = rs.getString("player_name");
+                    String name = plugin.getPlayer(rs.getInt("player_id")).getName();
                     Date date = new Date(rs.getInt("paper_time") * 1000L);
                     String action = rs.getString("action");
                     String material = rs.getString("block_type");
@@ -153,10 +157,10 @@ public class DBLogDAO implements ILogDAO
     public void insertLogin(BytecraftPlayer player, String action)
             throws DAOException
     {
-        String sql = "INSERT INTO player_login (player_name, login_timestamp, login_ip, action) VALUES"
+        String sql = "INSERT INTO player_login (player_id, login_timestamp, login_ip, action) VALUES"
                 + " (?, unix_timestamp(), ?, ?)";
         try(PreparedStatement stm = conn.prepareStatement(sql)){
-            stm.setString(1, player.getName());
+            stm.setInt(1, player.getId());
             stm.setString(2, player.getIp());
             stm.setString(3, action.toLowerCase());
             stm.execute();
@@ -169,8 +173,8 @@ public class DBLogDAO implements ILogDAO
     public Set<String> getAliases(BytecraftPlayer player)
     throws DAOException
     {
-        String sql = "SELECT DISTINCT player_name FROM player " +
-            "INNER JOIN player_login USING (player_name) " +
+        String sql = "SELECT DISTINCT player_id FROM player " +
+            "INNER JOIN player_login USING (player_id) " +
             "WHERE login_ip = ?";
 
         Set<String> aliases = new HashSet<String>();
@@ -181,7 +185,10 @@ public class DBLogDAO implements ILogDAO
 
             try (ResultSet rs = stmt.getResultSet()) {
                 while (rs.next()) {
-                    aliases.add(rs.getString("player_name"));
+                    BytecraftPlayer bPlayer = plugin.getPlayer(rs.getInt("player_id"));
+                    if(bPlayer != null){
+                        aliases.add(bPlayer.getName());
+                    }
                 }
             }
         }
@@ -195,9 +202,9 @@ public class DBLogDAO implements ILogDAO
     @Override
     public void insertSellLog(BytecraftPlayer player, int value) throws DAOException
     {
-        String sql = "INSERT INTO sell_log (player_name, sell_value) VALUES (?, ?)";
+        String sql = "INSERT INTO sell_log (player_id, sell_value) VALUES (?, ?)";
         try(PreparedStatement stm = conn.prepareStatement(sql)){
-            stm.setString(1, player.getName());
+            stm.setInt(1, player.getId());
             stm.setInt(2, value);
             stm.execute();
         }catch(SQLException e){

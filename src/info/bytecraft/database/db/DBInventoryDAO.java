@@ -16,6 +16,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.api.InventoryAccess;
 import info.bytecraft.database.DAOException;
@@ -24,10 +25,12 @@ import info.bytecraft.database.IInventoryDAO;
 public class DBInventoryDAO implements IInventoryDAO
 {
     private Connection conn;
+    private Bytecraft plugin;
 
-    public DBInventoryDAO(Connection conn)
+    public DBInventoryDAO(Connection conn, Bytecraft plugin)
     {
         this.conn = conn;
+        this.plugin = plugin;
     }
 
     public static int uglyLocationHash(Location loc)
@@ -95,13 +98,13 @@ public class DBInventoryDAO implements IInventoryDAO
     public int insertInventory(BytecraftPlayer player, Location loc,
             InventoryType type) throws DAOException
     {
-        String sql = "INSERT INTO inventory (player_name, inventory_checksum, " +
+        String sql = "INSERT INTO inventory (player_id, inventory_checksum, " +
             "inventory_x, inventory_y, inventory_z, inventory_world, " +
             "inventory_type) ";
         sql += "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, player.getName());
+            stmt.setInt(1, player.getId());
             if (loc == null) {
                 stmt.setInt(2, 0);
                 stmt.setInt(3, 0);
@@ -138,12 +141,12 @@ public class DBInventoryDAO implements IInventoryDAO
     throws DAOException
     {
         String sql = "INSERT INTO inventory_accesslog (inventory_id, " +
-            "player_name, accesslog_timestamp) ";
+            "player_id, accesslog_timestamp) ";
         sql += "VALUES (?, ?, unix_timestamp())";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, inventoryId);
-            stmt.setString(2, player.getName());
+            stmt.setInt(2, player.getId());
             stmt.execute();
         } catch (SQLException e) {
             throw new DAOException(sql, e);
@@ -159,13 +162,13 @@ public class DBInventoryDAO implements IInventoryDAO
     throws DAOException
     {
         String sql = "INSERT INTO inventory_changelog (inventory_id, " +
-            "player_name, changelog_timestamp, changelog_slot, changelog_material, " +
+            "player_id, changelog_timestamp, changelog_slot, changelog_material, " +
             "changelog_data, changelog_meta, changelog_amount, changelog_type) ";
         sql += "VALUES (?, ?, unix_timestamp(), ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, inventoryId);
-            stmt.setString(2, player.getName());
+            stmt.setInt(2, player.getId());
             stmt.setInt(3, slot);
             stmt.setInt(4, slotContent.getTypeId());
             stmt.setInt(5, slotContent.getData().getData());
@@ -291,7 +294,7 @@ public class DBInventoryDAO implements IInventoryDAO
                 while (rs.next()) {
                     InventoryAccess access = new InventoryAccess();
                     access.setInventoryId(inventoryId);
-                    access.setPlayerName(rs.getString("player_name"));
+                    access.setPlayerName(plugin.getPlayer(rs.getInt("player_id")).getName());
                     access.setTimestamp(new Date(rs.getInt("accesslog_timestamp")*1000l));
 
                     accessLog.add(access);

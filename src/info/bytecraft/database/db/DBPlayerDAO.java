@@ -154,6 +154,7 @@ public class DBPlayerDAO implements IPlayerDAO
 
                 player.setId(rs.getInt(1));
                 player.setRank(Rank.NEWCOMER);
+                player.setCurrentInventory("survival");
                 
             }
         } catch (SQLException e) {
@@ -417,7 +418,7 @@ public class DBPlayerDAO implements IPlayerDAO
             
             try(ResultSet rs = stm.getResultSet()){
                 while(rs.next()){
-                    badges.put(Badge.fromString(rs.getString("badge_level")), rs.getInt("badge_level"));
+                    badges.put(Badge.fromString(rs.getString("badge_name")), rs.getInt("badge_level"));
                 }
             }
             
@@ -550,7 +551,7 @@ public class DBPlayerDAO implements IPlayerDAO
             throw new DAOException(sql, e);
         }
         loadFlags(player);
-        player.setBadges(getBadges(player));
+        //player.setBadges(getBadges(player));
         return player;
     }
     
@@ -582,7 +583,7 @@ public class DBPlayerDAO implements IPlayerDAO
             throw new DAOException(sql, e);
         }
         loadFlags(player);
-        player.setBadges(getBadges(player));
+        //player.setBadges(getBadges(player));
         return player;
     }
 }

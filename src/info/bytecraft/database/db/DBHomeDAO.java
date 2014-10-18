@@ -128,9 +128,9 @@ public class DBHomeDAO implements IHomeDAO
     public void setHome(BytecraftPlayer player, String name)
             throws DAOException
     {
-        String sql = "SELECT * FROM player_home WHERE player_name = ? AND home_name = ?";
+        String sql = "SELECT * FROM player_home WHERE player_id = ? AND home_name = ?";
         try(PreparedStatement stm = conn.prepareStatement(sql)){
-            stm.setString(1, player.getName());
+            stm.setInt(1, player.getId());
             stm.setString(2, name);
             stm.execute();
             
@@ -139,11 +139,11 @@ public class DBHomeDAO implements IHomeDAO
                 return;
             }else{
                 Location loc = player.getLocation();
-                sql = "INSERT INTO player_home (player_name, home_name, home_x, home_y, home_z, home_yaw, home_pitch, home_world) "
+                sql = "INSERT INTO player_home (player_id, home_name, home_x, home_y, home_z, home_yaw, home_pitch, home_world) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
                 
                 try(PreparedStatement stmt = conn.prepareStatement(sql)){
-                    stmt.setString(1, player.getName());
+                    stmt.setInt(1, player.getId());
                     stmt.setString(2, name);
                     stmt.setDouble(3, loc.getX());
                     stmt.setDouble(4, loc.getY());
@@ -167,7 +167,7 @@ public class DBHomeDAO implements IHomeDAO
             throws DAOException
     {
         String sql = "UPDATE player_home SET home_x = ?, home_y = ?, home_z = ?, "
-                + "home_yaw = ?, home_pitch = ?, home_world = ? WHERE player_name = ? AND home_name = ?";
+                + "home_yaw = ?, home_pitch = ?, home_world = ? WHERE player_id = ? AND home_name = ?";
         Location homeLoc = player.getLocation();
         try(PreparedStatement stm = conn.prepareStatement(sql)){
             stm.setDouble(1, homeLoc.getX());
@@ -176,7 +176,7 @@ public class DBHomeDAO implements IHomeDAO
             stm.setFloat(4, homeLoc.getYaw());
             stm.setFloat(5, homeLoc.getPitch());
             stm.setString(6, homeLoc.getWorld().getName());
-            stm.setString(7, player.getName());
+            stm.setInt(7, player.getId());
             stm.setString(8, name);
             stm.execute();
         }catch(SQLException e){
@@ -190,9 +190,9 @@ public class DBHomeDAO implements IHomeDAO
     public List<String> getHomeNames(BytecraftPlayer player) throws DAOException
     {
         List<String> names = Lists.newArrayList();
-        String sql = "SELECT * FROM player_home WHERE player_name = ?";
+        String sql = "SELECT * FROM player_home WHERE player_id = ?";
         try(PreparedStatement stm = conn.prepareStatement(sql)){
-            stm.setString(1, player.getName());
+            stm.setInt(1, player.getId());
             stm.execute();
             
             try(ResultSet rs = stm.getResultSet()){
@@ -212,9 +212,9 @@ public class DBHomeDAO implements IHomeDAO
     public void deleteHome(BytecraftPlayer player, String name)
             throws DAOException
     {
-        String sql = "DELETE FROM player_home WHERE player_name = ? AND home_name = ?";
+        String sql = "DELETE FROM player_home WHERE player_id = ? AND home_name = ?";
         try(PreparedStatement stm = conn.prepareStatement(sql)){
-            stm.setString(1, player.getName());
+            stm.setInt(1, player.getId());
             stm.setString(2, name);
             stm.execute();
         }catch(SQLException e){

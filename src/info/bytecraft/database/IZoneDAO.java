@@ -1,14 +1,15 @@
 package info.bytecraft.database;
 
+import java.util.List;
+import java.util.Map;
+
 import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.zones.Lot;
 import info.bytecraft.zones.Zone;
 import info.bytecraft.zones.Zone.Flag;
 import info.bytecraft.zones.Zone.Permission;
-import info.tregmine.quadtree.Rectangle;
 
-import java.util.List;
-import java.util.Map;
+import info.tregmine.quadtree.Rectangle;
 
 public interface IZoneDAO
 {
@@ -21,9 +22,9 @@ public interface IZoneDAO
     public Permission getUser(Zone zone, BytecraftPlayer player) throws DAOException;
     public void deleteZone(String name) throws DAOException;
     public void updateFlag(Zone zone, Flag flag, String value) throws DAOException;
-    public void addUser(Zone zone, String name, Permission perm) throws DAOException;
-    public void updateUser(Zone zone, String name, Permission perm) throws DAOException;
-    public boolean deleteUser(Zone zone, String name) throws DAOException;
+    public void addUser(Zone zone, BytecraftPlayer player, Permission perm) throws DAOException;
+    public void updateUser(Zone zone, BytecraftPlayer player, Permission perm) throws DAOException;
+    public boolean deleteUser(Zone zone, BytecraftPlayer player) throws DAOException;
     
     
     public List<Lot> getLots(String world) throws DAOException;
@@ -36,11 +37,11 @@ public interface IZoneDAO
 
     public void deleteLot(int lotId) throws DAOException;
 
-    public void addLotUser(int lotId, String name) throws DAOException;
+    public void addLotUser(int lotId, BytecraftPlayer player) throws DAOException;
 
     public void deleteLotUsers(int lotId) throws DAOException;
 
-    public void deleteLotUser(int lotId, String name) throws DAOException;
+    public void deleteLotUser(int lotId, BytecraftPlayer player) throws DAOException;
     
     public boolean lotExists(String zone, String name) throws DAOException;
 }

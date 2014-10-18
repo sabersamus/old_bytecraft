@@ -5,15 +5,6 @@ import static org.bukkit.ChatColor.*;
 import java.util.HashMap;
 import java.util.Map;
 
-import info.bytecraft.Bytecraft;
-import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.api.BytecraftPlayer.ChatState;
-import info.bytecraft.database.DAOException;
-import info.bytecraft.database.IContext;
-import info.bytecraft.database.IItemDAO;
-import info.bytecraft.database.ILogDAO;
-import info.bytecraft.database.IPlayerDAO;
-
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Server;
@@ -28,6 +19,11 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.PluginManager;
+
+import info.bytecraft.Bytecraft;
+import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.BytecraftPlayer.ChatState;
+import info.bytecraft.database.*;
 
 public class SellCommand extends AbstractCommand implements Listener
 {
@@ -196,7 +192,7 @@ public class SellCommand extends AbstractCommand implements Listener
                 ILogDAO log = ctx.getLogDAO();
 
                 pDao.give(player, bid);
-                log.insertTransactionLog("SERVER", player, bid);
+                log.insertTransactionLog(plugin.getPlayer(1), player, bid);
                 log.insertSellLog(player, bid);
 
                 player.sendMessage(BLUE + "[Sell] " + GOLD + bid

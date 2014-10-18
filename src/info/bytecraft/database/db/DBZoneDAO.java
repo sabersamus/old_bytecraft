@@ -11,6 +11,7 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.database.DAOException;
 import info.bytecraft.database.IZoneDAO;
@@ -24,10 +25,12 @@ import info.tregmine.quadtree.Rectangle;
 public class DBZoneDAO implements IZoneDAO
 {
     private Connection conn;
+    private Bytecraft plugin;
     
-    public DBZoneDAO(Connection conn)
+    public DBZoneDAO(Connection conn, Bytecraft plugin)
     {
         this.conn = conn;
+        this.plugin = plugin;
     }
     
     @Override
@@ -214,7 +217,7 @@ public class DBZoneDAO implements IZoneDAO
             stm.execute();
             try(ResultSet rs = stm.getResultSet()){
                 while(rs.next()){
-                    map.put(rs.getString("player_name"), 
+                    map.put(plugin.getPlayer(rs.getInt("player_id")).getName(), 
                             Permission.valueOf(rs.getString("player_perm").toUpperCase()));
                 }
             }
@@ -227,10 +230,10 @@ public class DBZoneDAO implements IZoneDAO
     public Permission getUser(Zone zone, BytecraftPlayer player)
     throws DAOException
     {
-        String sql = "SELECT * FROM zone_user WHERE zone_name = ? AND player_name = ?";
+        String sql = "SELECT * FROM zone_user WHERE zone_name = ? AND player_id = ?";
         try (PreparedStatement stm = conn.prepareStatement(sql)){
             stm.setString(1, zone.getName());
-            stm.setString(2, player.getName());
+            stm.setInt(2, player.getId());
             stm.execute();
             try(ResultSet rs = stm.getResultSet()){
                 if(rs.next()){
@@ -299,22 +302,22 @@ public class DBZoneDAO implements IZoneDAO
         }
     }
     
-    public void addUser(Zone zone, String name, Permission p)
+    public void addUser(Zone zone, BytecraftPlayer player, Permission p)
     throws DAOException
     {
-        String sql = "SELECT * FROM zone_user WHERE zone_name = ? AND player_name = ?";
+        String sql = "SELECT * FROM zone_user WHERE zone_name = ? AND player_id = ?";
         try (PreparedStatement stm = conn.prepareStatement(sql)){
             stm.setString(1, zone.getName());
-            stm.setString(2, name);
+            stm.setInt(2, player.getId());
             stm.execute();
             try(ResultSet rs = stm.getResultSet()){
                 if(rs.next()){
-                    updateUser(zone, name, p);
+                    updateUser(zone, player, p);
                 }else{
-                    sql = "INSERT INTO zone_user (zone_name, player_name, player_perm) VALUES (?, ?, ?)"; 
+                    sql = "INSERT INTO zone_user (zone_name, player_id, player_perm) VALUES (?, ?, ?)"; 
                     try(PreparedStatement stm1 = conn.prepareStatement(sql)){
                         stm1.setString(1, zone.getName());
-                        stm1.setString(2, name);
+                        stm1.setInt(2, player.getId());
                         stm1.setString(3, p.name().toLowerCase());
                         stm1.execute();
                     }
@@ -325,30 +328,30 @@ public class DBZoneDAO implements IZoneDAO
         }
     }
     
-    public void updateUser(Zone zone, String name, Permission p)
+    public void updateUser(Zone zone, BytecraftPlayer player, Permission p)
     throws DAOException
     {
-        String sql = "UPDATE zone_user SET player_perm = ? WHERE zone_name = ? AND player_name = ?";
+        String sql = "UPDATE zone_user SET player_perm = ? WHERE zone_name = ? AND player_id = ?";
         try (PreparedStatement stm = conn.prepareStatement(sql)){
             stm.setString(1, p.name().toLowerCase());
             stm.setString(2, zone.getName());
-            stm.setString(3, name);
+            stm.setInt(3, player.getId());
             stm.execute();
-            zone.addPermissions(name, p);
+            zone.addPermissions(player.getName(), p);
         }catch(SQLException e){
             throw new DAOException(sql, e);
         }
     }
     
-    public boolean deleteUser(Zone zone, String name)
+    public boolean deleteUser(Zone zone, BytecraftPlayer player)
     throws DAOException
     {
-        String sql = "DELETE FROM zone_user WHERE zone_name = ? AND player_name = ?";
+        String sql = "DELETE FROM zone_user WHERE zone_name = ? AND player_id = ?";
         try (PreparedStatement stm = conn.prepareStatement(sql)){
             stm.setString(1, zone.getName());
-            stm.setString(2, name);
+            stm.setInt(2, player.getId());
             stm.execute();
-            zone.removePermission(name);
+            zone.removePermission(player.getName());
         }catch(SQLException e){
             throw new DAOException(sql, e);
         }
@@ -444,7 +447,7 @@ public class DBZoneDAO implements IZoneDAO
 
             try (ResultSet rs = stmt.getResultSet()) {
                 while (rs.next()) {
-                    owners.add(rs.getString("player_name"));
+                    owners.add(plugin.getPlayer(rs.getInt("player_id")).getName());
                 }
             }
         } catch (SQLException e) {
@@ -498,14 +501,14 @@ public class DBZoneDAO implements IZoneDAO
     }
 
     @Override
-    public void addLotUser(int lotId, String name) throws DAOException
+    public void addLotUser(int lotId, BytecraftPlayer player) throws DAOException
     {
-        String sql = "INSERT INTO zone_lotuser (lot_id, player_name) ";
+        String sql = "INSERT INTO zone_lotuser (lot_id, player_id) ";
         sql += "VALUES (?,?)";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, lotId);
-            stmt.setString(2, name);
+            stmt.setInt(2, player.getId());
             stmt.execute();
         } catch (SQLException e) {
             throw new DAOException(sql, e);
@@ -526,13 +529,13 @@ public class DBZoneDAO implements IZoneDAO
     }
 
     @Override
-    public void deleteLotUser(int lotId, String name) throws DAOException
+    public void deleteLotUser(int lotId, BytecraftPlayer player) throws DAOException
     {
-        String sql = "DELETE FROM zone_lotuser WHERE lot_id = ? AND player_name = ?";
+        String sql = "DELETE FROM zone_lotuser WHERE lot_id = ? AND player_id = ?";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, lotId);
-            stmt.setString(2, name);
+            stmt.setInt(2, player.getId());
             stmt.execute();
         } catch (SQLException e) {
             throw new DAOException(sql, e);

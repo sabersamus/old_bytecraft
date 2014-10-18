@@ -31,20 +31,6 @@
 
 package info.bytecraft.listener;
 
-import info.bytecraft.Bytecraft;
-import info.bytecraft.api.BytecraftPlayer;
-import info.bytecraft.api.MathUtil;
-import info.bytecraft.api.SaleSign;
-import info.bytecraft.database.DAOException;
-import info.bytecraft.database.IContext;
-import info.bytecraft.database.ILogDAO;
-import info.bytecraft.database.IPlayerDAO;
-import info.bytecraft.database.ISaleSignDAO;
-import info.bytecraft.database.ISaleSignDAO.TransactionType;
-import info.bytecraft.zones.Lot;
-import info.bytecraft.zones.ZoneWorld;
-import info.tregmine.quadtree.Point;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -64,6 +50,17 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.material.MaterialData;
+
+import info.bytecraft.Bytecraft;
+import info.bytecraft.api.BytecraftPlayer;
+import info.bytecraft.api.MathUtil;
+import info.bytecraft.api.SaleSign;
+import info.bytecraft.database.*;
+import info.bytecraft.database.ISaleSignDAO.TransactionType;
+import info.bytecraft.zones.Lot;
+import info.bytecraft.zones.ZoneWorld;
+
+import info.tregmine.quadtree.Point;
 
 public class SaleSignListener implements Listener
 {
@@ -348,7 +345,7 @@ public class SaleSignListener implements Listener
                         long perc = MathUtil.percentage(cost, 5);
                         dao.give(seller, cost - perc);
                         ILogDAO log = dbCtx.getLogDAO();
-                        log.insertTransactionLog(player.getName(), seller,
+                        log.insertTransactionLog(player, seller,
                                 cost);
 
                         player.sendMessage(ChatColor.GREEN + "" + cost

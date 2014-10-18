@@ -149,7 +149,7 @@ public class BlessListener implements Listener
     public void onBlockPlace(BlockPlaceEvent event)
     {
         Block block = event.getBlockPlaced();
-        Map<Location, String> blessedBlocks = plugin.getBlessedBlocks();
+        Map<Location, Integer> blessedBlocks = plugin.getBlessedBlocks();
         if (block.getType() == Material.CHEST) {
             Player player = event.getPlayer();
 

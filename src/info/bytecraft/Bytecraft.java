@@ -34,6 +34,7 @@ import info.tregmine.quadtree.IntersectionException;
 public class Bytecraft extends JavaPlugin
 {
     private HashMap<String, BytecraftPlayer> players;
+    private HashMap<Integer, BytecraftPlayer> playersById;
     private IContextFactory contextFactory;
     
     private List<String> deathMessages;
@@ -41,7 +42,7 @@ public class Bytecraft extends JavaPlugin
     //private List<String> swordNames;
     //private Map<String, List<String>> armorNames;
     
-    private Map<Location, String> blessedBlocks;
+    private Map<Location, Integer> blessedBlocks;
     
     private LookupService lookup = null;
     
@@ -81,6 +82,7 @@ public class Bytecraft extends JavaPlugin
     public void onEnable()
     {
         players = Maps.newHashMap();
+        playersById = Maps.newHashMap();
         for (Player delegate : Bukkit.getOnlinePlayers()) {
             try {
                 addPlayer(delegate, delegate.getAddress().getAddress());
@@ -309,22 +311,24 @@ public class Bytecraft extends JavaPlugin
             IReportDAO reportDao = ctx.getReportDAO();
             //and this one
             List<PlayerReport> reports = reportDao.getReports(player);
-            for(PlayerReport report: reports){
-                Date validUntil = report.getValidUntil();
-                if (validUntil == null) {
-                    continue;
-                }
-                if (validUntil.getTime() < System.currentTimeMillis()) {
-                    continue;
-                }
-                
-                if (report.getAction() == PlayerReport.Action.SOFTWARN) {
-                    player.setFlag(Flag.SOFTWARNED, true);
-                }
-                else if (report.getAction() == PlayerReport.Action.HARDWARN) {
-                    player.setFlag(Flag.HARDWARNED, true);
-                }else if(report.getAction() == PlayerReport.Action.MUTE){
-                    player.setFlag(Flag.MUTE, true);
+            if(reports != null && !reports.isEmpty()){
+                for(PlayerReport report: reports){
+                    Date validUntil = report.getValidUntil();
+                    if (validUntil == null) {
+                        continue;
+                    }
+                    if (validUntil.getTime() < System.currentTimeMillis()) {
+                        continue;
+                    }
+                    
+                    if (report.getAction() == PlayerReport.Action.SOFTWARN) {
+                        player.setFlag(Flag.SOFTWARNED, true);
+                    }
+                    else if (report.getAction() == PlayerReport.Action.HARDWARN) {
+                        player.setFlag(Flag.HARDWARNED, true);
+                    }else if(report.getAction() == PlayerReport.Action.MUTE){
+                        player.setFlag(Flag.MUTE, true);
+                    }
                 }
             }
             
@@ -361,11 +365,17 @@ public class Bytecraft extends JavaPlugin
             logs.insertLogin(player, "login");
             
             players.put(player.getName(), player);
+            playersById.put(player.getId(), player);
             
             return player;
         }catch(DAOException e){
             throw new RuntimeException(e);
         }
+    }
+    
+    public BytecraftPlayer getPlayer(int id)
+    {
+        return playersById.get(id);
     }
 
     public void removePlayer(BytecraftPlayer player)
@@ -453,7 +463,7 @@ public class Bytecraft extends JavaPlugin
     // ===================== Bless ============================
     // ========================================================
     
-    public Map<Location, String> getBlessedBlocks()
+    public Map<Location, Integer> getBlessedBlocks()
     {
         return blessedBlocks;
     }
@@ -469,7 +479,7 @@ public class Bytecraft extends JavaPlugin
             return null;
         }
         
-        return getPlayerOffline(this.blessedBlocks.get(loc));
+        return getPlayer(blessedBlocks.get(loc));
     }
     
     public boolean blessBlock(Location loc, BytecraftPlayer owner)
@@ -478,7 +488,7 @@ public class Bytecraft extends JavaPlugin
             return false;
         }
         
-        this.blessedBlocks.put(loc, owner.getName());
+        this.blessedBlocks.put(loc, owner.getId());
         
         try(IContext ctx = createContext()){
             IBlessDAO dao = ctx.getBlessDAO();

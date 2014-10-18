@@ -1,25 +1,28 @@
 package info.bytecraft.database.db;
 
-import java.util.Date;
-import java.util.List;
-import java.util.ArrayList;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
-import info.bytecraft.database.IReportDAO;
+import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.api.PlayerReport;
 import info.bytecraft.database.DAOException;
+import info.bytecraft.database.IReportDAO;
 
 public class DBReportDAO implements IReportDAO
 {
     private Connection conn;
+    private Bytecraft plugin;
 
-    public DBReportDAO(Connection conn)
+    public DBReportDAO(Connection conn, Bytecraft plugin)
     {
         this.conn = conn;
+        this.plugin = plugin;
     }
 
     @Override
@@ -27,20 +30,23 @@ public class DBReportDAO implements IReportDAO
             throws DAOException
     {
         String sql = "SELECT * FROM player_report ";
-        sql += "WHERE subject_name = ? ";
+        sql += "WHERE subject_id = ? ";
         sql += "ORDER BY report_timestamp DESC";
 
         List<PlayerReport> reports = new ArrayList<PlayerReport>();
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, player.getName());
+            stmt.setInt(1, player.getId());
             stmt.execute();
 
             try (ResultSet rs = stmt.getResultSet()) {
                 while (rs.next()) {
                     PlayerReport report = new PlayerReport();
                     report.setId(rs.getInt("report_id"));
-                    report.setSubjectName(rs.getString("subject_name"));
+                    if(plugin.getPlayer(rs.getInt("subject_id")) == null){
+                        continue;
+                    }
+                    report.setSubjectName(plugin.getPlayer(rs.getInt("subject_id")).getName());
                     report.setIssuerName(rs.getString("issuer_name"));
                     report.setAction(PlayerReport.Action.fromString(rs
                             .getString("report_action")));
@@ -67,13 +73,13 @@ public class DBReportDAO implements IReportDAO
     public void insertReport(PlayerReport report) throws DAOException
     {
         String sql =
-                "INSERT INTO player_report (subject_name, issuer_name, "
+                "INSERT INTO player_report (subject_id, issuer_name, "
                         + "report_action, report_message, report_timestamp, report_validuntil) ";
         sql += "VALUES (?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setString(1, report.getSubjectName());
+            stmt.setInt(1, plugin.getPlayer(report.getSubjectName()).getId());
             stmt.setString(2, report.getIssuerName());
             PlayerReport.Action action = report.getAction();
             stmt.setString(3, action.toString());

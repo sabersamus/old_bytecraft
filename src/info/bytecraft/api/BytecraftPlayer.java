@@ -3,7 +3,6 @@ package info.bytecraft.api;
 import java.text.NumberFormat;
 import java.util.*;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -110,13 +109,13 @@ public class BytecraftPlayer extends PlayerDelegate
     }
 
 
-    public BytecraftPlayer(UUID uuid, Bytecraft plugin)
+    /*public BytecraftPlayer(UUID uuid, Bytecraft plugin)
     {
         super(Bukkit.getOfflinePlayer(uuid).getPlayer());
         this.flags = EnumSet.noneOf(Flag.class);
         this.plugin = plugin;
         this.badges = Maps.newHashMap();
-    }
+    }*/
 
 
     public String getName() { return name; }
@@ -622,5 +621,5 @@ public class BytecraftPlayer extends PlayerDelegate
             throw new RuntimeException(e);
         }
     }
-   
+    
 }

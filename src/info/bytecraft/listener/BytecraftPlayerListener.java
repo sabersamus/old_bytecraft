@@ -134,19 +134,11 @@ public class BytecraftPlayerListener implements Listener
             objective.setDisplaySlot(DisplaySlot.SIDEBAR);
             objective.setDisplayName(ChatColor.BLUE + "Welcome to Bytecraft!");
 
-            Objective health =
-                    board.registerNewObjective("showhealth", "health");
-            health.setDisplaySlot(DisplaySlot.BELOW_NAME);
-            health.setDisplayName("/ 20");
             String desc = ChatColor.AQUA + "Your balance:";
             Score score = objective.getScore(Bukkit.getOfflinePlayer(desc));
-            Score healthScore =
-                    health.getScore(Bukkit.getOfflinePlayer(player.getName()));
             score.setScore((int) player.getBalance());
-            healthScore.setScore((int) player.getHealth());
             try {
                 player.setScoreboard(board);
-                player.setHealth(player.getHealth() - 0.001);
                 ScoreboardClearTask.start(plugin, player);
             } catch (IllegalStateException e) {
                 // ignore
@@ -215,7 +207,7 @@ public class BytecraftPlayerListener implements Listener
                                         player.getTemporaryChatName()
                                                 + ChatColor.GRAY)
                                 .replaceAll("(?i)&([a-f0-9])", "\u00A7$1");
-
+        
         event.setQuitMessage(mess);
         plugin.removePlayer(player);
     }

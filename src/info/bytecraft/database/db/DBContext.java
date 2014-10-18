@@ -42,7 +42,7 @@ public class DBContext implements IContext
     @Override
     public ILogDAO getLogDAO()
     {
-        return new DBLogDAO(conn);
+        return new DBLogDAO(conn, plugin);
     }
     
     @Override
@@ -66,7 +66,7 @@ public class DBContext implements IContext
     @Override
     public IReportDAO getReportDAO()
     {
-        return new DBReportDAO(conn);
+        return new DBReportDAO(conn, plugin);
     }
     
     @Override
@@ -78,13 +78,13 @@ public class DBContext implements IContext
     @Override
     public IZoneDAO getZoneDAO()
     {
-        return new DBZoneDAO(conn);
+        return new DBZoneDAO(conn, plugin);
     }
 
     @Override
     public IInventoryDAO getInventoryDAO()
     {
-        return new DBInventoryDAO(conn);
+        return new DBInventoryDAO(conn, plugin);
     }
     
     @Override
@@ -96,7 +96,7 @@ public class DBContext implements IContext
     @Override
     public ISaleSignDAO getSaleSignDAO()
     {
-        return new DBSaleSignDAO(conn);
+        return new DBSaleSignDAO(conn, plugin);
     }
     
 

@@ -1,5 +1,13 @@
 package info.bytecraft.commands;
 
+import static org.bukkit.ChatColor.GREEN;
+import static org.bukkit.ChatColor.RED;
+
+import java.util.List;
+
+import org.bukkit.ChatColor;
+import org.bukkit.block.Block;
+
 import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.database.DAOException;
@@ -7,17 +15,11 @@ import info.bytecraft.database.IContext;
 import info.bytecraft.database.IZoneDAO;
 import info.bytecraft.zones.Lot;
 import info.bytecraft.zones.Zone;
-import info.bytecraft.zones.ZoneWorld;
 import info.bytecraft.zones.Zone.Permission;
+import info.bytecraft.zones.ZoneWorld;
+
 import info.tregmine.quadtree.IntersectionException;
 import info.tregmine.quadtree.Rectangle;
-
-import java.util.List;
-
-import static org.bukkit.ChatColor.*;
-
-import org.bukkit.block.Block;
-import org.bukkit.ChatColor;
 
 public class LotCommand extends AbstractCommand
 {
@@ -142,7 +144,7 @@ public class LotCommand extends AbstractCommand
             
             //zone.addLot(lot);
             dao.addLot(lot);
-            dao.addLotUser(lot.getId(), victim.getName());
+            dao.addLotUser(lot.getId(), victim);
 
             player.sendMessage(GREEN + "[" + zone.getName() + "] Lot "
                     + args[1] + "." + zone.getName() + " created for player "
@@ -218,7 +220,7 @@ public class LotCommand extends AbstractCommand
                 }
                 else {
                     lot.addOwner(candidate);
-                    dao.addLotUser(lot.getId(), candidate.getName());
+                    dao.addLotUser(lot.getId(), candidate);
                     player.sendMessage(GREEN + candidate.getDisplayName() + GREEN +
                             " has been added as owner of " + lot.getName() + ".");
                 }
@@ -231,7 +233,7 @@ public class LotCommand extends AbstractCommand
                 }
                 else {
                     lot.deleteOwner(candidate);
-                    dao.deleteLotUser(lot.getId(), candidate.getName());
+                    dao.deleteLotUser(lot.getId(), candidate);
 
                     player.sendMessage(GREEN + candidate.getDisplayName() + GREEN +
                             " is no longer an owner of " + lot.getName() + ".");

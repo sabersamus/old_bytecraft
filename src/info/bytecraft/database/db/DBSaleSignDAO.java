@@ -43,6 +43,7 @@ import org.bukkit.World;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.material.MaterialData;
 
+import info.bytecraft.Bytecraft;
 import info.bytecraft.api.BytecraftPlayer;
 import info.bytecraft.api.SaleSign;
 import info.bytecraft.database.DAOException;
@@ -51,10 +52,12 @@ import info.bytecraft.database.ISaleSignDAO;
 public class DBSaleSignDAO implements ISaleSignDAO
 {
     private Connection conn;
+    private Bytecraft plugin;
     
-    public DBSaleSignDAO(Connection conn)
+    public DBSaleSignDAO(Connection conn, Bytecraft plugin)
     {
         this.conn = conn;
+        this.plugin = plugin;
     }
     
     private String serializeEnchants(Map<Enchantment, Integer> enchants)
@@ -98,7 +101,7 @@ public class DBSaleSignDAO implements ISaleSignDAO
     @Override
     public void insert(SaleSign block) throws DAOException
     {
-        String sql = "INSERT INTO salesign (player_name, salesign_created, " +
+        String sql = "INSERT INTO salesign (player_id, salesign_created, " +
                 "salesign_material, salesign_data, salesign_enchantments, " +
                 "salesign_cost, salesign_inventory, salesign_world, " +
                 "salesign_blockx, salesign_blocky, salesign_blockz, " +
@@ -107,7 +110,7 @@ public class DBSaleSignDAO implements ISaleSignDAO
             sql += "VALUES (?, unix_timestamp(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             try (PreparedStatement stm = conn.prepareStatement(sql)) {
-                stm.setString(1, block.getPlayerName());
+                stm.setInt(1, plugin.getPlayer(block.getPlayerName()).getId());
                 stm.setInt(2, block.getMaterial().getItemTypeId());
                 stm.setInt(3, block.getMaterial().getData());
                 stm.setString(4, serializeEnchants(block.getEnchantments()));
@@ -140,7 +143,7 @@ public class DBSaleSignDAO implements ISaleSignDAO
     @Override
     public void update(SaleSign block) throws DAOException
     {
-        String sql = "UPDATE salesign SET player_name = ?, " +
+        String sql = "UPDATE salesign SET player_id = ?, " +
                 "salesign_material = ?, salesign_data = ?, " +
                 "salesign_enchantments = ?, salesign_cost = ?, " +
                 "salesign_inventory = ?, salesign_world = ?, " +
@@ -151,7 +154,7 @@ public class DBSaleSignDAO implements ISaleSignDAO
             sql += "WHERE salesign_id = ?";
 
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setString(1, block.getPlayerName());
+                stmt.setInt(1, plugin.getPlayer(block.getPlayerName()).getId());
                 stmt.setInt(2, block.getMaterial().getItemTypeId());
                 stmt.setInt(3, block.getMaterial().getData());
                 stmt.setString(4, serializeEnchants(block.getEnchantments()));
@@ -191,13 +194,13 @@ public class DBSaleSignDAO implements ISaleSignDAO
             TransactionType type, int amount) throws DAOException
     {
         String sql = "INSERT INTO salesign_transaction (salesign_id, " +
-                "player_name, transaction_type, transaction_timestamp, " +
+                "player_id, transaction_type, transaction_timestamp, " +
                 "transaction_amount, transaction_unitcost, transaction_totalcost) ";
             sql += "VALUES (?, ?, ?, unix_timestamp(), ?, ?, ?)";
 
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setInt(1, block.getId());
-                stmt.setString(2, player.getName());
+                stmt.setInt(2, player.getId());
                 stmt.setString(3, type.toString());
                 stmt.setInt(4, amount);
                 stmt.setInt(5, block.getCost());
@@ -240,7 +243,7 @@ public class DBSaleSignDAO implements ISaleSignDAO
             try (ResultSet rs = stmt.getResultSet()) {
                 while (rs.next()) {
                     int id = rs.getInt("salesign_id");
-                    String playerName = rs.getString("player_name");
+                    String playerName = plugin.getPlayer(rs.getInt("player_id")).getName();
 
                     int material = rs.getInt("salesign_material");
                     byte data = (byte)rs.getInt("salesign_data");
