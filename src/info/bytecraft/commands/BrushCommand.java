@@ -1,9 +1,10 @@
 package info.bytecraft.commands;
 
-import info.bytecraft.Bytecraft;
-import info.bytecraft.api.BytecraftPlayer;
+import static org.bukkit.ChatColor.GREEN;
+import static org.bukkit.ChatColor.RED;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import org.bukkit.Location;
@@ -18,7 +19,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.PluginManager;
 
-import static org.bukkit.ChatColor.*;
+import info.bytecraft.Bytecraft;
+import info.bytecraft.api.BytecraftPlayer;
 
 public class BrushCommand extends AbstractCommand implements Listener
 {
@@ -175,7 +177,7 @@ public class BrushCommand extends AbstractCommand implements Listener
             return;
         }
 
-        Location l = p.getDelegate().getTargetBlock(null, 0).getLocation();
+        Location l = p.getTargetBlock((HashSet<Byte>)null, 0).getLocation();
         plugin.getLogger().info("Brush " + i.get(1) + " at " + l);
         List<Block> sphere = makeSphere(l, radius);
 

@@ -4,6 +4,7 @@ import static org.bukkit.ChatColor.DARK_AQUA;
 import static org.bukkit.ChatColor.WHITE;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 
@@ -532,7 +533,7 @@ public class BytecraftPlayerListener implements Listener
         }
         else if (player.getRank() == Rank.NOBLE) {// this is very bad practice
 
-            Block target = player.getDelegate().getTargetBlock(null, 300);
+            Block target = player.getDelegate().getTargetBlock((HashSet<Byte>)null, 300);
             int top = world.getHighestBlockYAt(target.getLocation());
             Location loc =
                     new Location(player.getWorld(), target.getX() + 0.5, top,
