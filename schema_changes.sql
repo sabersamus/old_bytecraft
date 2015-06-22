@@ -26,3 +26,5 @@ ALTER TABLE `player` ADD COLUMN `player_inventory` varchar(32) DEFAULT NULL AFTE
 ALTER TABLE `player` ADD COLUMN `player_uuid` char(52) NOT NULL AFTER `player_name`;
 
 ALTER TABLE playerinventory_item ADD COLUMN item_durability INT;
+
+ALTER TABLE `zone` ADD `zone_inventory` ENUM('true', 'false') NOT NULL DEFAULT 'false' AFTER `zone_creative`;
