@@ -3,7 +3,7 @@
 	<taskdef
         name="delegategen"
         classname="info.tregmine.DelegateGenTask"
-        classpath="lib/delegate_gen.jar:lib/bukkit.jar" />
+        classpath="lib/delegate_gen.jar:lib/spigot.jar" />
 	
     <property name="src" value="src" />
     <property name="build" value="bin" />
@@ -58,7 +58,8 @@
                     lib/commons-pool-1.5.6.jar
                 	lib/javax.mail.jar
                 	lib/quadtree.jar
-                	lib/mojang_nbt.jar" />
+                	lib/mojang_nbt.jar
+                    lib/spigot.jar"/>
             </manifest>
         </jar>
     </target>
