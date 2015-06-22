@@ -556,18 +556,22 @@ public class DBPlayerDAO implements IPlayerDAO
     }
     
     @Override
-    public BytecraftPlayer getPlayerOffline(String name) throws DAOException
+    public BytecraftPlayer getPlayerOffline(String uuid) throws DAOException
     {
-        BytecraftPlayer player = new BytecraftPlayer(name, plugin);
+        BytecraftPlayer player;
         
-        String sql = "SELECT * FROM player WHERE player_name = ?";
+        String sql = "SELECT * FROM player WHERE player_uuid = ?";
         try (PreparedStatement stm = conn.prepareStatement(sql)) {
-            stm.setString(1, name);
+            stm.setString(1, uuid);
             stm.execute();
             try (ResultSet rs = stm.getResultSet()) {
                 if (!rs.next()) {
                     return null;
                 }
+                
+                String name = rs.getString("player_name");
+                
+                player = new BytecraftPlayer(name, plugin);
 
                 player.setId(rs.getInt("player_id"));
                 player.setRank(Rank.getRank(rs.getString("player_rank")));
