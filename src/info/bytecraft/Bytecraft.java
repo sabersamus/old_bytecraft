@@ -50,7 +50,7 @@ public class Bytecraft extends JavaPlugin
     private Map<String, Zone> zones;
     private Map<Location, SaleSign> saleSigns;
     
-    private World rolePlayWorld;
+    //private World rolePlayWorld;
     
     public void onLoad()
     {
@@ -166,7 +166,7 @@ public class Bytecraft extends JavaPlugin
         WorldCreator albion = new WorldCreator("albion");
         albion.environment(Environment.NORMAL);
         albion.type(WorldType.AMPLIFIED);
-        this.rolePlayWorld = albion.createWorld();
+        //this.rolePlayWorld = albion.createWorld();
     }
     
     public void onDisable()
@@ -539,10 +539,10 @@ public class Bytecraft extends JavaPlugin
         }
     }
     
-    public World getRolePlayWorld()
+    /*public World getRolePlayWorld()
     {
         return this.rolePlayWorld;
-    }
+    }*/
     
     public Location getWorldSpawn(String name)
     {
